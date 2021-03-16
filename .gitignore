@@ -1,0 +1,16 @@
+*.egg-info
+*.pyc
+*.rdb
+*.sqlite
+*.swo
+*.swp
+.coverage
+.DS_Store
+.idea
+.pytest
+.tox
+/coverage/
+MANIFEST
+postgres/
+.htmlcov/
+.vscode/
