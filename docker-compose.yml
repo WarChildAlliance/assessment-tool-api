@@ -21,7 +21,10 @@ services:
     ports:
       - 8002:8000
     environment:
-      ENV: local
+      - ENV=local
+      - POSTGRES_DB=main
+      - POSTGRES_USER=tester
+      - POSTGRES_PASSWORD=dD4567891
     depends_on:
       - db
 

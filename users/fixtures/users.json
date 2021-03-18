@@ -1,0 +1,118 @@
+[
+    {
+        "fields": {
+            "name": "Supervisor",
+            "permissions": []
+        },
+        "model": "auth.group",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "name": "Student",
+            "permissions": []
+        },
+        "model": "auth.group",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "country": "JOR",
+            "date_joined": "2021-03-17T14:46:20.821Z",
+            "email": "",
+            "first_name": "Harry",
+            "groups": 2,
+            "is_active": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "language": "ar",
+            "last_login": null,
+            "last_name": "Potter",
+            "password": "!5uBxgF72WGwrRukWmiIJGKcRdxKNyujGXvQWKEmA",
+            "user_permissions": [],
+            "username": "111111"
+        },
+        "model": "users.user",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "country": "JOR",
+            "date_joined": "2021-03-18T09:53:09.075Z",
+            "email": "",
+            "first_name": "Hermione",
+            "groups": 2,
+            "is_active": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "language": "ar",
+            "last_login": null,
+            "last_name": "Granger",
+            "password": "!xe9wUnO4QarDfkQ8rEnTnnxnTK5nKKcmZQONCAR3",
+            "user_permissions": [],
+            "username": "760681"
+        },
+        "model": "users.user",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "country": "JOR",
+            "date_joined": "2021-03-18T11:55:16.798Z",
+            "email": "",
+            "first_name": "Ron",
+            "groups": 2,
+            "is_active": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "language": "ar",
+            "last_login": null,
+            "last_name": "Weasley",
+            "password": "!hizU7tiIqkboVfwJHMt0wxUzx6XPVeE5qeVIBZCa",
+            "user_permissions": [],
+            "username": "247254"
+        },
+        "model": "users.user",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "country": "JOR",
+            "date_joined": "2021-03-18T12:00:18.963Z",
+            "email": "sirius.black@yopmail.com",
+            "first_name": "Sirius",
+            "groups": 1,
+            "is_active": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "language": "ar",
+            "last_login": null,
+            "last_name": "Black",
+            "password": "pbkdf2_sha256$216000$Y1iSdxsfc4Fw$3/gxJ3A8Ymdqx6Rc5wHmAXEsdxL/sSWefkWluVYb+OU=",
+            "user_permissions": [],
+            "username": "supervisor"
+        },
+        "model": "users.user",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "country": "JOR",
+            "date_joined": "2021-03-18T12:00:18.963Z",
+            "email": "remus.lupin@yopmail.com",
+            "first_name": "Remus",
+            "groups": 1,
+            "is_active": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "language": "ar",
+            "last_login": null,
+            "last_name": "Lupin",
+            "password": "pbkdf2_sha256$216000$Y1iSdxsfc4Fw$3/gxJ3A8Ymdqx6Rc5wHmAXEsdxL/sSWefkWluVYb+OU=",
+            "user_permissions": [],
+            "username": "supervisor2"
+        },
+        "model": "users.user",
+        "pk": 5
+    }
+]

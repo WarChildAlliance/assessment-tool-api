@@ -2,6 +2,10 @@
 
 ## Django Documentation
 
+## Run project
+
+    docker-compose up --build
+
 ### Install new packages
 
     docker-compose run --rm web pipenv install <package-name>
@@ -17,6 +21,10 @@
 ### Apply migrations
 
     docker-compose run --rm web python manage.py migrate
+
+### Load application roles
+
+    docker-compose run --rm web python manage.py loadroles
 
 ### Create superuser
 

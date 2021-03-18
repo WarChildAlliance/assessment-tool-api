@@ -14,3 +14,4 @@ MANIFEST
 postgres/
 .htmlcov/
 .vscode/
+admin/settings/local.py
