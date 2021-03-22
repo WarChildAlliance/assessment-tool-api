@@ -41,7 +41,7 @@ class CustomAuthToken(ObtainAuthToken):
         except ObjectDoesNotExist:
             return Response('Unknown user', status=400)
 
-        if user.groups and user.groups.name == 'Student':
+        if user.role and user.role == User.UserRole.STUDENT:
             token, created = Token.objects.get_or_create(user=user)
             return Response({
                 'token': token.key,
@@ -94,10 +94,10 @@ class UsersViewSet(ModelViewSet):
         """
         request_data = request.data.copy()
 
-        if request_data.get('group') == 'Student':
+        if request_data.get('role') == User.UserRole.STUDENT:
             request_data['username'] = student_key_generator()
 
-        if request_data.get('group') == 'Supervisor':
+        if request_data.get('role') == User.UserRole.SUPERVISOR:
             if not request_data.get('email'):
                 return Response('No email specified', status=400)
             request_data['username'] = request_data.get('email')

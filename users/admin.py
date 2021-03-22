@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import Group
 
 from .models import User
 
@@ -9,7 +10,7 @@ from .models import User
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = UserCreationForm.Meta.fields + ('groups', 'country', 'language')
+        fields = UserCreationForm.Meta.fields + ('role', 'country', 'language')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,29 +22,28 @@ class CustomUserCreationForm(UserCreationForm):
         Clean and validate form data
         """
         cleaned_data = self.cleaned_data
-        group = self.cleaned_data.get('groups')
-        if group.name == 'Supervisor' and self.cleaned_data.get('password1') == '':
+        role = self.cleaned_data.get('role')
+        if role == User.UserRole.SUPERVISOR and self.cleaned_data.get('password1') == '':
             raise forms.ValidationError('Password required for supervisors.')
-        if group.name == 'Student':
+        if role == User.UserRole.STUDENT:
             self.cleaned_data['password1'] = None
             self.cleaned_data['password2'] = None
         return cleaned_data
 
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ('first_name', 'last_name', 'username', 'groups',
+    list_display = ('first_name', 'last_name', 'username', 'role',
                     'country', 'language', 'is_staff',)
     list_display_links = ('username',)
-    list_filter = ('is_staff', 'groups', 'language', 'country',)
+    list_filter = ('is_staff', 'role', 'language', 'country',)
     search_fields = ('username', 'first_name', 'last_name', 'email',)
     ordering = ('username',)
-    filter_horizontal = ('user_permissions',)
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name',
                                       'email', 'country', 'language',)}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser',
-                                    'groups', 'user_permissions')}),
+                                    'role',)}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     add_form = CustomUserCreationForm
@@ -52,7 +52,7 @@ class CustomUserAdmin(UserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("username", "groups", "first_name", "last_name",
+                "fields": ("username", "role", "first_name", "last_name",
                            "password1", "password2", "country", "language"),
             },
         ),
@@ -60,3 +60,4 @@ class CustomUserAdmin(UserAdmin):
 
 
 admin.site.register(User, CustomUserAdmin)
+admin.site.unregister(Group)

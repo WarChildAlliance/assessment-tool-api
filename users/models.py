@@ -4,13 +4,19 @@ from django.db import models
 
 class User(AbstractUser):
     """
-    User model
+    User model.
     """
+    class UserRole(models.TextChoices):
+        """
+        User roles enumeration.
+        """
+        STUDENT = 'STUDENT', 'Student'
+        SUPERVISOR = 'SUPERVISOR', 'Supervisor'
 
-    groups = models.ForeignKey(
-        Group,
-        on_delete=models.CASCADE,
-        default=1
+    role = models.CharField(
+        max_length=32,
+        choices=UserRole.choices,
+        default=UserRole.SUPERVISOR
     )
 
     first_name = models.CharField(
@@ -33,13 +39,13 @@ class User(AbstractUser):
         """
         Checks user type
         """
-        return self.groups and self.groups.name == 'Student'
+        return self.role and self.role == self.UserRole.STUDENT
 
     def is_supervisor(self):
         """
         Checks user type
         """
-        return self.groups and self.groups.name == 'Supervisor'
+        return self.groups and self.role == self.UserRole.SUPERVISOR
 
     def __str__(self):
         return f'{self.get_full_name()} ({self.username})'

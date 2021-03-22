@@ -21,7 +21,8 @@ class UserSerializer(serializers.ModelSerializer):
         """
         Validate group field.
         """
-        if not self.instance and value != 'Student' and value != 'Supervisor':
+        if (not self.instance and value != User.UserRole.STUDENT
+                and value != User.UserRole.SUPERVISOR):
             raise serializers.ValidationError('Group must be Student or Supervisor.')
         
         return value
@@ -37,7 +38,7 @@ class UserSerializer(serializers.ModelSerializer):
         if self.instance and self.instance.is_student() and 'password' in data:
             raise serializers.ValidationError('Student cannot have a password.')
 
-        if (not self.instance and data['groups']['name'] == 'Supervisor' and
+        if (not self.instance and data['groups']['name'] == 'SUPERVISOR' and
                 (data['password'] is None or data['password'] == '')):
             raise serializers.ValidationError('Supervisor must have a password.')
 
@@ -49,7 +50,7 @@ class UserSerializer(serializers.ModelSerializer):
         """
         group_name = validated_data['groups']['name']
         validated_data['groups'] = Group.objects.get(name=group_name)
-        if group_name == 'Student':
+        if group_name == User.UserRole.STUDENT:
             validated_data['password'] = None
         return User.objects.create_user(**validated_data)
 
@@ -63,10 +64,7 @@ class UserSerializer(serializers.ModelSerializer):
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.language = validated_data.get('language', instance.language)
         instance.country = validated_data.get('country', instance.country)
-
-        if ('groups' in validated_data and
-                validated_data['groups']['name'] != instance.groups__name):
-            instance.groups = Group.objects.get(name=validated_data['groups']['name'])
+        instance.role = validated_data.get('role', instance.role)
 
         if instance.is_supervisor() and 'password' in validated_data:
             instance.set_password(validated_data.get('password'))

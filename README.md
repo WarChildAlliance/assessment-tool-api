@@ -22,10 +22,6 @@
 
     docker-compose run --rm web python manage.py migrate
 
-### Load application roles
-
-    docker-compose run --rm web python manage.py loadroles
-
 ### Create superuser
 
     docker-compose run --rm web python manage.py createsuperuser
