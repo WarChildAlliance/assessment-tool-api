@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import User, UserGroup
+from .models import User
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -59,10 +59,4 @@ class CustomUserAdmin(UserAdmin):
     )
 
 
-class UserGroupAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
-
-
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(UserGroup, UserGroupAdmin)

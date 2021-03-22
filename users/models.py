@@ -1,12 +1,12 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser, Group
+from django.db import models
 
 
 class User(AbstractUser):
     """
     User model
     """
-    
+
     groups = models.ForeignKey(
         Group,
         on_delete=models.CASCADE,
@@ -43,31 +43,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'{self.get_full_name()} ({self.username})'
-
-
-class UserGroup(models.Model):
-    """
-    User group
-    """
-
-    name = models.CharField(
-        max_length=256
-    )
-
-    managers = models.ManyToManyField(
-        User,
-        related_name="groups_manager",
-        limit_choices_to={'groups__name': 'Supervisor'}
-    )
-
-    members = models.ManyToManyField(
-        User,
-        related_name="groups_member",
-        limit_choices_to={'groups__name': 'Supervisor'}
-    )
-
-    students = models.ManyToManyField(
-        User,
-        related_name="groups_student",
-        limit_choices_to={'groups__name': 'Student'}
-    )
