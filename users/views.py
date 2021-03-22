@@ -98,6 +98,8 @@ class UsersViewSet(ModelViewSet):
             request_data['username'] = student_key_generator()
 
         if request_data.get('group') == 'Supervisor':
+            if not request_data.get('email'):
+                return Response('No email specified', status=400)
             request_data['username'] = request_data.get('email')
 
         serializer = self.get_serializer(data=request_data)

@@ -21,17 +21,26 @@ class UserSerializer(serializers.ModelSerializer):
         """
         Validate group field.
         """
-        if value != 'Student' and value != 'Supervisor':
+        if not self.instance and value != 'Student' and value != 'Supervisor':
             raise serializers.ValidationError('Group must be Student or Supervisor.')
+        
         return value
 
     def validate(self, data):
         """
-        Check that supervisors have a password.
+        Check that supervisors have a password, that student usernames cannot be changed
+        or have a set password.
         """
-        if ('groups' in data and data['groups']['name'] == 'Supervisor' and
+        if self.instance and self.instance.is_student() and 'username' in data:
+            raise serializers.ValidationError('Student code cannot be changed.')
+
+        if self.instance and self.instance.is_student() and 'password' in data:
+            raise serializers.ValidationError('Student cannot have a password.')
+
+        if (not self.instance and data['groups']['name'] == 'Supervisor' and
                 (data['password'] is None or data['password'] == '')):
             raise serializers.ValidationError('Supervisor must have a password.')
+
         return data
 
     def create(self, validated_data):
