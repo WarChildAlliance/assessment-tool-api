@@ -1,4 +1,3 @@
-from django.contrib.auth.models import Group
 from rest_framework import serializers
 
 from .models import User
@@ -9,23 +8,12 @@ class UserSerializer(serializers.ModelSerializer):
     User serializer.
     """
 
-    group = serializers.CharField(source='groups.name')
     password = serializers.CharField(required=False, allow_blank=True, write_only=True)
 
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'email',
-                  'password', 'last_login', 'group', 'language', 'country']
-
-    def validate_group(self, value):
-        """
-        Validate group field.
-        """
-        if (not self.instance and value != User.UserRole.STUDENT
-                and value != User.UserRole.SUPERVISOR):
-            raise serializers.ValidationError('Group must be Student or Supervisor.')
-        
-        return value
+                  'password', 'last_login', 'role', 'language', 'country']
 
     def validate(self, data):
         """
@@ -38,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
         if self.instance and self.instance.is_student() and 'password' in data:
             raise serializers.ValidationError('Student cannot have a password.')
 
-        if (not self.instance and data['groups']['name'] == 'SUPERVISOR' and
+        if (not self.instance and data['role'] == 'SUPERVISOR' and
                 (data['password'] is None or data['password'] == '')):
             raise serializers.ValidationError('Supervisor must have a password.')
 
@@ -48,9 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
         """
         Create a new user.
         """
-        group_name = validated_data['groups']['name']
-        validated_data['groups'] = Group.objects.get(name=group_name)
-        if group_name == User.UserRole.STUDENT:
+        if validated_data['role'] == User.UserRole.STUDENT:
             validated_data['password'] = None
         return User.objects.create_user(**validated_data)
 

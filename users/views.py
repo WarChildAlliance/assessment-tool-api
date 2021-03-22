@@ -71,8 +71,8 @@ class UsersViewSet(ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    filterset_fields = ['groups__name', 'country', 'language']
-    search_fields = ['first_name']
+    filterset_fields = ['role', 'country', 'language']
+    search_fields = ['first_name', 'last_name', 'username', 'role']
 
     def get_permissions(self):
         """

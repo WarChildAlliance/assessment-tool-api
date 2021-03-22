@@ -31,7 +31,7 @@ class SupervisorTests(APITestCase):
         """
         Ensure that supervisors can get the list of supervisors.
         """
-        url = reverse('user-list') + '?groups__name=Supervisor'
+        url = reverse('user-list') + '?role=SUPERVISOR'
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 2)
@@ -58,13 +58,13 @@ class SupervisorTests(APITestCase):
         """
         url = reverse('user-list')
         data = {'first_name': 'Neville', 'last_name': 'Longbottom', 'country': 'JOR',
-                'language': 'en', 'group': 'Student'}
+                'language': 'en', 'role': 'STUDENT'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertRegex(response.data['username'], r'\d{6,}')
         user = User.objects.get(id=response.data['id'])
         self.assertFalse(user.has_usable_password())
-        self.assertEqual(user.groups.name, 'Student')
+        self.assertTrue(user.is_student())
 
     def test_create_supervisor(self):
         """
@@ -72,13 +72,13 @@ class SupervisorTests(APITestCase):
         """
         url = reverse('user-list')
         data = {'first_name': 'Albus', 'last_name': 'Dumbledore', 'country': 'JOR', 'language': 'en',
-                'group': 'Supervisor', 'email': 'albus@yopmail.com', 'password': 'alohomora'}
+                'role': 'SUPERVISOR', 'email': 'albus@yopmail.com', 'password': 'alohomora'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertRegex(response.data['username'], 'albus@yopmail.com')
         user = User.objects.get(id=response.data['id'])
         self.assertTrue(user.has_usable_password())
-        self.assertEqual(user.groups.name, 'Supervisor')
+        self.assertTrue(user.is_supervisor())
 
     def test_edit_student(self):
         """
