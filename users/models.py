@@ -9,8 +9,7 @@ class User(AbstractUser):
 
     groups = models.ForeignKey(
         Group,
-        on_delete=models.CASCADE,
-        default=Group.objects.get(name="Supervisor").id
+        on_delete=models.CASCADE
     )
 
     first_name = models.CharField(
