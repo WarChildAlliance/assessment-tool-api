@@ -71,7 +71,7 @@ class UsersViewSet(ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    filterset_fields = ['role', 'country', 'language']
+    filterset_fields = ['role', 'country', 'language', 'created_by']
     search_fields = ['first_name', 'last_name', 'username', 'role']
 
     def get_permissions(self):
@@ -101,6 +101,8 @@ class UsersViewSet(ModelViewSet):
             if not request_data.get('email'):
                 return Response('No email specified', status=400)
             request_data['username'] = request_data.get('email')
+
+        request_data['created_by'] = request.user.id
 
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)

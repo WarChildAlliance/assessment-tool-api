@@ -9,7 +9,7 @@ class SupervisorTests(APITestCase):
     """
     User tests from a supervisor account.
     """
-    fixtures = ['users.json']
+    fixtures = ['languages_countries.json', 'users.json']
 
     def setUp(self):
         """
@@ -58,7 +58,7 @@ class SupervisorTests(APITestCase):
         """
         url = reverse('user-list')
         data = {'first_name': 'Neville', 'last_name': 'Longbottom', 'country': 'JOR',
-                'language': 'en', 'role': 'STUDENT'}
+                'language': 'ENG', 'role': 'STUDENT'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertRegex(response.data['username'], r'\d{6,}')
@@ -71,7 +71,7 @@ class SupervisorTests(APITestCase):
         Ensure that supervisors can create a supervisor.
         """
         url = reverse('user-list')
-        data = {'first_name': 'Albus', 'last_name': 'Dumbledore', 'country': 'JOR', 'language': 'en',
+        data = {'first_name': 'Albus', 'last_name': 'Dumbledore', 'country': 'JOR', 'language': 'ENG',
                 'role': 'SUPERVISOR', 'email': 'albus@yopmail.com', 'password': 'alohomora'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)

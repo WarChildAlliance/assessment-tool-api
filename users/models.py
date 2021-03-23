@@ -27,12 +27,22 @@ class User(AbstractUser):
         max_length=150
     )
 
-    language = models.CharField(
-        max_length=3
+    language = models.ForeignKey(
+        'Language',
+        on_delete=models.CASCADE
     )
 
-    country = models.CharField(
-        max_length=3
+    country = models.ForeignKey(
+        'Country',
+        on_delete=models.CASCADE
+    )
+
+    created_by = models.ForeignKey(
+        'User',
+        limit_choices_to={'role': UserRole.SUPERVISOR},
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
 
     def is_student(self):
@@ -49,3 +59,65 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'{self.get_full_name()} ({self.username})'
+
+
+class Language(models.Model):
+    """
+    Language model.
+    """
+
+    code = models.CharField(
+        max_length=3,
+        primary_key=True
+    )
+
+    name_en = models.CharField(
+        max_length=100,
+        verbose_name='English name'
+    )
+
+    name_local = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        verbose_name='Local name'
+    )
+
+    def __str__(self):
+        return self.name_en
+
+
+class Country(models.Model):
+    """
+    Country model.
+    """
+
+    code = models.CharField(
+        max_length=3,
+        primary_key=True
+    )
+
+    name_en = models.CharField(
+        max_length=100,
+        verbose_name='English name'
+    )
+
+    name_local = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        verbose_name='Local name'
+    )
+
+    language = models.ForeignKey(
+        Language,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        verbose_name_plural = 'Countries'
+
+    def __str__(self):
+        return self.name_en

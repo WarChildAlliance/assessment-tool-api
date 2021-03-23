@@ -1,0 +1,36 @@
+[
+    {
+        "fields": {
+            "name_en": "Arabic",
+            "name_local": "اَلْعَرَبِيَّةُ"
+        },
+        "model": "users.language",
+        "pk": "ARA"
+    },
+    {
+        "fields": {
+            "name_en": "English",
+            "name_local": null
+        },
+        "model": "users.language",
+        "pk": "ENG"
+    },
+    {
+        "fields": {
+            "language": "ARA",
+            "name_en": "Jordan",
+            "name_local": "الأردن‎"
+        },
+        "model": "users.country",
+        "pk": "JOR"
+    },
+    {
+        "fields": {
+            "language": "ENG",
+            "name_en": "United States",
+            "name_local": null
+        },
+        "model": "users.country",
+        "pk": "USA"
+    }
+]

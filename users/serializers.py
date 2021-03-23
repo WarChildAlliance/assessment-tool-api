@@ -13,7 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'email',
-                  'password', 'last_login', 'role', 'language', 'country']
+                  'password', 'last_login', 'role', 'language', 'country', 'created_by']
+        extra_kwargs = {'created_by': {'write_only': True}}
 
     def validate(self, data):
         """

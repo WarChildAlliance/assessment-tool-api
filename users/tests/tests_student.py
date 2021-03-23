@@ -9,7 +9,7 @@ class StudentTests(APITestCase):
     """
     User tests from a student account.
     """
-    fixtures = ['users.json']
+    fixtures = ['languages_countries.json', 'users.json']
 
     def setUp(self):
         """
@@ -57,7 +57,7 @@ class StudentTests(APITestCase):
         """
         url = reverse('user-list')
         data = {'first_name': 'Neville', 'last_name': 'Longbottom', 'country': 'JOR',
-                'language': 'en', 'role': 'STUDENT'}
+                'language': 'ENG', 'role': 'STUDENT'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 403)
     

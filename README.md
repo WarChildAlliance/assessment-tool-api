@@ -33,3 +33,7 @@
 ### Generate static files
 
     docker-compose run --rm web python manage.py collectstatic
+
+### Load languages and countries
+
+    docker-compose run --rm web python manage.py loadlanguagescountries
