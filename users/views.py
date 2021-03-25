@@ -7,8 +7,8 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 
+from admin.lib.viewsets import ModelViewSet
 from users.models import User
 from users.permissions import HasAccess, IsSupervisor
 from users.serializers import UserSerializer
@@ -66,7 +66,7 @@ class CustomAuthToken(ObtainAuthToken):
 
 class UsersViewSet(ModelViewSet):
     """
-    List all users.
+    Users viewset.
     """
 
     queryset = User.objects.all()
@@ -109,13 +109,6 @@ class UsersViewSet(ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
-
-    def update(self, request, pk=None, **kwargs):
-        """
-        Update a user (acts as partial_update).
-        """
-        kwargs['partial'] = True
-        return super().update(request, pk, **kwargs)
 
     @action(detail=True)
     def update_student_code(self, request, pk=None):
