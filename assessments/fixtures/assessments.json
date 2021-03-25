@@ -1,0 +1,196 @@
+[
+    {
+        "fields": {
+            "country": "FRA",
+            "created_by": null,
+            "grade": 4,
+            "language": "FRE",
+            "private": true,
+            "subject": "MATH",
+            "title": "Test Maths Assessment"
+        },
+        "model": "assessments.assessment",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "country": "USA",
+            "created_by": null,
+            "grade": 6,
+            "language": "ENG",
+            "private": false,
+            "subject": "LITERACY",
+            "title": "Test Literacy Assessment"
+        },
+        "model": "assessments.assessment",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "assessment": 1,
+            "name": "Test first topic for Maths",
+            "order": 1
+        },
+        "model": "assessments.assessmenttopic",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "assessment": 1,
+            "name": "Test second topic for Maths",
+            "order": 2
+        },
+        "model": "assessments.assessmenttopic",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "assessment": 2,
+            "name": "Test topic for Literacy",
+            "order": 1
+        },
+        "model": "assessments.assessmenttopic",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "assessment_topic": 3,
+            "hint": "Think for a sec please",
+            "title": "Is this a test Question Input ?",
+            "type": "INPUT"
+        },
+        "model": "assessments.question",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "assessment_topic": 1,
+            "hint": "Try harder",
+            "title": "Is this a test Question Select ?",
+            "type": "SELECT"
+        },
+        "model": "assessments.question",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "assessment_topic": 2,
+            "hint": "Do better",
+            "title": "Is this a test Question Sort ?",
+            "type": "SORT"
+        },
+        "model": "assessments.question",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "valid_answer": "For sure it is"
+        },
+        "model": "assessments.questioninput",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "multiple": true
+        },
+        "model": "assessments.questionselect",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "category_A": "Yes it is",
+            "category_B": "No it isn't"
+        },
+        "model": "assessments.questionsort",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "question_select": 2,
+            "valid": true,
+            "value": "Yes"
+        },
+        "model": "assessments.selectoption",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "question_select": 2,
+            "valid": true,
+            "value": "For sure"
+        },
+        "model": "assessments.selectoption",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "question_select": 2,
+            "valid": false,
+            "value": "Nope"
+        },
+        "model": "assessments.selectoption",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "category": "Yes it is",
+            "question_sort": 3,
+            "value": "So it is ?"
+        },
+        "model": "assessments.sortoption",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "category": "No it isn't",
+            "question_sort": 3,
+            "value": "So isn't it ?"
+        },
+        "model": "assessments.sortoption",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "link": "https://www.youtube.com/watch?v=0JjNuUJSpO8",
+            "question_id": 1,
+            "select_option_id": null,
+            "sort_option_id": null,
+            "type": "AUDIO"
+        },
+        "model": "assessments.attachment",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "link": "https://www.youtube.com/watch?v=w4LkSRXrK34",
+            "question_id": null,
+            "select_option_id": 1,
+            "sort_option_id": null,
+            "type": "AUDIO"
+        },
+        "model": "assessments.attachment",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "link": "https://www.youtube.com/watch?v=Lrj2Hq7xqQ8",
+            "question_id": null,
+            "select_option_id": null,
+            "sort_option_id": 2,
+            "type": "AUDIO"
+        },
+        "model": "assessments.attachment",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "link": "https://www.numerama.com/content/uploads/2020/09/never-gonna-give-you-up-clip.jpg",
+            "question_id": 2,
+            "select_option_id": null,
+            "sort_option_id": null,
+            "type": "IMAGE"
+        },
+        "model": "assessments.attachment",
+        "pk": 4
+    }
+]

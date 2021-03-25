@@ -30,6 +30,8 @@
 
     docker-compose run --rm web python manage.py test
 
+*Tip : Use* `--keepdb` *optional parameter at the end in order to use the same test database accross all tests*
+
 ### Generate static files
 
     docker-compose run --rm web python manage.py collectstatic
