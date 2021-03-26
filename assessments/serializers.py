@@ -77,8 +77,7 @@ class QuestionNumberLineSerializer(serializers.ModelSerializer):
     """
 
     class Meta:
-        QuestionNumberLine
-        model = QuestionSort
+        model = QuestionNumberLine
         fields = ('id', 'title', 'assessment_topic',
                   'type', 'hint', 'expected_value', 'start',
                   'end', 'step', 'show_value', 'show ticks')

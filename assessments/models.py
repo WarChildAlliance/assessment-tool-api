@@ -49,7 +49,7 @@ class Assessment(models.Model):
 
     def __str__(self):
         return f'{self.title}' \
-            f' ({self.subject} grade {self.grade}, {self.country} - )'
+            f' ({self.subject} grade {self.grade}, {self.country} - {self.language})'
 
 
 class AssessmentTopic(models.Model):
