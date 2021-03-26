@@ -1,6 +1,7 @@
 from django.db import models
 from users.models import User
 
+
 class Assessment(models.Model):
     """
     Assessment model.
@@ -48,7 +49,7 @@ class Assessment(models.Model):
 
     def __str__(self):
         return f'{self.title}' \
-            f' ({self.subject} grade {self.grade}, {self.country} - {self.language})'
+            f' ({self.subject} grade {self.grade}, {self.country} - )'
 
 
 class AssessmentTopic(models.Model):
@@ -83,6 +84,7 @@ class Question(models.Model):
         INPUT = 'INPUT', 'Input'
         SELECT = 'SELECT', 'Select'
         SORT = 'SORT', 'Sort'
+        NUMBER_LINE = 'NUMBER_LINE', 'Number line'
 
     title = models.CharField(
         max_length=256
@@ -145,6 +147,22 @@ class QuestionSort(Question):
     category_B = models.CharField(
         max_length=256
     )
+
+    def __str__(self):
+        return f'{self.title} ({self.question_type})'
+
+
+class QuestionNumberLine(Question):
+    """
+    Question number line model (inherits Question).
+    """
+
+    expected_value = models.IntegerField()
+    start = models.IntegerField()
+    end = models.IntegerField()
+    step = models.IntegerField()
+    show_ticks = models.BooleanField()
+    show_value = models.BooleanField()
 
     def __str__(self):
         return f'{self.title} ({self.question_type})'
