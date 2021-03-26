@@ -5,7 +5,7 @@ from . import views
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r'', views.UsersViewSet)
+router.register(r'', views.UsersViewSet, basename='user')
 
 urlpatterns = [
     path('token-auth/', views.CustomAuthToken.as_view()),

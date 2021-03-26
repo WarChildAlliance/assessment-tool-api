@@ -31,8 +31,8 @@ class CustomAuthToken(ObtainAuthToken):
 
     def post(self, request, *arg, **kwargs):
         """
-        Return user auth token, checking data is valid depending on group
-        Parameters: username, password (optional)
+        Return user auth token, checking data is valid depending on group.
+        Parameters: username, password (optional).
         """
         username = request.data.get('username')
 
@@ -69,10 +69,24 @@ class UsersViewSet(ModelViewSet):
     Users viewset.
     """
 
-    queryset = User.objects.all()
     serializer_class = UserSerializer
     filterset_fields = ['role', 'country', 'language', 'created_by']
     search_fields = ['first_name', 'last_name', 'username', 'role']
+
+    def get_queryset(self):
+        """
+        Queryset to get allowed users.
+        """
+        if self.action != 'list':
+            return User.objects.all()
+
+        user = self.request.user
+        if user.is_student():
+            return User.objects.filter(id=user.id)
+        if user.is_supervisor():
+            return User.objects.filter(created_by=user)
+      
+        return User.objects.all()
 
     def get_permissions(self):
         """

@@ -1,9 +1,9 @@
+import re
 from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
-
 from .models import User, Language, Country
 
 
@@ -26,8 +26,14 @@ class CustomUserCreationForm(UserCreationForm):
         if role == User.UserRole.SUPERVISOR and self.cleaned_data.get('password1') == '':
             raise forms.ValidationError('Password required for supervisors.')
         if role == User.UserRole.STUDENT:
+            pattern = re.compile("^\d{6,}$")
+            if not pattern.search(self.cleaned_data['username']):
+                raise forms.ValidationError('Username must be 6 digits.')
             self.cleaned_data['password1'] = None
             self.cleaned_data['password2'] = None
+            if (self.cleaned_data.get('language') is None 
+                    or self.cleaned_data.get('country') is None):
+                raise forms.ValidationError('Language and country required for students.')
         return cleaned_data
 
 
@@ -45,6 +51,7 @@ class CustomUserAdmin(UserAdmin):
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser',
                                     'role',)}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
+        ('Supervisor', {'fields': ('created_by',)}),
     )
     add_form = CustomUserCreationForm
     add_fieldsets = (

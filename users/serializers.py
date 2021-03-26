@@ -30,6 +30,10 @@ class UserSerializer(serializers.ModelSerializer):
         if (not self.instance and data['role'] == 'SUPERVISOR' and
                 (data['password'] is None or data['password'] == '')):
             raise serializers.ValidationError('Supervisor must have a password.')
+        
+        if (not self.instance and data['role'] == 'STUDENT' and 
+                (not 'country' in data or not 'language' in data)):
+            raise serializers.ValidationError('Student must have a language and a country')
 
         return data
 

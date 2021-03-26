@@ -20,12 +20,12 @@ class SupervisorTests(APITestCase):
 
     def test_get_all_users(self):
         """
-        Ensure that supervisors can get the list of users.
+        Ensure that supervisors can get the list of their users.
         """
         url = reverse('user-list')
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 5)
+        self.assertEqual(len(response.data), 2)
 
     def test_get_supervisors(self):
         """
@@ -34,7 +34,7 @@ class SupervisorTests(APITestCase):
         url = reverse('user-list') + '?role=SUPERVISOR'
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 0)
 
     def test_get_supervisor_self(self):
         """
