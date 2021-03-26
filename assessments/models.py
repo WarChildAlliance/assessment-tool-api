@@ -235,4 +235,4 @@ class Attachment(models.Model):
     )
 
     def __str__(self):
-        return f'[{self.type}] {self.link}'
+        return f'[{self.attachment_type}] {self.link}'

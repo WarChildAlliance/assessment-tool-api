@@ -56,8 +56,8 @@
         "fields": {
             "assessment_topic": 3,
             "hint": "Think for a sec please",
-            "title": "Is this a test Question Input ?",
-            "type": "INPUT"
+            "question_type": "INPUT",
+            "title": "Is this a test Question Input ?"
         },
         "model": "assessments.question",
         "pk": 1
@@ -66,8 +66,8 @@
         "fields": {
             "assessment_topic": 1,
             "hint": "Try harder",
-            "title": "Is this a test Question Select ?",
-            "type": "SELECT"
+            "question_type": "SELECT",
+            "title": "Is this a test Question Select ?"
         },
         "model": "assessments.question",
         "pk": 2
@@ -76,8 +76,8 @@
         "fields": {
             "assessment_topic": 2,
             "hint": "Do better",
-            "title": "Is this a test Question Sort ?",
-            "type": "SORT"
+            "question_type": "SORT",
+            "title": "Is this a test Question Sort ?"
         },
         "model": "assessments.question",
         "pk": 3
@@ -151,44 +151,44 @@
     },
     {
         "fields": {
+            "attachment_type": "AUDIO",
             "link": "https://www.youtube.com/watch?v=0JjNuUJSpO8",
             "question_id": 1,
             "select_option_id": null,
-            "sort_option_id": null,
-            "type": "AUDIO"
+            "sort_option_id": null
         },
         "model": "assessments.attachment",
         "pk": 1
     },
     {
         "fields": {
+            "attachment_type": "AUDIO",
             "link": "https://www.youtube.com/watch?v=w4LkSRXrK34",
             "question_id": null,
             "select_option_id": 1,
-            "sort_option_id": null,
-            "type": "AUDIO"
+            "sort_option_id": null
         },
         "model": "assessments.attachment",
         "pk": 2
     },
     {
         "fields": {
+            "attachment_type": "AUDIO",
             "link": "https://www.youtube.com/watch?v=Lrj2Hq7xqQ8",
             "question_id": null,
             "select_option_id": null,
-            "sort_option_id": 2,
-            "type": "AUDIO"
+            "sort_option_id": 2
         },
         "model": "assessments.attachment",
         "pk": 3
     },
     {
         "fields": {
+            "attachment_type": "IMAGE",
             "link": "https://www.numerama.com/content/uploads/2020/09/never-gonna-give-you-up-clip.jpg",
             "question_id": 2,
             "select_option_id": null,
-            "sort_option_id": null,
-            "type": "IMAGE"
+            "sort_option_id": null
         },
         "model": "assessments.attachment",
         "pk": 4
