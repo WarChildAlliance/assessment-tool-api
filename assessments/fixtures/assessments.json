@@ -84,6 +84,16 @@
     },
     {
         "fields": {
+            "assessment_topic": 1,
+            "hint": "Try again",
+            "question_type": "NUMBER_LINE",
+            "title": "On a 0 to 10 scale, where do you think is the average ?"
+        },
+        "model": "assessments.question",
+        "pk": 4
+    },
+    {
+        "fields": {
             "valid_answer": "For sure it is"
         },
         "model": "assessments.questioninput",
@@ -103,6 +113,18 @@
         },
         "model": "assessments.questionsort",
         "pk": 3
+    },
+    {
+        "fields": {
+            "expected_value": 5,
+            "start": 0,
+            "end": 10,
+            "step": 1,
+            "show_ticks": true,
+            "show_value": true
+        },
+        "model": "assessments.questionnumberline",
+        "pk": 4
     },
     {
         "fields": {

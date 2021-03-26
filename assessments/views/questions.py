@@ -1,11 +1,11 @@
 from admin.lib.viewsets import ModelViewSet
 
 from ..models import (Attachment, Question, QuestionInput, QuestionSelect,
-                      QuestionSort, SelectOption, SortOption)
+                      QuestionSort, QuestionNumberLine, SelectOption, SortOption)
 from ..serializers import (AttachmentSerializer, QuestionInputSerializer,
                            QuestionSelectSerializer, QuestionSerializer,
-                           QuestionSortSerializer, SelectOptionSerializer,
-                           SortOptionSerializer)
+                           QuestionSortSerializer, QuestionNumberLineSerializer,
+                           SelectOptionSerializer, SortOptionSerializer)
 
 
 class QuestionsViewSet(ModelViewSet):
@@ -43,6 +43,16 @@ class QuestionsSortViewSet(ModelViewSet):
 
     queryset = QuestionSort.objects.all()
     serializer_class = QuestionSortSerializer
+
+
+class QuestionsNumberLineViewSet(ModelViewSet):
+    """
+    Questions number line viewset.
+    """
+
+    queryset = QuestionNumberLine.objects.all()
+    serializer_class = QuestionNumberLineSerializer
+
 
 class SelectOptionsViewSet(ModelViewSet):
     """
