@@ -46,6 +46,7 @@ class QuestionsSortViewSet(ModelViewSet):
     queryset = QuestionSort.objects.all()
     serializer_class = QuestionSortSerializer
 
+
 class SelectOptionsViewSet(ModelViewSet):
     """
     Select options viewset.
@@ -77,4 +78,7 @@ class AttachmentsViewSet(ModelViewSet):
     serializer_class = AttachmentSerializer
 
     def list_for_question(self, request, pk=None):
-        return Response("You retrieved attachments for question %s" % (pk))
+
+        responseAttachments = Attachment.objects.filter(question_id=pk)
+        serializer = AttachmentSerializer(responseAttachments, many=True)
+        return Response(serializer.data)
