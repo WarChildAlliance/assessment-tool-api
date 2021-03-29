@@ -35,7 +35,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ('id', 'title', 'assessment_topic',
-                  'type', 'hint')
+                  'question_type', 'hint')
 
 
 class QuestionInputSerializer(serializers.ModelSerializer):
@@ -78,7 +78,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Attachment
-        fields = ('id', 'type', 'link', 'question_id',
+        fields = ('id', 'attachment_type', 'link', 'question_id',
                   'select_option_id', 'sort_option_id')
 
 

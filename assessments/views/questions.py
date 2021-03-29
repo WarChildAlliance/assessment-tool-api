@@ -1,4 +1,6 @@
 from admin.lib.viewsets import ModelViewSet
+from rest_framework.response import Response
+
 
 from ..models import (Attachment, Question, QuestionInput, QuestionSelect,
                       QuestionSort, SelectOption, SortOption)
@@ -15,7 +17,7 @@ class QuestionsViewSet(ModelViewSet):
 
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    filterset_fields = ['type']
+    filterset_fields = ['question_type']
     search_fields = ['title', 'hint']
 
 
@@ -73,3 +75,6 @@ class AttachmentsViewSet(ModelViewSet):
 
     queryset = Attachment.objects.all()
     serializer_class = AttachmentSerializer
+
+    def list_for_question(self, request, pk=None):
+        return Response("You retrieved attachments for question %s" % (pk))
