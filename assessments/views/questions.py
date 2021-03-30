@@ -7,6 +7,9 @@ from ..serializers import (AttachmentSerializer, QuestionInputSerializer,
                            QuestionSortSerializer, QuestionNumberLineSerializer,
                            SelectOptionSerializer, SortOptionSerializer)
 
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+
 
 class QuestionsViewSet(ModelViewSet):
     """
@@ -15,8 +18,22 @@ class QuestionsViewSet(ModelViewSet):
 
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    filterset_fields = ['type']
+    filterset_fields = ['question_type']
     search_fields = ['title', 'hint']
+    
+    def list(self, request):
+        print('this is a list')
+        print(request)
+        return Response(QuestionSerializer(self.queryset, many=True).data)
+
+
+    def retrieve(self, request, pk=None):
+        print('this is a retrieve')
+        print(request)
+        question = get_object_or_404(self.queryset, pk=pk)
+        return Response(serializer_class(question).data)
+
+
 
 
 class QuestionsInputViewSet(ModelViewSet):

@@ -11,7 +11,7 @@ class AssessmentsViewSet(ModelViewSet):
 
     queryset = Assessment.objects.all()
     serializer_class = AssessmentSerializer
-    filterset_fields = ['grade', 'private', 'country', 'language', 'subject']
+    filterset_fields = ['id', 'grade', 'private', 'country', 'language', 'subject']
     search_fields = ['title', 'subject']
 
 
