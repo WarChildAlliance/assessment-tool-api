@@ -1,6 +1,7 @@
 from django.db import models
 from users.models import User
 
+
 class Assessment(models.Model):
     """
     Assessment model.
@@ -69,6 +70,29 @@ class AssessmentTopic(models.Model):
 
     def __str__(self):
         return f'{self.name} ({self.assessment.id})'
+
+
+class AssessmentTopicAccess(models.Model):
+    """
+    Assessment topic access model.
+    """
+
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    student = models.ForeignKey(
+        'users.User',
+        limit_choices_to={'role': User.UserRole.STUDENT},
+        on_delete=models.CASCADE,
+    )
+
+    topic = models.ForeignKey(
+        'AssessmentTopic',
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return f'{self.student} has access to {self.topic} from  {self.start_date} to  {self.end_date}'
 
 
 class Question(models.Model):
