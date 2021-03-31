@@ -1,11 +1,11 @@
 from admin.lib.viewsets import ModelViewSet
 from rest_framework.response import Response
+from django.db.models import Q
 
 from ..models import Assessment, AssessmentTopic
 from ..serializers import AssessmentSerializer, AssessmentTopicSerializer
 
 from users.models import User
-
 
 
 class AssessmentsViewSet(ModelViewSet):
@@ -21,11 +21,13 @@ class AssessmentsViewSet(ModelViewSet):
         """
         Queryset to get allowed assessments
         """
+        # Student can access assessments dont il a au moins un topic
         user = self.request.user
-        if user.is_supervisor():
-            return Assessment.objects.all()
-      
-        return Assessment.objects.filter(private=False)
+        if not user.is_supervisor():
+            return Assessment.objects.filter(private=False)
+
+        # Using Q in order to filter with a NOT condition
+        return Assessment.objects.exclude(~Q(created_by=user), Q(private=True))
 
     def retrieve(self, request, pk=None):
 
@@ -33,6 +35,7 @@ class AssessmentsViewSet(ModelViewSet):
         serializer = AssessmentSerializer(responseAssessment, many=True)
 
         return Response(serializer.data)
+
 
 class AssessmentTopicsViewSet(ModelViewSet):
     """
@@ -43,3 +46,7 @@ class AssessmentTopicsViewSet(ModelViewSet):
     serializer_class = AssessmentTopicSerializer
     filterset_fields = ['name', 'order', 'assessment']
     search_fields = ['name']
+
+    # TODO Get AssessmentTopicAccess linked to student, get AssessmentTopic linked to access, get Assessments
+    def accessible_assessments_for_student(self,request, pk=None):
+        return Assessment.objects.all()
