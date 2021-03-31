@@ -2,7 +2,7 @@ from admin.lib.viewsets import ModelViewSet
 from rest_framework.response import Response
 from django.db.models import Q
 
-from ..models import Assessment, AssessmentTopic
+from ..models import Assessment, AssessmentTopic, AssessmentTopicAccess
 from ..serializers import AssessmentSerializer, AssessmentTopicSerializer
 
 from users.models import User
@@ -21,7 +21,7 @@ class AssessmentsViewSet(ModelViewSet):
         """
         Queryset to get allowed assessments
         """
-        # Student can access assessments dont il a au moins un topic
+        # Student can access assessments if they're linked to at least one of its topid
         user = self.request.user
         if not user.is_supervisor():
             return Assessment.objects.filter(private=False)
@@ -31,10 +31,24 @@ class AssessmentsViewSet(ModelViewSet):
 
     def retrieve(self, request, pk=None):
 
-        responseAssessment = self.get_queryset().filter(pk=pk)
-        serializer = AssessmentSerializer(responseAssessment, many=True)
+        response_assessment = self.get_queryset().filter(pk=pk)
+        serializer = AssessmentSerializer(response_assessment, many=True)
 
         return Response(serializer.data)
+
+    def accessible_assessments_for_student(self, request, pk=None):
+        user = self.request.user
+        if user.is_student():
+
+            accessible_assessments_for_student = set()
+            for assessment_topic_access in AssessmentTopicAccess.objects.filter(student=user):
+                accessible_assessments_for_student.add(
+                    assessment_topic_access.topic.assessment)
+
+            serialized_data = AssessmentSerializer(
+                accessible_assessments_for_student, many=True)
+
+            return Response(serialized_data.data)
 
 
 class AssessmentTopicsViewSet(ModelViewSet):
@@ -46,7 +60,3 @@ class AssessmentTopicsViewSet(ModelViewSet):
     serializer_class = AssessmentTopicSerializer
     filterset_fields = ['name', 'order', 'assessment']
     search_fields = ['name']
-
-    # TODO Get AssessmentTopicAccess linked to student, get AssessmentTopic linked to access, get Assessments
-    def accessible_assessments_for_student(self,request, pk=None):
-        return Assessment.objects.all()

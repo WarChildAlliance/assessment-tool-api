@@ -91,6 +91,9 @@ class AssessmentTopicAccess(models.Model):
         on_delete=models.CASCADE,
     )
 
+    class Meta:
+        verbose_name_plural = 'Assessment topics access'
+
     def __str__(self):
         return f'{self.student} has access to {self.topic} from  {self.start_date} to  {self.end_date}'
 
