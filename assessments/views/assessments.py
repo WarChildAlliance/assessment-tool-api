@@ -13,7 +13,6 @@ class AssessmentsViewSet(ModelViewSet):
     Assessments viewset.
     """
 
-    #queryset = Assessment.objects.all()
     serializer_class = AssessmentSerializer
     filterset_fields = ['grade', 'private', 'country', 'language', 'subject']
     search_fields = ['title', 'subject']
@@ -22,10 +21,6 @@ class AssessmentsViewSet(ModelViewSet):
         """
         Queryset to get allowed assessments
         """
-        if self.action != 'list':
-            return Assessment.objects.all()
-        # Deleting this should only prevent the students to retrieve a specifi assessment, but it prevents the supervisor too, why ?
-
         user = self.request.user
         if user.is_supervisor():
             return Assessment.objects.all()
