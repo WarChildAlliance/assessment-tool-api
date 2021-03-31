@@ -37,15 +37,8 @@ question_detail_for_assessment_topic = views.QuestionsViewSet.as_view({
     'get': 'question_detail_for_assessment_topic'
 })
 
-accessible_assessments_for_student = views.AssessmentsViewSet.as_view({
-    'get': 'accessible_assessments_for_student'
-})
-
-
-
 urlpatterns = [
     path('', assessments_list, name='assessments-list'),
-    path('accessible_assessments/', accessible_assessments_for_student, name='accessible_assessments_for_student'),
     path('<int:pk>/', assessments_detail, name='assessments-detail'),
     path('questions/', questions_list, name='questions-list'),
     path('<int:assessment_pk>/topic/<int:topic_pk>/questions/', questions_list_for_assessment_topic, name='questions-list-for-assessment-topic'),

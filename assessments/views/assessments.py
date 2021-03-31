@@ -24,6 +24,11 @@ class AssessmentsViewSet(ModelViewSet):
         # Student can access assessments if they're linked to at least one of its topid
         user = self.request.user
         if not user.is_supervisor():
+            if user.is_student():
+                accessible_assessments_for_student = []
+                for assessment_topic_access in AssessmentTopicAccess.objects.filter(student=user):
+                    accessible_assessments_for_student.append(assessment_topic_access.topic.assessment.id)
+                return Assessment.objects.filter(id__in=accessible_assessments_for_student).distinct()
             return Assessment.objects.filter(private=False)
 
         # Using Q in order to filter with a NOT condition
@@ -35,20 +40,6 @@ class AssessmentsViewSet(ModelViewSet):
         serializer = AssessmentSerializer(response_assessment, many=True)
 
         return Response(serializer.data)
-
-    def accessible_assessments_for_student(self, request, pk=None):
-        user = self.request.user
-        if user.is_student():
-
-            accessible_assessments_for_student = set()
-            for assessment_topic_access in AssessmentTopicAccess.objects.filter(student=user):
-                accessible_assessments_for_student.add(
-                    assessment_topic_access.topic.assessment)
-
-            serialized_data = AssessmentSerializer(
-                accessible_assessments_for_student, many=True)
-
-            return Response(serialized_data.data)
 
 
 class AssessmentTopicsViewSet(ModelViewSet):
