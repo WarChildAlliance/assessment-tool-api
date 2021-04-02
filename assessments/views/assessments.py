@@ -2,8 +2,8 @@ from admin.lib.viewsets import ModelViewSet
 from rest_framework.response import Response
 from django.db.models import Q
 
-from ..models import Assessment, AssessmentTopic, AssessmentTopicAccess
-from ..serializers import AssessmentSerializer, AssessmentTopicSerializer
+from ..models import Assessment, AssessmentTopic, AssessmentTopicAccess, Question
+from ..serializers import AssessmentSerializer, AssessmentTopicSerializer, QuestionSerializer
 
 from users.models import User
 
@@ -40,6 +40,43 @@ class AssessmentsViewSet(ModelViewSet):
         serializer = AssessmentSerializer(response_assessment, many=True)
 
         return Response(serializer.data)
+    
+    def topics_per_assessment(self, request, pk=None, **kwargs):        
+        assessment_id = kwargs['assessment_id']
+
+        # Check if the user has access to assessment
+        if self.get_queryset().filter(id=assessment_id).exists():
+            assessment = self.get_queryset().filter(id=assessment_id)
+            topics_response = AssessmentTopic.objects.filter(assessment=assessment[0])
+            serializer = AssessmentTopicSerializer(topics_response, many=True)
+            return Response(serializer.data)
+        
+        return Response('You dont have access to this assessment', status=403)
+    
+    def questions_list_for_assessment_topic(self, request, pk=None, **kwargs):
+        user = self.request.user
+        assessment_id = kwargs['assessment_id']
+        assessment = self.get_queryset().filter(id=assessment_id)
+        topic_id = kwargs['topic_id']
+        topic = AssessmentTopic.objects.filter(id=topic_id)
+
+        if user.is_student():
+            # Check if the student has access to this topic
+            if AssessmentTopicAccess.objects.filter(topic=topic[0]).exists():
+                accessible_topic = AssessmentTopicAccess.objects.filter(topic=topic[0]).exists()
+                questions_response = Question.objects.filter(assessment_topic=topic[0])
+                serializer = QuestionSerializer(questions_response, many=True)
+                return Response(serializer.data)
+            else:
+                return Response('You dont have access to this assessment', status=403)
+        
+        if user.is_supervisor:
+            if assessment.exists():
+                questions_response = Question.objects.filter(assessment_topic=topic[0])
+                serializer = QuestionSerializer(questions_response, many=True)
+                return Response(serializer.data)
+            else:
+                return Response('You dont have access to this assessment', status=403)
 
 
 class AssessmentTopicsViewSet(ModelViewSet):

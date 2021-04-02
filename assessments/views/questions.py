@@ -3,7 +3,7 @@ from rest_framework.response import Response
 
 
 from ..models import (Attachment, Question, QuestionInput, QuestionSelect,
-                      QuestionSort, SelectOption, SortOption)
+                      QuestionSort, SelectOption, SortOption, AssessmentTopic, AssessmentTopicAccess)
 from ..serializers import (AttachmentSerializer, QuestionInputSerializer,
                            QuestionSelectSerializer, QuestionSerializer,
                            QuestionSortSerializer, SelectOptionSerializer,
@@ -19,6 +19,15 @@ class QuestionsViewSet(ModelViewSet):
     serializer_class = QuestionSerializer
     filterset_fields = ['question_type']
     search_fields = ['title', 'hint']
+
+    def retrieve(self, request, pk=None, **kwargs):
+
+        question_id = kwargs['question_id']
+        response_question = self.get_queryset().filter(id=question_id)
+        serializer = QuestionSerializer(response_question, many=True)
+
+        return Response(serializer.data)
+    
 
 
 class QuestionsInputViewSet(ModelViewSet):
