@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'django_filters',
     'assessments.apps.AssessmentsConfig',
     'users.apps.UsersConfig',
+    'answers.apps.AnswersConfig',
 ]
 
 MIDDLEWARE = [
