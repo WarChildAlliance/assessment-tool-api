@@ -1,13 +1,18 @@
 from admin.lib.viewsets import ModelViewSet
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 
 from ..models import (Attachment, Question, QuestionInput, QuestionSelect,
-                      QuestionSort, SelectOption, SortOption, AssessmentTopic, AssessmentTopicAccess)
+                      QuestionSort, SelectOption, SortOption, AssessmentTopic, AssessmentTopicAccess, Assessment)
 from ..serializers import (AttachmentSerializer, QuestionInputSerializer,
                            QuestionSelectSerializer, QuestionSerializer,
                            QuestionSortSerializer, SelectOptionSerializer,
-                           SortOptionSerializer)
+                           SortOptionSerializer, AssessmentSerializer)
+
+from .assessments import AssessmentsViewSet
+
+from users.models import User
 
 
 class QuestionsViewSet(ModelViewSet):
@@ -88,6 +93,23 @@ class AttachmentsViewSet(ModelViewSet):
 
     def list_for_question(self, request, pk=None):
 
-        responseAttachments = Attachment.objects.filter(question_id=pk)
-        serializer = AttachmentSerializer(responseAttachments, many=True)
-        return Response(serializer.data)
+        if self.request.user.is_student():
+
+            # Fetch the question we want the attachments from
+            requested_question = Question.objects.get(pk=pk)
+
+            requested_assessment = requested_question.assessment_topic.assessment
+
+            accessible_assessments = AssessmentsViewSet.get_queryset(self)
+
+            requested_question_is_accessible = accessible_assessments.filter(id=requested_assessment.id).exists()
+
+            if (requested_question_is_accessible):
+
+                response_attachments = Attachment.objects.filter(question_id=pk)
+                serializer = AttachmentSerializer(response_attachments, many=True)
+
+                return Response(serializer.data)
+
+            return Response('You dont have access to this assessment', status=403)
+
