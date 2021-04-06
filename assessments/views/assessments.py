@@ -103,12 +103,11 @@ class AssessmentsViewSet(ModelViewSet):
 
                 questions_response = get_object_or_404(Question.objects.all(), id=kwargs['question_id'])
                 serializer = QuestionSerializer(questions_response, many=False)
-                
+
                 return Response(serializer.data)
             else:
                 return Response('You dont have access to this assessment', status=403)
         
-
 
 class AssessmentTopicsViewSet(ModelViewSet):
     """
