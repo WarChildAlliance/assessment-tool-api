@@ -1,8 +1,9 @@
 from django.contrib import admin
 
 from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question,
-                     QuestionInput, QuestionSelect, QuestionSort, SelectOption,
-                     SortOption)
+                     QuestionInput, QuestionSelect, QuestionSort, QuestionNumberLine,
+                     SelectOption, SortOption)
+
 
 admin.site.register(Assessment, admin.ModelAdmin)
 admin.site.register(AssessmentTopic, admin.ModelAdmin)

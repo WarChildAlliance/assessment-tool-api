@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from .models import (Assessment, AssessmentTopic, Attachment, Question,
-                     QuestionInput, QuestionSelect, QuestionSort, SelectOption,
-                     SortOption)
+                     QuestionInput, QuestionSelect, QuestionSort,
+                     QuestionNumberLine, SelectOption, SortOption)
 
 
 class AssessmentSerializer(serializers.ModelSerializer):
@@ -69,6 +69,18 @@ class QuestionSortSerializer(serializers.ModelSerializer):
         model = QuestionSort
         fields = ('id', 'title', 'assessment_topic',
                   'type', 'hint', 'category_A', 'category_B')
+
+
+class QuestionNumberLineSerializer(serializers.ModelSerializer):
+    """
+    Question number line serializer.
+    """
+
+    class Meta:
+        model = QuestionNumberLine
+        fields = ('id', 'title', 'assessment_topic',
+                  'type', 'hint', 'expected_value', 'start',
+                  'end', 'step', 'show_value', 'show ticks')
 
 
 class AttachmentSerializer(serializers.ModelSerializer):

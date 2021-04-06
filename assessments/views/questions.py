@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404
 
 
 from ..models import (Attachment, Question, QuestionInput, QuestionSelect,
-                      QuestionSort, SelectOption, SortOption, AssessmentTopic, AssessmentTopicAccess, Assessment)
-from ..serializers import (AttachmentSerializer, QuestionInputSerializer,
+                      QuestionSort, QuestionNumberLine, SelectOption, SortOption, AssessmentTopic, AssessmentTopicAccess, Assessment)
+from ..serializers import (AttachmentSerializer, QuestionInputSerializer, QuestionNumberLineSerializer,
                            QuestionSelectSerializer, QuestionSerializer,
                            QuestionSortSerializer, SelectOptionSerializer,
                            SortOptionSerializer, AssessmentSerializer)
@@ -59,6 +59,15 @@ class QuestionsSortViewSet(ModelViewSet):
 
     queryset = QuestionSort.objects.all()
     serializer_class = QuestionSortSerializer
+
+
+class QuestionsNumberLineViewSet(ModelViewSet):
+    """
+    Questions number line viewset.
+    """
+
+    queryset = QuestionNumberLine.objects.all()
+    serializer_class = QuestionNumberLineSerializer
 
 
 class SelectOptionsViewSet(ModelViewSet):
