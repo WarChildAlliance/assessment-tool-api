@@ -1,6 +1,8 @@
 from admin.lib.viewsets import ModelViewSet
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
+
 
 
 from ..models import (Attachment, Question, QuestionInput, QuestionSelect,
@@ -32,7 +34,7 @@ class QuestionsViewSet(ModelViewSet):
         serializer = QuestionSerializer(response_question, many=True)
 
         return Response(serializer.data)
-    
+
 
 
 class QuestionsInputViewSet(ModelViewSet):
@@ -102,23 +104,15 @@ class AttachmentsViewSet(ModelViewSet):
 
     def list_for_question(self, request, pk=None):
 
-        if self.request.user.is_student():
+        user = self.request.user
 
-            # Fetch the question we want the attachments from
-            requested_question = Question.objects.get(pk=pk)
+        if self.request.user.is_supervisor():
 
-            requested_assessment = requested_question.assessment_topic.assessment
+            response_attachments = Attachment.objects.filter((Q(question_id__assessment_topic__assessment__created_by=user) | Q(question_id__assessment_topic__assessment__private=False)), question_id=pk).distinct()
+            
+        else :
+            
+            response_attachments = Attachment.objects.filter(question_id__assessment_topic__assessmenttopicaccess__student=user, question_id=pk).distinct()
 
-            accessible_assessments = AssessmentsViewSet.get_queryset(self)
-
-            requested_question_is_accessible = accessible_assessments.filter(id=requested_assessment.id).exists()
-
-            if (requested_question_is_accessible):
-
-                response_attachments = Attachment.objects.filter(question_id=pk)
-                serializer = AttachmentSerializer(response_attachments, many=True)
-
-                return Response(serializer.data)
-
-            return Response('You dont have access to this assessment', status=403)
-
+        return Response(AttachmentSerializer(response_attachments, many=True).data)
+        
