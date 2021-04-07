@@ -35,48 +35,16 @@ class AssessmentsViewSet(ModelViewSet):
         
         # Using Q in order to filter with a NOT condition
         return Assessment.objects.exclude(~Q(created_by=user), Q(private=True))
-    
-    def topics_list_for_assessment(self, request, pk=None, **kwargs):
 
-        target_assessment = get_object_or_404(self.get_queryset(), id=kwargs['assessment_id'])
 
-        assessment_topics = AssessmentTopic.objects.filter(assessment_id=target_assessment.id)
-        
-        return Response(AssessmentTopicSerializer(assessment_topics, many=True).data)
+    def list(self, request):
+
+        return Response(AssessmentSerializer(self.get_queryset(), many=True).data)
 
     
-    def questions_list_for_assessment_topic(self, request, pk=None, **kwargs):
-        user = self.request.user
+    def retrieve(self, request, pk=None):
 
-        questions = Question.objects.none()
-
-        if user.is_student():
-
-            questions = Question.objects.filter(assessment_topic__assessmenttopicaccess__start_date__lt=datetime.date.today(), assessment_topic__assessmenttopicaccess__end_date__gt=datetime.date.today(), assessment_topic__id=kwargs['topic_id'], assessment_topic__assessment__id=kwargs['assessment_id'])
-
-        elif user.is_supervisor():
-
-            questions = Question.objects.filter(assessment_topic__id=kwargs['topic_id'])
-
-        return Response(QuestionSerializer(questions, many=True).data)
-
-        
-    def question_detail_for_assessment_topic(self, request, pk=None, **kwargs):
-        user = self.request.user
-
-        question = Question.objects.none()
-
-        if user.is_student():
-
-            question = get_object_or_404(Question.objects.filter(assessment_topic__assessmenttopicaccess__start_date__lt=datetime.date.today(), assessment_topic__assessmenttopicaccess__end_date__gt=datetime.date.today(), assessment_topic__id=kwargs['topic_id'], assessment_topic__assessment__id=kwargs['assessment_id']), id=kwargs['question_id'])
-
-        elif user.is_supervisor():
-
-            question = get_object_or_404(Question.objects.filter(assessment_topic__id=kwargs['topic_id']), id=kwargs['question_id'])
-
-        return Response(QuestionSerializer(question, many=False).data)
-
-        
+        return Response(AssessmentSerializer(get_object_or_404(self.get_queryset(), id=pk), many=False).data)
 
 class AssessmentTopicsViewSet(ModelViewSet):
     """
@@ -87,3 +55,15 @@ class AssessmentTopicsViewSet(ModelViewSet):
     serializer_class = AssessmentTopicSerializer
     filterset_fields = ['name', 'order', 'assessment']
     search_fields = ['name']
+
+    def list(self, request, assessment_pk=None):
+
+        target_assessment = get_object_or_404(AssessmentsViewSet.get_queryset(self), id=assessment_pk)
+
+        assessment_topics = AssessmentTopic.objects.filter(assessment_id=target_assessment.id)
+        
+        return Response(AssessmentTopicSerializer(assessment_topics, many=True).data)
+
+    def retrieve(self, request, assessment_pk=None, pk=None):
+
+        return Response("Not Implemented", status=501)

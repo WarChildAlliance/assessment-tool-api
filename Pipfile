@@ -11,6 +11,7 @@ django-filter = "*"
 django-cors-headers = "*"
 psycopg2 = "*"
 psycopg2-binary = "*"
+drf-nested-routers = "*"
 
 [dev-packages]
 pylint = "*"

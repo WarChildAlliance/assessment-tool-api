@@ -1,47 +1,43 @@
-from django.urls import include, path, re_path
+from django.urls import include, path
+from rest_framework_nested import routers
 
 from . import views
 
-assessments_list = views.AssessmentsViewSet.as_view({
-    'get': 'list',
-})
+router = routers.SimpleRouter()
+router.register(r'', views.AssessmentsViewSet, basename='assessments')
+## generates:
+# /assessments/
+# /assessments/{assessment_pk}/
 
-assessments_detail = views.AssessmentsViewSet.as_view({
-    'get': 'retrieve',
-})
+assessments_router = routers.NestedSimpleRouter(router, r'', lookup='assessment')
+assessments_router.register(r'topics', views.AssessmentTopicsViewSet, basename='assessment-topics')
+## generates:
+# /assessments/{assessment_pk}/topics/
+# /assessments/{assessment_pk}/topics/{topic_pk}/ <-- We don't want this one
 
-questions_list = views.QuestionsViewSet.as_view({
-    'get': 'list',
-})
+topics_router = routers.NestedSimpleRouter(assessments_router, r'topics', lookup='topic')
+topics_router.register(r'questions', views.QuestionsViewSet, basename='questions-for-topic')
+## generates:
+# /assessments/{assessment_pk}/topics/{topic_pk}/questions/
+# /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/
 
-topics_list_for_assessment = views.AssessmentsViewSet.as_view({
-    'get': 'topics_list_for_assessment',
-})
+questions_router = routers.SimpleRouter()
+questions_router.register(r'questions', views.QuestionsViewSet, basename='questions')
 
-attachments_list_for_question = views.AttachmentsViewSet.as_view({
-    'get': 'list_for_question',
-})
+attachments_router = routers.NestedSimpleRouter(questions_router, r'questions', lookup='questions')
+attachments_router.register(r'attachments', views.AttachmentsViewSet, basename='attachments')
+## generates:
+# /questions/{question_pk}/attachments/
+# /questions/{question_pk}/attachments/{attachment_pk}/ <-- We don't want this one
 
-attachement_detail = views.AttachmentsViewSet.as_view({
-    'get': 'retrieve',
-})
-
-questions_list_for_assessment_topic = views.AssessmentsViewSet.as_view({
-    'get': 'questions_list_for_assessment_topic'
-})
-
-question_detail_for_assessment_topic = views.AssessmentsViewSet.as_view({
-    'get': 'question_detail_for_assessment_topic',
-})
+# TODO Customize this route to return exactly what we want
+# For now, it returns every questions for any user, which is dangerous !!
+questions_list_all = views.QuestionsViewSet.as_view({'get': 'list_all'})
 
 urlpatterns = [
-    path('', assessments_list, name='assessments-list'),
-    path('<int:pk>/', assessments_detail, name='assessments-detail'),
-    path('questions/', questions_list, name='questions-list'),
-    re_path(r'^(?P<assessment_id>.+)/topics/$', topics_list_for_assessment, name="topics-list-for-assessment"),
-    re_path(r'^(?P<assessment_id>.+)/topics/(?P<topic_id>.+)/questions/$', questions_list_for_assessment_topic, name='questions-list-for-assessment-topic'),
-    re_path(r'^(?P<assessment_id>.+)/topics/(?P<topic_id>.+)/questions/(?P<question_id>.+)/$', question_detail_for_assessment_topic, name='question-detail'),
-    path('attachments_for_question/<int:pk>/',
-         attachments_list_for_question, name='attachments-list-for-question'),
-    path('attachments/<int:pk>/', attachement_detail, name='attachments-detail'),
+    path('', include(router.urls)),
+    path('', include(assessments_router.urls)),
+    path('', include(topics_router.urls)),
+    path('', include(attachments_router.urls)),
+    path('questions/all/', questions_list_all, name='questions-list-all'),
 ]
