@@ -60,7 +60,7 @@ class CustomAuthToken(ObtainAuthToken):
             'user_id': user.id,
             'user_first_name': user.first_name,
             'user_last_name': user.last_name,
-            'user_email': user.email,
+            'user_email': user.username,
         })
 
 
@@ -124,7 +124,7 @@ class UsersViewSet(ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
 
-    @action(detail=True)
+    @action(detail=True, methods=['post'])
     def update_student_code(self, request, pk=None):
         """
         Update student code.
@@ -135,3 +135,12 @@ class UsersViewSet(ModelViewSet):
         user.username = student_key_generator()
         user.save()
         return Response(user.username, status=200)
+
+    @action(detail=False)
+    def get_self(self, request):
+        """
+        Get logged-in user.
+        """
+        user = self.request.user
+        serializer = self.get_serializer(user)
+        return Response(serializer.data, status=200)
