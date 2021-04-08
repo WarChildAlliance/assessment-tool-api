@@ -25,16 +25,13 @@ class AssessmentsViewSet(ModelViewSet):
         """
         # Student can access assessments if they're linked to at least one of its topic
         user = self.request.user
-        if not user.is_supervisor():
-            if user.is_student():
-
-                accessible_assessments = Assessment.objects.filter(assessmenttopic__assessmenttopicaccess__student=user).distinct()
-
-                return accessible_assessments
-            return Assessment.objects.filter(private=False)
         
-        # Using Q in order to filter with a NOT condition
-        return Assessment.objects.exclude(~Q(created_by=user), Q(private=True))
+        if user.is_supervisor():
+
+            # Using Q in order to filter with a NOT condition
+            return Assessment.objects.exclude(~Q(created_by=user), Q(private=True))
+
+        return Assessment.objects.filter(assessmenttopic__assessmenttopicaccess__student=user).distinct()
 
 
     def list(self, request):

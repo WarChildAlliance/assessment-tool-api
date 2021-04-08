@@ -36,36 +36,27 @@ class QuestionsViewSet(ModelViewSet):
     def list(self, request, assessment_pk=None, topic_pk=None):
         user = self.request.user
 
-        questions = Question.objects.none()
-
         if user.is_student():
 
             questions = Question.objects.filter(assessment_topic__assessmenttopicaccess__start_date__lt=datetime.date.today(), assessment_topic__assessmenttopicaccess__end_date__gt=datetime.date.today(), assessment_topic__id=topic_pk, assessment_topic__assessment__id=assessment_pk)
 
-        elif user.is_supervisor():
+            return Response(QuestionSerializer(questions, many=True).data)
 
-            questions = Question.objects.filter(assessment_topic__id=topic_pk)
-
-        return Response(QuestionSerializer(questions, many=True).data)
+        return Response(QuestionSerializer(Question.objects.filter(assessment_topic__id=topic_pk), many=True).data)
 
     def retrieve(self, request, assessment_pk=None, topic_pk=None, pk=None):
 
         user = self.request.user
 
-        question = Question.objects.none()
-
         if user.is_student():
 
             question = get_object_or_404(Question.objects.filter(assessment_topic__assessmenttopicaccess__start_date__lt=datetime.date.today(), assessment_topic__assessmenttopicaccess__end_date__gt=datetime.date.today(), assessment_topic__id=topic_pk, assessment_topic__assessment__id=assessment_pk), id=pk)
 
-        elif user.is_supervisor():
+            return Response(QuestionSerializer(question, many=False).data)
 
-            question = get_object_or_404(Question.objects.filter(assessment_topic__id=topic_pk), id=pk)
+        question = get_object_or_404(Question.objects.filter(assessment_topic__assessment__id=assessment_pk, assessment_topic__id=topic_pk), id=pk)
 
-        response_question = Question.objects.filter(id=pk)
-        serializer = QuestionSerializer(response_question, many=True)
-
-        return Response(serializer.data)
+        return Response(QuestionSerializer(question, many=False).data)
 
 
 
