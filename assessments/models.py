@@ -132,6 +132,8 @@ class QuestionSelect(Question):
         default=False
     )
 
+    options = []
+
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 

@@ -45,17 +45,10 @@ class QuestionInputSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuestionInput
-        fields = ('id', 'valid_answer')
+        fields = ('id', 'valid_answer', 'title', 'assessment_topic',
+                  'question_type', 'hint') 
 
 
-class QuestionSelectSerializer(serializers.ModelSerializer):
-    """
-    Question select serializer.
-    """
-
-    class Meta:
-        model = QuestionSelect
-        fields = ('id', 'multiple')
 
 
 class QuestionSortSerializer(serializers.ModelSerializer):
@@ -108,3 +101,13 @@ class SortOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SortOption
         fields = ('id', 'value', 'category', 'question_sort')
+
+class QuestionSelectSerializer(serializers.ModelSerializer):
+    """
+    Question select serializer.
+    """
+
+    class Meta:
+        model = QuestionSelect
+        fields = ('id', 'multiple', 'title', 'assessment_topic',
+                  'question_type', 'hint', 'options')

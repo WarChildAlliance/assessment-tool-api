@@ -22,16 +22,25 @@ class QuestionsViewSet(ModelViewSet):
     search_fields = ['title', 'hint']
     
     def list(self, request):
-        print('this is a list')
-        print(request)
         return Response(QuestionSerializer(self.queryset, many=True).data)
 
 
     def retrieve(self, request, pk=None):
-        print('this is a retrieve')
-        print(request)
         question = get_object_or_404(self.queryset, pk=pk)
-        return Response(serializer_class(question).data)
+
+        if (question.question_type == 'INPUT'):
+            newQueryset = QuestionInput.objects.all()
+            question = get_object_or_404(newQueryset, pk=pk)
+            self.serializer_class = QuestionInputSerializer
+
+        elif (question.question_type == 'SELECT'):
+            newQueryset = QuestionSelect.objects.all()
+            question = get_object_or_404(newQueryset, pk=pk)
+            options = SelectOption.objects.filter(question_select=pk)
+            question.options = SelectOptionSerializer(options, many=True).data
+            self.serializer_class = QuestionSelectSerializer
+
+        return Response(self.serializer_class(question).data)
 
 
 
