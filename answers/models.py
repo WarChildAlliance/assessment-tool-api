@@ -29,7 +29,11 @@ class AssessmentTopicAnswer(models.Model):
     Assessment topic answer model.
     """
 
-    # TODO: Add ForeignKey to AssessmentTopicAccess
+    topic_access = models.ForeignKey(
+        'assessments.AssessmentTopicAccess',
+        on_delete=models.CASCADE,
+        related_name='assessment_topic_answers'
+    )
 
     complete = models.BooleanField(
         default=True
