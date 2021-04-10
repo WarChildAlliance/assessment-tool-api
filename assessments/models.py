@@ -78,6 +78,7 @@ class AssessmentTopicAccess(models.Model):
     """
 
     start_date = models.DateField()
+
     end_date = models.DateField()
 
     student = models.ForeignKey(
@@ -95,7 +96,7 @@ class AssessmentTopicAccess(models.Model):
         verbose_name_plural = 'Assessment topics access'
 
     def __str__(self):
-        return f'{self.student} has access to {self.topic} from  {self.start_date} to  {self.end_date}'
+        return f'{self.student} has access to {self.topic} from {self.start_date} to {self.end_date}'
 
 
 class Question(models.Model):
@@ -126,14 +127,23 @@ class Question(models.Model):
         choices=QuestionType.choices
     )
 
-    hint = models.CharField(
-        max_length=2048,
-        null=True,
-        blank=True
-    )
-
     def __str__(self):
         return f'{self.title} ({self.question_type})'
+
+
+class Hint(models.Model):
+    """
+    Hint model.
+    """
+
+    text = models.CharField(
+        max_length=512
+    )
+
+    question = models.ForeignKey(
+        'Question',
+        on_delete=models.CASCADE
+    )
 
 
 class QuestionInput(Question):
@@ -254,15 +264,23 @@ class Attachment(models.Model):
         max_length=2048
     )
 
-    question_id = models.ForeignKey(
+    question = models.ForeignKey(
         'Question',
         related_name='attachments',
         on_delete=models.CASCADE,
         null=True,
-        blank=True,
+        blank=True
     )
 
-    select_option_id = models.ForeignKey(
+    hint = models.ForeignKey(
+        'Hint',
+        related_name='attachments',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
+    select_option = models.ForeignKey(
         'SelectOption',
         related_name='attachments',
         on_delete=models.CASCADE,
@@ -270,7 +288,7 @@ class Attachment(models.Model):
         blank=True
     )
 
-    sort_option_id = models.ForeignKey(
+    sort_option = models.ForeignKey(
         'SortOption',
         related_name='attachments',
         on_delete=models.CASCADE,

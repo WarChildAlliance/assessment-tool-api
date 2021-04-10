@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from .models import (Assessment, AssessmentTopic, Attachment, Question,
-                     QuestionInput, QuestionSelect, QuestionSort,
-                     QuestionNumberLine, SelectOption, SortOption)
+                     QuestionInput, QuestionNumberLine, QuestionSelect,
+                     QuestionSort, SelectOption, SortOption)
 
 
 class AssessmentSerializer(serializers.ModelSerializer):
@@ -35,7 +35,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ('id', 'title', 'assessment_topic',
-                  'question_type', 'hint')
+                  'question_type')
 
 
 class QuestionInputSerializer(serializers.ModelSerializer):
@@ -46,7 +46,7 @@ class QuestionInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionInput
         fields = ('id', 'title', 'assessment_topic',
-                  'type', 'hint', 'valid_answer')
+                  'type', 'valid_answer')
 
 
 class QuestionSelectSerializer(serializers.ModelSerializer):
@@ -57,7 +57,7 @@ class QuestionSelectSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionSelect
         fields = ('id', 'title', 'assessment_topic',
-                  'type', 'hint', 'multiple')
+                  'type', 'multiple')
 
 
 class QuestionSortSerializer(serializers.ModelSerializer):
@@ -68,7 +68,7 @@ class QuestionSortSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionSort
         fields = ('id', 'title', 'assessment_topic',
-                  'type', 'hint', 'category_A', 'category_B')
+                  'type', 'category_A', 'category_B')
 
 
 class QuestionNumberLineSerializer(serializers.ModelSerializer):
@@ -79,7 +79,7 @@ class QuestionNumberLineSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionNumberLine
         fields = ('id', 'title', 'assessment_topic',
-                  'type', 'hint', 'expected_value', 'start',
+                  'type', 'expected_value', 'start',
                   'end', 'step', 'show_value', 'show ticks')
 
 
