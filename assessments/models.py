@@ -150,6 +150,8 @@ class QuestionSort(Question):
         max_length=256
     )
 
+    options = []
+
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 

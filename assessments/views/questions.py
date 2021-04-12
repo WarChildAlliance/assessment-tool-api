@@ -29,18 +29,26 @@ class QuestionsViewSet(ModelViewSet):
         question = get_object_or_404(self.queryset, pk=pk)
 
         if (question.question_type == 'INPUT'):
-            newQueryset = QuestionInput.objects.all()
-            question = get_object_or_404(newQueryset, pk=pk)
-            self.serializer_class = QuestionInputSerializer
+            question = QuestionInput.objects.get(pk=pk)
+            response = Response(QuestionInputSerializer(question).data)
 
         elif (question.question_type == 'SELECT'):
-            newQueryset = QuestionSelect.objects.all()
-            question = get_object_or_404(newQueryset, pk=pk)
+            question = QuestionSelect.objects.get(pk=pk)
             options = SelectOption.objects.filter(question_select=pk)
             question.options = SelectOptionSerializer(options, many=True).data
-            self.serializer_class = QuestionSelectSerializer
+            response = Response(QuestionSelectSerializer(question).data)
 
-        return Response(self.serializer_class(question).data)
+        elif (question.question_type == 'SORT'):
+            question = QuestionSort.objects.get(pk=pk)
+            options = SortOption.objects.filter(question_sort=pk)
+            question.options = SortOptionSerializer(options, many=True).data
+            response = Response(QuestionSortSerializer(question).data)
+
+        elif (question.question_type == 'NUMBER_LINE'):
+            question = QuestionNumberLine.objects.get(pk=pk)
+            response = Response(QuestionNumberLineSerializer(question).data)
+
+        return response
 
 
 
