@@ -1,3 +1,4 @@
+from assessments.models import Assessment, AssessmentTopic, Question
 from rest_framework import permissions
 
 from users.models import User
@@ -44,11 +45,51 @@ class HasAccess(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         """
-        Returns whether the user is the user requested
+        Returns whether the user has access to the requested object
         """
+
         if isinstance(obj, User):
             if request.user and request.user.is_student():
                 return request.user.id == obj.id
             if request.user and request.user.is_supervisor():
+                # TODO: Update to check student was created by supervisor
                 return request.user.id == obj.id or obj.is_student()
+
+        if isinstance(obj, Assessment):
+            if request.user and request.user.is_student():
+                return Assessment.objects.filter(
+                    assessmenttopic__assessmenttopicaccess__student=request.user,
+                    id=obj.id
+                ).exists()
+            if request.user and request.user.is_supervisor():
+                if request.method in permissions.SAFE_METHODS:
+                    return (not obj.private) or obj.created_by == request.user
+                else:
+                    return obj.created_by == request.user
+
+        if isinstance(obj, AssessmentTopic):
+            if request.user and request.user.is_student():
+                return AssessmentTopic.objects.filter(
+                    assessmenttopicaccess__student=request.user,
+                    id=obj.id
+                ).exists()
+            if request.user and request.user.is_supervisor():
+                if request.method in permissions.SAFE_METHODS:
+                    return not obj.assessment.private or obj.assessment.created_by == request.user
+                else:
+                    return obj.assessment.created_by == request.user
+
+        if isinstance(obj, Question):
+            if request.user and request.user.is_student():
+                return Question.objects.filter(
+                    assessment_topic__assessmenttopicaccess__student=request.user,
+                    id=obj.id
+                ).exists()
+            if request.user and request.user.is_supervisor():
+                if request.method in permissions.SAFE_METHODS:
+                    return (not obj.assessment_topic.assessment.private or
+                            obj.assessment_topic.assessment.created_by == request.user)
+                else:
+                    return obj.assessment_topic.assessment.created_by == request.user
+
         return True
