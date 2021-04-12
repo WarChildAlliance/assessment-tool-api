@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from .models import (Assessment, AssessmentTopic, Attachment, Question,
-                     QuestionInput, QuestionSelect, QuestionSort,
-                     QuestionNumberLine, SelectOption, SortOption)
+                     QuestionInput, QuestionNumberLine, QuestionSelect,
+                     QuestionSort, SelectOption, SortOption)
 
 
 class AssessmentSerializer(serializers.ModelSerializer):
@@ -35,7 +35,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ('id', 'title', 'assessment_topic',
-                  'question_type', 'hint')
+                  'question_type')
 
 
 class QuestionInputSerializer(serializers.ModelSerializer):
@@ -45,8 +45,8 @@ class QuestionInputSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuestionInput
-        fields = ('id', 'valid_answer', 'title', 'assessment_topic',
-                  'question_type', 'hint')
+        fields = ('id', 'title', 'assessment_topic',
+                  'type', 'valid_answer')
 
 
 class QuestionSelectSerializer(serializers.ModelSerializer):
@@ -57,7 +57,7 @@ class QuestionSelectSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionSelect
         fields = ('id', 'title', 'assessment_topic',
-                  'question_type', 'hint', 'multiple', 'options')
+                  'type', 'multiple')
 
 
 class QuestionSortSerializer(serializers.ModelSerializer):
@@ -68,7 +68,7 @@ class QuestionSortSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionSort
         fields = ('id', 'title', 'assessment_topic',
-                  'question_type', 'hint', 'category_A', 'category_B', 'options')
+                  'type', 'category_A', 'category_B')
 
 
 class QuestionNumberLineSerializer(serializers.ModelSerializer):
@@ -79,8 +79,8 @@ class QuestionNumberLineSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionNumberLine
         fields = ('id', 'title', 'assessment_topic',
-                  'question_type', 'hint', 'expected_value', 'start',
-                  'end', 'step', 'show_value', 'show_ticks')
+                  'type', 'expected_value', 'start',
+                  'end', 'step', 'show_value', 'show ticks')
 
 
 class AttachmentSerializer(serializers.ModelSerializer):
@@ -90,7 +90,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Attachment
-        fields = ('id', 'link', 'question_id',
+        fields = ('id', 'attachment_type', 'link', 'question_id',
                   'select_option_id', 'sort_option_id')
 
 

@@ -7,7 +7,7 @@
             "language": "FRE",
             "private": true,
             "subject": "MATH",
-            "title": "Test Maths Assessment"
+            "title": "Math assessment"
         },
         "model": "assessments.assessment",
         "pk": 1
@@ -20,7 +20,7 @@
             "language": "ENG",
             "private": false,
             "subject": "LITERACY",
-            "title": "Test Literacy Assessment"
+            "title": "Literacy Assessment"
         },
         "model": "assessments.assessment",
         "pk": 2
@@ -28,7 +28,7 @@
     {
         "fields": {
             "assessment": 1,
-            "name": "Test first topic for Maths",
+            "name": "Addition",
             "order": 1
         },
         "model": "assessments.assessmenttopic",
@@ -37,7 +37,7 @@
     {
         "fields": {
             "assessment": 1,
-            "name": "Test second topic for Maths",
+            "name": "Substraction",
             "order": 2
         },
         "model": "assessments.assessmenttopic",
@@ -46,7 +46,7 @@
     {
         "fields": {
             "assessment": 2,
-            "name": "Test topic for Literacy",
+            "name": "Reading comprehension",
             "order": 1
         },
         "model": "assessments.assessmenttopic",
@@ -55,19 +55,17 @@
     {
         "fields": {
             "assessment_topic": 3,
-            "hint": "Think for a sec please",
             "question_type": "INPUT",
-            "title": "Is this a test Question Input ?"
+            "title": "Mr and Mrs Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal, thank you very much.\nWhat is the subject of this sentence?"
         },
         "model": "assessments.question",
         "pk": 1
     },
     {
         "fields": {
-            "assessment_topic": 1,
-            "hint": "Try harder",
+            "assessment_topic": 3,
             "question_type": "SELECT",
-            "title": "Is this a test Question Select ?"
+            "title": "Harry – yer a ________.\n Fill in the missing word."
         },
         "model": "assessments.question",
         "pk": 2
@@ -75,9 +73,8 @@
     {
         "fields": {
             "assessment_topic": 2,
-            "hint": "Do better",
             "question_type": "SORT",
-            "title": "Is this a test Question Sort ?"
+            "title": "Sort the numbers that are less than 10 and more than 10."
         },
         "model": "assessments.question",
         "pk": 3
@@ -85,43 +82,42 @@
     {
         "fields": {
             "assessment_topic": 1,
-            "hint": "Try again",
             "question_type": "NUMBER_LINE",
-            "title": "On a 0 to 10 scale, where do you think is the average ?"
+            "title": "Identify the following number on the line: 8"
         },
         "model": "assessments.question",
         "pk": 4
     },
     {
         "fields": {
-            "valid_answer": "For sure it is"
+            "valid_answer": "Mr and Mrs Dursley"
         },
         "model": "assessments.questioninput",
         "pk": 1
     },
     {
         "fields": {
-            "multiple": true
+            "multiple": false
         },
         "model": "assessments.questionselect",
         "pk": 2
     },
     {
         "fields": {
-            "category_A": "Yes it is",
-            "category_B": "No it isn't"
+            "category_A": "Less than 10",
+            "category_B": "More than 10"
         },
         "model": "assessments.questionsort",
         "pk": 3
     },
     {
         "fields": {
-            "expected_value": 5,
-            "start": 0,
             "end": 10,
-            "step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "expected_value": 8,
+            "show_ticks": false,
+            "show_value": false,
+            "start": 0,
+            "step": 1
         },
         "model": "assessments.questionnumberline",
         "pk": 4
@@ -130,7 +126,7 @@
         "fields": {
             "question_select": 2,
             "valid": true,
-            "value": "Yes"
+            "value": "wizard"
         },
         "model": "assessments.selectoption",
         "pk": 1
@@ -138,8 +134,8 @@
     {
         "fields": {
             "question_select": 2,
-            "valid": true,
-            "value": "For sure"
+            "valid": false,
+            "value": "witch"
         },
         "model": "assessments.selectoption",
         "pk": 2
@@ -148,33 +144,70 @@
         "fields": {
             "question_select": 2,
             "valid": false,
-            "value": "Nope"
+            "value": "bird"
         },
         "model": "assessments.selectoption",
         "pk": 3
     },
     {
         "fields": {
-            "category": "Yes it is",
+            "question_select": 2,
+            "valid": false,
+            "value": "plane"
+        },
+        "model": "assessments.selectoption",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "category": "Less than 10",
             "question_sort": 3,
-            "value": "So it is ?"
+            "value": "8"
         },
         "model": "assessments.sortoption",
         "pk": 1
     },
     {
         "fields": {
-            "category": "No it isn't",
+            "category": "More than 10",
             "question_sort": 3,
-            "value": "So isn't it ?"
+            "value": "11"
         },
         "model": "assessments.sortoption",
         "pk": 2
     },
     {
         "fields": {
+            "category": "Less than 10",
+            "question_sort": 3,
+            "value": "1"
+        },
+        "model": "assessments.sortoption",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "category": "More than 10",
+            "question_sort": 3,
+            "value": "24"
+        },
+        "model": "assessments.sortoption",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "category": "More than 10",
+            "question_sort": 3,
+            "value": "20"
+        },
+        "model": "assessments.sortoption",
+        "pk": 5
+    },
+    {
+        "fields": {
             "attachment_type": "AUDIO",
-            "link": "https://www.youtube.com/watch?v=0JjNuUJSpO8",
+            "hint_id": null,
+            "link": "https://www.ringtoneshome.com/static/p/ringtones/2018/07/16/3lnjag/318.mp3",
             "question_id": 1,
             "select_option_id": null,
             "sort_option_id": null
@@ -184,8 +217,9 @@
     },
     {
         "fields": {
-            "attachment_type": "AUDIO",
-            "link": "https://www.youtube.com/watch?v=w4LkSRXrK34",
+            "attachment_type": "IMAGE",
+            "hint_id": null,
+            "link": "https://upload.wikimedia.org/wikipedia/commons/9/97/Harry_Potter.jpg",
             "question_id": null,
             "select_option_id": 1,
             "sort_option_id": null
@@ -195,11 +229,12 @@
     },
     {
         "fields": {
-            "attachment_type": "AUDIO",
-            "link": "https://www.youtube.com/watch?v=Lrj2Hq7xqQ8",
+            "attachment_type": "IMAGE",
+            "hint_id": null,
+            "link": "https://upload.wikimedia.org/wikipedia/commons/3/34/Hermione_Granger.jpg",
             "question_id": null,
-            "select_option_id": null,
-            "sort_option_id": 2
+            "select_option_id": 2,
+            "sort_option_id": null
         },
         "model": "assessments.attachment",
         "pk": 3
@@ -207,12 +242,25 @@
     {
         "fields": {
             "attachment_type": "IMAGE",
-            "link": "https://www.numerama.com/content/uploads/2020/09/never-gonna-give-you-up-clip.jpg",
-            "question_id": 2,
-            "select_option_id": null,
+            "hint_id": null,
+            "link": "https://upload.wikimedia.org/wikipedia/commons/e/e9/The_bird.jpg",
+            "question_id": null,
+            "select_option_id": 3,
             "sort_option_id": null
         },
         "model": "assessments.attachment",
         "pk": 4
+    },
+    {
+        "fields": {
+            "attachment_type": "IMAGE",
+            "hint_id": null,
+            "link": "https://upload.wikimedia.org/wikipedia/commons/4/40/Pan_Am_Boeing_747-121_N732PA_Bidini.jpg",
+            "question_id": null,
+            "select_option_id": 4,
+            "sort_option_id": null
+        },
+        "model": "assessments.attachment",
+        "pk": 5
     }
 ]
