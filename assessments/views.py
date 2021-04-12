@@ -110,7 +110,8 @@ class QuestionsViewSet(ModelViewSet):
 
         topic_pk = self.kwargs['topic_pk']
 
-        return Question.objects.filter(assessment_topic=topic_pk)
+        return Question.objects.filter(
+            assessment_topic=topic_pk).select_subclasses()
 
 
 class AttachmentsViewSet(ModelViewSet):

@@ -1,4 +1,5 @@
 from django.db import models
+from model_utils.managers import InheritanceManager
 from users.models import User
 
 
@@ -106,6 +107,8 @@ class Question(models.Model):
     Question model.
     """
 
+    objects = InheritanceManager()
+
     class QuestionType(models.TextChoices):
         """
         Question type enumeration.
@@ -142,9 +145,10 @@ class Hint(models.Model):
         max_length=512
     )
 
-    question = models.ForeignKey(
+    question = models.OneToOneField(
         'Question',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='hint'
     )
 
 
@@ -169,8 +173,6 @@ class QuestionSelect(Question):
     multiple = models.BooleanField(
         default=False
     )
-
-    options = []
 
     def __str__(self):
         return f'{self.title} ({self.question_type})'
@@ -223,7 +225,8 @@ class SelectOption(models.Model):
 
     question_select = models.ForeignKey(
         'QuestionSelect',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='options'
     )
 
     def __str__(self):
@@ -245,7 +248,8 @@ class SortOption(models.Model):
 
     question_sort = models.ForeignKey(
         'QuestionSort',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='options'
     )
 
     def __str__(self):
