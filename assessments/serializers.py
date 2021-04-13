@@ -14,6 +14,7 @@ class PolymorphicSerializer(serializers.ModelSerializer):
       the value is expected: ex. {'type': 'Decimal', ... }
     - This type information is used in tandem with get_serializer_map(...) to
       manage serializers for multiple subclasses
+    From: https://stackoverflow.com/questions/19976202/django-rest-framework-django-polymorphic-modelserialization/44727343#44727343
     """
 
     def get_serializer_map(self):
