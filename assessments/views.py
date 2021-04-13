@@ -1,5 +1,6 @@
 from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from users.permissions import HasAccess, IsSupervisor
 
 from admin.lib.viewsets import ModelViewSet
@@ -36,7 +37,7 @@ class AssessmentsViewSet(ModelViewSet):
         """
 
         user = self.request.user
-        
+
         if user.is_supervisor():
             # Using Q in order to filter with a NOT condition
             return Assessment.objects.filter(Q(created_by=user) | Q(private=False))
@@ -109,9 +110,11 @@ class QuestionsViewSet(ModelViewSet):
         """
 
         topic_pk = self.kwargs['topic_pk']
+        assessment_pk = self.kwargs['assessment_pk']
 
         return Question.objects.filter(
-            assessment_topic=topic_pk).select_subclasses()
+            assessment_topic=topic_pk, assessment_topic__assessment=assessment_pk
+        ).select_subclasses()
 
 
 class AttachmentsViewSet(ModelViewSet):

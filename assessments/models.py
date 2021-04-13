@@ -74,6 +74,14 @@ class AssessmentTopic(models.Model):
     def __str__(self):
         return f'{self.name} ({self.assessment.id})'
 
+    class Meta:
+        constraints = [
+            models.constraints.UniqueConstraint(
+                fields=['order', 'assessment'],
+                name='unique_order'
+            )
+        ]
+
 
 class AssessmentTopicAccess(models.Model):
     """
@@ -202,11 +210,20 @@ class QuestionNumberLine(Question):
     """
 
     expected_value = models.IntegerField()
+
     start = models.IntegerField()
+
     end = models.IntegerField()
+
     step = models.IntegerField()
-    show_ticks = models.BooleanField()
-    show_value = models.BooleanField()
+
+    show_ticks = models.BooleanField(
+        default=False
+    )
+
+    show_value = models.BooleanField(
+        default=False
+    )
 
     def __str__(self):
         return f'{self.title} ({self.question_type})'
