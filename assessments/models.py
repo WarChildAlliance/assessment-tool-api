@@ -1,4 +1,5 @@
 from django.db import models
+from model_utils.managers import InheritanceManager
 from users.models import User
 
 
@@ -73,6 +74,14 @@ class AssessmentTopic(models.Model):
     def __str__(self):
         return f'{self.name} ({self.assessment.id})'
 
+    class Meta:
+        constraints = [
+            models.constraints.UniqueConstraint(
+                fields=['order', 'assessment'],
+                name='unique_order'
+            )
+        ]
+
 
 class AssessmentTopicAccess(models.Model):
     """
@@ -105,6 +114,8 @@ class Question(models.Model):
     """
     Question model.
     """
+
+    objects = InheritanceManager()
 
     class QuestionType(models.TextChoices):
         """
@@ -142,9 +153,10 @@ class Hint(models.Model):
         max_length=512
     )
 
-    question = models.ForeignKey(
+    question = models.OneToOneField(
         'Question',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='hint'
     )
 
 
@@ -186,6 +198,8 @@ class QuestionSort(Question):
         max_length=256
     )
 
+    options = []
+
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
@@ -196,11 +210,20 @@ class QuestionNumberLine(Question):
     """
 
     expected_value = models.IntegerField()
+
     start = models.IntegerField()
+
     end = models.IntegerField()
+
     step = models.IntegerField()
-    show_ticks = models.BooleanField()
-    show_value = models.BooleanField()
+
+    show_ticks = models.BooleanField(
+        default=False
+    )
+
+    show_value = models.BooleanField(
+        default=False
+    )
 
     def __str__(self):
         return f'{self.title} ({self.question_type})'
@@ -219,7 +242,8 @@ class SelectOption(models.Model):
 
     question_select = models.ForeignKey(
         'QuestionSelect',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='options'
     )
 
     def __str__(self):
@@ -241,7 +265,8 @@ class SortOption(models.Model):
 
     question_sort = models.ForeignKey(
         'QuestionSort',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='options'
     )
 
     def __str__(self):

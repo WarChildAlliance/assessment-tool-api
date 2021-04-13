@@ -12,6 +12,7 @@ django-cors-headers = "*"
 psycopg2 = "*"
 psycopg2-binary = "*"
 drf-nested-routers = "*"
+django-model-utils = "*"
 
 [dev-packages]
 pylint = "*"

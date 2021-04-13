@@ -116,8 +116,6 @@ class UsersViewSet(ModelViewSet):
                 return Response('No email specified', status=400)
             request_data['username'] = request_data.get('email')
 
-        request_data['created_by'] = request.user.id
-
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

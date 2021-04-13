@@ -14,7 +14,10 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'email',
                   'password', 'last_login', 'role', 'language', 'country', 'created_by']
-        extra_kwargs = {'created_by': {'write_only': True}}
+        extra_kwargs = {'created_by': {
+            'default': serializers.CurrentUserDefault(),
+            'write_only': True
+        }}
 
     def validate(self, data):
         """
