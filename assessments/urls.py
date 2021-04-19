@@ -5,25 +5,35 @@ from . import views
 
 router = routers.SimpleRouter()
 router.register(r'', views.AssessmentsViewSet, basename='assessments')
-## generates:
+# generates:
 # /assessments/
 # /assessments/{assessment_pk}/
 
-assessments_router = routers.NestedSimpleRouter(router, r'', lookup='assessment')
-assessments_router.register(r'topics', views.AssessmentTopicsViewSet, basename='assessment-topics')
-## generates:
+assessments_router = routers.NestedSimpleRouter(
+    router, r'', lookup='assessment')
+assessments_router.register(
+    r'topics', views.AssessmentTopicsViewSet, basename='assessment-topics')
+assessments_router.register(
+    r'accesses', views.AssessmentTopicAccessesViewSets, basename='assessment-accesses')
+# generates:
 # /assessments/{assessment_pk}/topics/
 # /assessments/{assessment_pk}/topics/{topic_pk}/
+# /assessments/{assessment_pk}/accesses/
+# /assessments/{assessment_pk}/accesses/{topic_access_pk}/
 
-topics_router = routers.NestedSimpleRouter(assessments_router, r'topics', lookup='topic')
-topics_router.register(r'questions', views.QuestionsViewSet, basename='questions-for-topic')
-## generates:
+topics_router = routers.NestedSimpleRouter(
+    assessments_router, r'topics', lookup='topic')
+topics_router.register(r'questions', views.QuestionsViewSet,
+                       basename='questions-for-topic')
+# generates:
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/
 
-questions_router = routers.NestedSimpleRouter(topics_router, r'questions', lookup='question')
-questions_router.register(r'attachments', views.AttachmentsViewSet, basename='attachments')
-## generates:
+questions_router = routers.NestedSimpleRouter(
+    topics_router, r'questions', lookup='question')
+questions_router.register(
+    r'attachments', views.AttachmentsViewSet, basename='attachments')
+# generates:
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/attachments/
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/attachments/{attachment_pk}/
 

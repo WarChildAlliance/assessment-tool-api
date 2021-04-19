@@ -1,3 +1,4 @@
+from answers.models import Answer
 from assessments.models import Assessment, AssessmentTopic, Question
 from rest_framework import permissions
 
@@ -91,5 +92,11 @@ class HasAccess(permissions.BasePermission):
                             obj.assessment_topic.assessment.created_by == request.user)
                 else:
                     return obj.assessment_topic.assessment.created_by == request.user
+
+        if isinstance(obj, Answer):
+            if request.user and request.user.is_student():
+                return obj.topic_answer.session.student == request.user
+            if request.user and request.user.is_supervisor():
+                return obj.topic_answer.session.student.created_by == request.user
 
         return True

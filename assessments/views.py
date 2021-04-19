@@ -1,13 +1,17 @@
 from django.db.models import Q
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from users.permissions import HasAccess, IsSupervisor
 
 from admin.lib.viewsets import ModelViewSet
 
-from .models import Assessment, AssessmentTopic, Attachment, Question
-from .serializers import (AssessmentSerializer, AssessmentTopicSerializer,
-                          AttachmentSerializer, QuestionSerializer)
+from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess,
+                     Attachment, Question)
+from .serializers import (AssessmentSerializer,
+                          AssessmentTopicAccessSerializer,
+                          AssessmentTopicSerializer, AttachmentSerializer,
+                          QuestionSerializer)
 
 
 class AssessmentsViewSet(ModelViewSet):
@@ -35,7 +39,6 @@ class AssessmentsViewSet(ModelViewSet):
         """
         Queryset to get allowed assessments.
         """
-
         user = self.request.user
 
         if user.is_supervisor():
@@ -133,3 +136,54 @@ class AttachmentsViewSet(ModelViewSet):
         question_pk = self.kwargs['question_pk']
 
         return Attachment.objects.filter(question=question_pk)
+
+
+class AssessmentTopicAccessesViewSets(ModelViewSet):
+    """
+    Assessment topic accesses viewset.
+    """
+
+    serializer_class = AssessmentTopicAccessSerializer
+    parmission_classes = [IsAuthenticated, IsSupervisor]
+
+    def get_queryset(self):
+        """
+        Queryset to get assessment topic accesses.
+        """
+        assessment_pk = self.kwargs['assessment_pk']
+        user = self.request.user
+
+        return AssessmentTopicAccess.objects.filter(
+            student__created_by=user, topic__assessment__id=assessment_pk)
+
+    @action(detail=False, methods=['post'])
+    def bulk_create(self, request):
+        """
+        Assign assessment topics to students.
+        """
+        start_date = request.data.get('start_date', None)
+        end_date = request.data.get('end_date', None)
+
+        if 'topic' in request.data:
+            formatted_data = list(map(
+                lambda x: {'student': x, 'topic': request.data['topic'],
+                        'start_date': start_date, 'end_date': end_date},
+                request.data['students']))
+        elif 'topics' in request.data:
+            formatted_data = []
+            for topic in request.data['topics']:
+                for student in request.data['students']:
+                    formatted_data.append({
+                        'student': student,
+                        'topic': topic,
+                        'start_date': start_date,
+                        'end_date': end_date
+                    })
+        else:
+            return Response('Field \'topic\' or \'topics\' required', status=400)
+
+        serializer = self.get_serializer(data=formatted_data, many=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)

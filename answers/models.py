@@ -1,5 +1,7 @@
-from django.db import models
 from datetime import date
+
+from django.db import models
+from model_utils.managers import InheritanceManager
 from users.models import User
 
 
@@ -60,6 +62,8 @@ class Answer(models.Model):
     """
     Answer answer model.
     """
+
+    objects = InheritanceManager()
 
     topic_answer = models.ForeignKey(
         'AssessmentTopicAnswer',

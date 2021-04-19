@@ -88,9 +88,15 @@ class AssessmentTopicAccess(models.Model):
     Assessment topic access model.
     """
 
-    start_date = models.DateField()
+    start_date = models.DateField(
+        null=True,
+        blank=True
+    )
 
-    end_date = models.DateField()
+    end_date = models.DateField(
+        null=True,
+        blank=True
+    )
 
     student = models.ForeignKey(
         'users.User',
@@ -105,6 +111,12 @@ class AssessmentTopicAccess(models.Model):
 
     class Meta:
         verbose_name_plural = 'Assessment topics access'
+        constraints = [
+            models.constraints.UniqueConstraint(
+                fields=['student', 'topic'],
+                name='unique_access_per_student_and_topic'
+            )
+        ]
 
     def __str__(self):
         return f'{self.student} has access to {self.topic} from {self.start_date} to {self.end_date}'
