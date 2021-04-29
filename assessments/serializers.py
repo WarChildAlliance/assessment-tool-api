@@ -10,6 +10,16 @@ from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess,
                      SelectOption, SortOption)
 
 
+class AttachmentSerializer(serializers.ModelSerializer):
+    """
+    Attachment serializer.
+    """
+
+    class Meta:
+        model = Attachment
+        fields = ('id', 'attachment_type', 'link')
+
+
 class AssessmentSerializer(serializers.ModelSerializer):
     """
     Assessment serializer.
@@ -29,10 +39,11 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
     """
     Assessment topic serializer.
     """
+    attachments = AttachmentSerializer(many=True, required=False)
 
     class Meta:
         model = AssessmentTopic
-        fields = ('id', 'name', 'order', 'assessment')
+        fields = '__all__'
 
     def to_internal_value(self, data):
         data = data.copy()
@@ -40,16 +51,6 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
         if 'assessment' not in data:
             data['assessment'] = kwargs.get('assessment_pk', None)
         return super().to_internal_value(data)
-
-
-class AttachmentSerializer(serializers.ModelSerializer):
-    """
-    Attachment serializer.
-    """
-
-    class Meta:
-        model = Attachment
-        fields = ('id', 'attachment_type', 'link')
 
 
 class HintSerializer(serializers.ModelSerializer):
@@ -193,6 +194,7 @@ class QuestionSerializer(PolymorphicSerializer):
             raise serializers.ValidationError({
                 'question_type': 'Unkown question type',
             })
+
         kwargs = self.context['request'].parser_context['kwargs']
         if 'assessment_topic' not in data:
             data['assessment_topic'] = kwargs.get('topic_pk', None)

@@ -70,6 +70,13 @@ class Language(models.Model):
     Language model.
     """
 
+    class LanguageDirection(models.TextChoices):
+        """
+        Language direction enumeration.
+        """
+        LTR = 'LTR', 'Left to right'
+        RTL = 'RTL', 'Right to left'
+
     code = models.CharField(
         max_length=3,
         primary_key=True
@@ -85,6 +92,12 @@ class Language(models.Model):
         null=True,
         blank=True,
         verbose_name='Local name'
+    )
+
+    direction = models.CharField(
+        max_length=3,
+        choices=LanguageDirection.choices,
+        default=LanguageDirection.LTR
     )
 
     def __str__(self):

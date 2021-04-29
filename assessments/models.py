@@ -15,6 +15,15 @@ class Assessment(models.Model):
         MATH = 'MATH', 'Math'
         LITERACY = 'LITERACY', 'Literacy'
 
+    class AssessmentFeedback(models.IntegerChoices):
+        """
+        Feedback options enumeration.
+        """
+        NEVER = 0, 'Never'
+        ALWAYS = 1, 'Always'
+        SECOND = 2, 'Second attempt on'
+
+
     title = models.CharField(
         max_length=256
     )
@@ -48,7 +57,14 @@ class Assessment(models.Model):
         default=False
     )
 
-    # def student_has_access(self, student_pk):
+    show_feedback = models.IntegerField(
+        choices=AssessmentFeedback.choices,
+        default=AssessmentFeedback.SECOND
+    )
+
+    allow_skip = models.BooleanField(
+        default=False
+    )
 
     def __str__(self):
         return f'{self.title}' \
@@ -62,6 +78,12 @@ class AssessmentTopic(models.Model):
 
     name = models.CharField(
         max_length=256
+    )
+
+    description = models.CharField(
+        max_length=2048,
+        blank=True,
+        null=True
     )
 
     order = models.IntegerField()
@@ -301,6 +323,14 @@ class Attachment(models.Model):
 
     link = models.CharField(
         max_length=2048
+    )
+
+    topic = models.ForeignKey(
+        'AssessmentTopic',
+        related_name='attachments',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
 
     question = models.ForeignKey(

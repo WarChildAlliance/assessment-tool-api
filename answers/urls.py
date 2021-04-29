@@ -12,7 +12,7 @@ router.register(r'(?P<student_id>\d+)/sessions',
 router.register(r'(?P<student_id>\d+)/topics',
                 views.AssessmentTopicAnswersViewSet, basename='answer-topic')
 # /answers/<student_id>/topics/
-# /answers/<student_id>/topics/{topic_pk}/
+# /answers/<student_id>/topics/{topic_answer_pk}/
 router.register(r'(?P<student_id>\d+)',
                 views.AnswersViewSet, basename='answers')
 # /answers/<student_id>/

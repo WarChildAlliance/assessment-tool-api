@@ -31,7 +31,6 @@ class PolymorphicSerializer(serializers.ModelSerializer):
                 type_str = type_str.value
         else:
             type_str = obj.__class__.__name__
-
         try:
             serializer = self.get_serializer_map()[type_str]
         except KeyError:
@@ -40,7 +39,7 @@ class PolymorphicSerializer(serializers.ModelSerializer):
 
         data = serializer(obj, context=self.context,
                           partial=self.partial).to_representation(obj)
-        data['type'] = type_str
+        # data['type'] = type_str
         return data
 
     def to_internal_value(self, data):
@@ -105,4 +104,3 @@ class NestedRelatedField(serializers.PrimaryKeyRelatedField):
 
     def to_internal_value(self, data):
         return serializers.PrimaryKeyRelatedField.to_internal_value(self, data)
-

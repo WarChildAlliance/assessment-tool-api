@@ -79,7 +79,6 @@ class AssessmentTopicsViewSet(ModelViewSet):
 
         user = self.request.user
         assessment_pk = self.kwargs['assessment_pk']
-
         if user.is_student():
             return AssessmentTopic.objects.filter(
                 assessment=assessment_pk,

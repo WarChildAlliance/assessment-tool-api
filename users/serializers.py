@@ -1,6 +1,15 @@
 from rest_framework import serializers
 
-from .models import User
+from admin.lib.serializers import NestedRelatedField
+
+from .models import Language, User
+
+
+class LanguageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Language
+        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -9,6 +18,8 @@ class UserSerializer(serializers.ModelSerializer):
     """
 
     password = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    language = NestedRelatedField(
+        model=Language, serializer_class=LanguageSerializer)
 
     class Meta:
         model = User

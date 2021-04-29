@@ -46,7 +46,9 @@ AUTH_USER_MODEL = 'users.User'
 # CORS settings
 
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:4200'
+    'http://localhost:4200',
+    'http://localhost:4300',
+    'http://localhost:8080'
 ]
 
 CORS_ALLOW_METHODS = [

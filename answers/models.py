@@ -4,7 +4,6 @@ from django.db import models
 from model_utils.managers import InheritanceManager
 from users.models import User
 
-
 class AnswerSession(models.Model):
     """
     Answer session model.

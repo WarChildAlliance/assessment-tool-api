@@ -9,9 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from admin.lib.viewsets import ModelViewSet
-from users.models import User
+from users.models import User, Language
 from users.permissions import HasAccess, IsSupervisor
-from users.serializers import UserSerializer
+from users.serializers import UserSerializer, LanguageSerializer
 
 
 def student_key_generator():
@@ -98,7 +98,7 @@ class UsersViewSet(ModelViewSet):
         elif self.action == 'destroy':
             permission_classes.append(HasAccess)
             permission_classes.append(IsSupervisor)
-        else:
+        elif self.name != 'Get self':
             permission_classes.append(IsSupervisor)
         return [permission() for permission in permission_classes]
 
@@ -142,3 +142,25 @@ class UsersViewSet(ModelViewSet):
         user = self.request.user
         serializer = self.get_serializer(user)
         return Response(serializer.data, status=200)
+
+
+class LanguagesViewSet(ModelViewSet):
+    """
+    Answers viewset.
+    """
+
+    serializer_class = LanguageSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Language.objects.all()
+
+    def create(self, request):
+        return Response('Cannot create language', status=403)
+
+    def update(self, request, pk=None):
+        return Response('Cannot update language', status=403)
+
+    def partial_update(self, request, pk=None):
+        return Response('Cannot update language', status=403)
+
+    def destroy(self, request, pk=None):
+        return Response('Cannot delete language', status=403)
