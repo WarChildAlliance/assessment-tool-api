@@ -156,30 +156,20 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
             student__created_by=user, topic__assessment__id=assessment_pk)
 
     @action(detail=False, methods=['post'])
-    def bulk_create(self, request):
+    def bulk_create(self, request, *args, **kwargs):
         """
         Assign assessment topics to students.
         """
-        start_date = request.data.get('start_date', None)
-        end_date = request.data.get('end_date', None)
 
-        if 'topic' in request.data:
-            formatted_data = list(map(
-                lambda x: {'student': x, 'topic': request.data['topic'],
-                        'start_date': start_date, 'end_date': end_date},
-                request.data['students']))
-        elif 'topics' in request.data:
-            formatted_data = []
+        formatted_data = []
+        for student in request.data['students']:
             for topic in request.data['topics']:
-                for student in request.data['students']:
-                    formatted_data.append({
-                        'student': student,
-                        'topic': topic,
-                        'start_date': start_date,
-                        'end_date': end_date
-                    })
-        else:
-            return Response('Field \'topic\' or \'topics\' required', status=400)
+                formatted_data.append({
+                    'student': student,
+                    'topic': topic['topic'],
+                    'start_date': topic['start_date'],
+                    'end_date': topic['end_date']
+                })
 
         serializer = self.get_serializer(data=formatted_data, many=True)
         serializer.is_valid(raise_exception=True)
