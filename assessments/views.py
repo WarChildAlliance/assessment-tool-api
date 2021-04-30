@@ -163,12 +163,12 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
 
         formatted_data = []
         for student in request.data['students']:
-            for topic in request.data['topics']:
+            for access in request.data['accesses']:
                 formatted_data.append({
                     'student': student,
-                    'topic': topic['topic'],
-                    'start_date': topic['start_date'],
-                    'end_date': topic['end_date']
+                    'topic': access['topic'],
+                    'start_date': access['start_date'],
+                    'end_date': access['end_date']
                 })
 
         serializer = self.get_serializer(data=formatted_data, many=True)
