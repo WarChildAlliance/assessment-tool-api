@@ -2,13 +2,19 @@ from rest_framework import serializers
 
 from admin.lib.serializers import NestedRelatedField
 
-from .models import Language, User
+from .models import Language, Country, User
 
 
 class LanguageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Language
+        fields = '__all__'
+
+class CountrySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Country
         fields = '__all__'
 
 

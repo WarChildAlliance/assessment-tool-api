@@ -9,9 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from admin.lib.viewsets import ModelViewSet
-from users.models import User, Language
+from users.models import User, Language,  Country
 from users.permissions import HasAccess, IsSupervisor
-from users.serializers import UserSerializer, LanguageSerializer
+from users.serializers import UserSerializer, LanguageSerializer, CountrySerializer
 
 
 def student_key_generator():
@@ -164,3 +164,25 @@ class LanguagesViewSet(ModelViewSet):
 
     def destroy(self, request, pk=None):
         return Response('Cannot delete language', status=403)
+
+
+class CountriesViewSet(ModelViewSet):
+    """
+    Countries viewset.
+    """
+
+    serializer_class = CountrySerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Country.objects.all()
+
+    def create(self, request):
+        return Response('Cannot create country', status=403)
+
+    def update(self, request, pk=None):
+        return Response('Cannot update country', status=403)
+
+    def partial_update(self, request, pk=None):
+        return Response('Cannot update country', status=403)
+
+    def destroy(self, request, pk=None):
+        return Response('Cannot delete country', status=403)
