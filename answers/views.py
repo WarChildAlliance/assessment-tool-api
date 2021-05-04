@@ -1,3 +1,7 @@
+from datetime import date
+
+from assessments.models import AssessmentTopicAccess, Question
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -9,6 +13,7 @@ from admin.lib.viewsets import ModelViewSet
 from .models import Answer, AnswerSession, AssessmentTopicAnswer
 from .serializers import (AnswerSerializer, AnswerSessionFullSerializer,
                           AnswerSessionSerializer,
+                          AssessmentTopicAnswerFullSerializer,
                           AssessmentTopicAnswerSerializer)
 
 
@@ -35,7 +40,7 @@ class AnswersViewSet(ModelViewSet):
         Queryset to get allowed answers.
         """
         user = self.request.user
-        student_id = self.kwargs.get('student_id', None)
+        student_id = int(self.kwargs.get('student_id', None))
 
         if user.is_student() and user.id == student_id:
             return Answer.objects.filter(
@@ -71,14 +76,6 @@ class AnswersViewSet(ModelViewSet):
 
     def destroy(self, request, pk=None):
         return Response('Cannot delete answer', status=403)
-
-    @action(detail=False, methods=['post'], serializer_class=AnswerSessionFullSerializer)
-    def create_all(self, request, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=201, headers=headers)
 
 
 class AnswerSessionsViewSet(ModelViewSet):
@@ -116,6 +113,49 @@ class AnswerSessionsViewSet(ModelViewSet):
         else:
             return AnswerSession.objects.none()
 
+    @action(detail=False, methods=['post'], serializer_class=AnswerSessionFullSerializer)
+    def create_all(self, request, **kwargs):
+        """
+        Create a session, its topic answers and its answers.
+        """
+        student_id = int(self.kwargs.get('student_id', None))
+        request_data = request.data.copy()
+
+        for topic_answer in request_data.get('assessment_topic_answers', []):
+            # Check if topic answer is complete
+            if topic_answer['topic']:
+                topic_id = topic_answer['topic']
+            else:
+                topic_id = AssessmentTopicAccess.objects.values_list(
+                    'topic__id', flat=True).get(id=topic_answer['topic_acces'])
+            count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
+            count_questions_answered = len(topic_answer['answers'])
+            topic_answer['complete'] = (count_questions_answered == count_questions_in_topic)
+
+            # Get topic_access
+            if topic_answer['topic']:
+                try:
+                    topic_access = AssessmentTopicAccess.objects.get(
+                        Q(topic=topic_answer['topic']),
+                        Q(student=student_id),
+                        Q(start_date__lte=date.today) | Q(
+                            start_date__isnull=True),
+                        Q(end_date__gte=date.today) | Q(end_date__isnull=True)
+                    )
+                    topic_answer['topic_access'] = topic_access
+                    topic_answer.pop('topic')
+                except ObjectDoesNotExist:
+                    return Response('Student does not have access to this topic', status=400)
+
+            if not topic_answer['topic_access']:
+                return Response('No topic access defined', status=400)
+
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
+
 
 class AssessmentTopicAnswersViewSet(ModelViewSet):
     """
@@ -140,7 +180,7 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         Queryset to get allowed topic answers.
         """
         user = self.request.user
-        student_id = self.kwargs.get('student_id', None)
+        student_id = int(self.kwargs.get('student_id', None))
 
         if user.is_student() and user.id == student_id:
             return AssessmentTopicAnswer.objects.filter(
@@ -153,3 +193,92 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
             )
         else:
             return AssessmentTopicAnswer.objects.none()
+
+    def create(self, request, **kwargs):
+        """
+        Create a new topic answer.
+        """
+        request_data = request.data.copy()
+        student_id = int(kwargs.get('student_id', None))
+
+        if request_data['topic']:
+            try:
+                topic_access = AssessmentTopicAccess.objects.get(
+                    Q(topic=request_data['topic']),
+                    Q(student=student_id),
+                    Q(start_date__isnull=True) | Q(start_date__lte=date.today()),
+                    Q(end_date__isnull=True) | Q(end_date__gte=date.today())
+                )
+                request_data['topic_access'] = topic_access.id
+                request_data.pop('topic')
+            except ObjectDoesNotExist:
+                return Response('Student does not have access to this topic', status=400)
+
+        if not request_data['topic_access']:
+            return Response('No topic access defined', status=400)
+
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
+
+    def update(self, request, pk=None, **kwargs):
+        """
+        Update a topic answer.
+        """
+        partial = True
+        instance = self.get_object()
+
+        request_data = request.data.copy()
+    
+        # Check if topic answer is complete
+        topic_id = instance.topic_access.topic.id
+        count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
+        count_questions_answered = Answer.objects.filter(topic_answer=instance.id).count()
+        request_data['complete'] = (count_questions_answered == count_questions_in_topic)
+
+        serializer = self.get_serializer(instance, data=request_data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['post'], serializer_class=AssessmentTopicAnswerFullSerializer)
+    def create_all(self, request, **kwargs):
+        """
+        Create a topic answer and its answers.
+        """
+        request_data = request.data.copy()
+        student_id = int(self.kwargs.get('student_id', None))
+
+        # Check if topic answer is complete
+        if request_data['topic']:
+            topic_id = request_data['topic']
+        else:
+            topic_id = AssessmentTopicAccess.objects.values_list(
+                'topic__id', flat=True).get(id=request_data['topic_acces'])
+        count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
+        count_questions_answered = len(request_data['answers'])
+        request_data['complete'] = (count_questions_answered == count_questions_in_topic)
+
+        if request_data['topic']:
+            try:
+                topic_access = AssessmentTopicAccess.objects.get(
+                    Q(topic=request_data['topic']),
+                    Q(student=student_id),
+                    Q(start_date__lte=date.today) | Q(start_date__isnull=True),
+                    Q(end_date__gte=date.today) | Q(end_date__isnull=True)
+                )
+                request_data['topic_access'] = topic_access.id
+                request_data.pop('topic')
+            except ObjectDoesNotExist:
+                return Response('Student does not have access to this topic', status=400)
+
+        if not request_data['topic_access']:
+            return Response('No topic access defined', status=400)
+
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
