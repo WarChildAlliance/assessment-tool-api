@@ -206,3 +206,69 @@ class AnswerSessionFullSerializer(serializers.ModelSerializer):
                 topic_answer_serializer.save()
 
         return session
+
+class AnswerSessionTableSerializer(serializers.ModelSerializer):
+    """
+    Answer sessions serializer
+    """
+
+    # Total of topics completed
+    completed_topics_count = serializers.SerializerMethodField()
+    # Total of questions answered
+    answered_questions_count = serializers.SerializerMethodField()
+    # Percentage of correct answers on total
+    correct_answers_percentage = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AnswerSession
+        fields = ('completed_topics_count', 'answered_questions_count', 'correct_answers_percentage', 'end_date', 'start_date')
+
+    def get_completed_topics_count(self, instance):
+        return len(AssessmentTopicAnswer.objects.filter(session__student=instance.student, complete=True))
+
+    def get_answered_questions_count(self, instance):
+        return len(Answer.objects.filter(topic_answer__topic_access__student=instance.student))
+
+    def get_correct_answers_percentage(self, instance):
+
+        total_answers = self.get_answered_questions_count(instance)
+        total_valid_answers = len(Answer.objects.filter(topic_answer__topic_access__student=instance.student, valid=True))
+        correct_answers_percentage = 100 * total_valid_answers / total_answers
+
+        return correct_answers_percentage
+
+class AssessmentTopicAnswerTableSerializer(serializers.ModelSerializer):
+    """
+    Answer sessions serializer
+    """
+
+    # TODO : finish this
+    # Assessment name
+    assessment_name = serializers.SerializerMethodField()
+    # Total of topics completed per assessment
+    completed_topics_count = serializers.SerializerMethodField()
+    # Total of questions answered per assessment
+    answered_questions_count = serializers.SerializerMethodField()
+    # Percentage of correct answers on total per assessment 
+    correct_answers_percentage = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AssessmentTopicAnswer
+        fields = ('completed_topics_count', 'answered_questions_count', 'correct_answers_percentage', 'assessment_name')
+
+    def get_completed_topics_count(self, instance):
+        return len(AssessmentTopicAnswer.objects.filter(complete=True))
+
+    def get_answered_questions_count(self, instance):
+        return len(Answer.objects.filter(topic_answer__topic_access__student=instance.student))
+
+    def get_correct_answers_percentage(self, instance):
+
+        total_answers = self.get_answered_questions_count(instance)
+        total_valid_answers = len(Answer.objects.filter(topic_answer__topic_access__student=instance.student, valid=True))
+        correct_answers_percentage = 100 * total_valid_answers / total_answers
+
+        return correct_answers_percentage
+
+    def get_assessment_name(self, instance):
+        return 'Im tired'

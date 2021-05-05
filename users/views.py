@@ -70,7 +70,7 @@ class UsersViewSet(ModelViewSet):
     """
 
     serializer_class = UserSerializer
-    filterset_fields = ['role', 'country', 'language', 'created_by']
+    filterset_fields = ['first_name', 'role', 'country', 'language', 'created_by']
     search_fields = ['first_name', 'last_name', 'username', 'role']
 
     def get_queryset(self):
@@ -143,13 +143,12 @@ class UsersViewSet(ModelViewSet):
         serializer = self.get_serializer(user)
         return Response(serializer.data, status=200)
 
-    @action(detail=True, methods=['get'])
+    @action(detail=False, methods=['get'])
     def table_data(self, request, pk=None):
         """
         Fetch users table data
         """
-
-        users = self.get_queryset().filter(role='STUDENT')
+        users = self.filter_queryset(self.get_queryset()).filter(created_by=self.request.user, role='STUDENT')
 
         serializer = UserTableSerializer(
             users, many=True)

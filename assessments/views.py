@@ -50,7 +50,7 @@ class AssessmentsViewSet(ModelViewSet):
             assessmenttopic__assessmenttopicaccess__student=user
         ).distinct()
 
-    @action(detail=True, methods=['get'])
+    @action(detail=False, methods=['get'])
     def table_data(self, request, pk=None):
         """
         Fetch assessments table data
@@ -98,10 +98,10 @@ class AssessmentTopicsViewSet(ModelViewSet):
             ).distinct()
         return AssessmentTopic.objects.filter(assessment=assessment_pk)
 
-    @action(detail=True, methods=['get'])
-    def table_data(self, request, assessment_pk=None, pk=None):
+    @action(detail=False, methods=['get'])
+    def table_data(self, request, assessment_pk=None):
         """
-            Fetch assessment topics table data
+        Fetch assessment topics table data
         """
 
         topics = AssessmentTopic.objects.filter(
@@ -171,7 +171,7 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
     """
 
     serializer_class = AssessmentTopicAccessSerializer
-    parmission_classes = [IsAuthenticated, IsSupervisor]
+    permission_classes = [IsAuthenticated, IsSupervisor]
 
     def get_queryset(self):
         """
