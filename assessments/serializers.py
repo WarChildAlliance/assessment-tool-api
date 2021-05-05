@@ -35,6 +35,25 @@ class AssessmentSerializer(serializers.ModelSerializer):
         }}
 
 
+class AssessmentTableSerializer(serializers.ModelSerializer):
+    """
+    Assessment serializer for table.
+    """
+    topics_count = serializers.SerializerMethodField()
+    students_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Assessment
+        fields = ('title', 'language', 'topics_count',
+                  'students_count')
+
+    def get_topics_count(self, instance):
+        return len(AssessmentTopic.objects.filter(assessment=instance))
+
+    def get_students_count(self, instance):
+        return len(User.objects.filter(assessmenttopicaccess__topic__assessment=instance))
+
+
 class AssessmentTopicSerializer(serializers.ModelSerializer):
     """
     Assessment topic serializer.
@@ -51,6 +70,25 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
         if 'assessment' not in data:
             data['assessment'] = kwargs.get('assessment_pk', None)
         return super().to_internal_value(data)
+
+
+class AssessmentTopicTableSerializer(serializers.ModelSerializer):
+    """
+    Assessment topics table serializer.
+    """
+
+    # Total of students who have this topic
+    students_count = serializers.SerializerMethodField()
+    # Total of students who have this topic and completed it
+    #students_completed_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AssessmentTopic
+        fields = ('name', 'order',
+                  'students_count')
+
+    def get_students_count(self, instance):
+        return len(User.objects.filter(assessmenttopicaccess__topic=instance))
 
 
 class HintSerializer(serializers.ModelSerializer):

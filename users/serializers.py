@@ -3,6 +3,7 @@ from rest_framework import serializers
 from admin.lib.serializers import NestedRelatedField
 
 from .models import Language, Country, User
+from assessments.models import Assessment
 
 
 class LanguageSerializer(serializers.ModelSerializer):
@@ -50,8 +51,8 @@ class UserSerializer(serializers.ModelSerializer):
         if (not self.instance and data['role'] == 'SUPERVISOR' and
                 (data['password'] is None or data['password'] == '')):
             raise serializers.ValidationError('Supervisor must have a password.')
-        
-        if (not self.instance and data['role'] == 'STUDENT' and 
+
+        if (not self.instance and data['role'] == 'STUDENT' and
                 (not 'country' in data or not 'language' in data)):
             raise serializers.ValidationError('Student must have a language and a country')
 
@@ -82,3 +83,34 @@ class UserSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class UserTableSerializer(serializers.ModelSerializer):
+    """
+    Users table serializer.
+    """
+
+    # Student's full name
+    full_name = serializers.SerializerMethodField()
+    # Last session
+    last_session = serializers.SerializerMethodField()
+    # Number of topics completed by the student
+    completed_topics = serializers.SerializerMethodField()
+    # Number of assessments that the student is linked to
+    assessments_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('full_name', 'last_session', 'completed_topics', 'assessments_count', 'language', 'country')
+
+    def get_full_name(self, instance):
+        return (instance.first_name + ' ' + instance.last_name)
+
+    def get_last_session(self, instance):
+        return "Yesterday"
+
+    def get_completed_topics(self, instance):
+        return 666
+
+    def get_assessments_count(self, instance):
+        return len(Assessment.objects.filter(assessmenttopic__assessmenttopicaccess__student=instance)) 

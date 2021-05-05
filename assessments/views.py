@@ -11,7 +11,7 @@ from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess,
 from .serializers import (AssessmentSerializer,
                           AssessmentTopicAccessSerializer,
                           AssessmentTopicSerializer, AttachmentSerializer,
-                          QuestionSerializer)
+                          QuestionSerializer, AssessmentTableSerializer, AssessmentTopicTableSerializer)
 
 
 class AssessmentsViewSet(ModelViewSet):
@@ -50,6 +50,18 @@ class AssessmentsViewSet(ModelViewSet):
             assessmenttopic__assessmenttopicaccess__student=user
         ).distinct()
 
+    @action(detail=True, methods=['get'])
+    def table_data(self, request, pk=None):
+        """
+        Fetch assessments table data
+        """
+
+        serializer = AssessmentTableSerializer(self.get_queryset(), many=True)
+
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=200, headers=headers)
+
 
 class AssessmentTopicsViewSet(ModelViewSet):
     """
@@ -85,6 +97,22 @@ class AssessmentTopicsViewSet(ModelViewSet):
                 assessmenttopicaccess__student=user
             ).distinct()
         return AssessmentTopic.objects.filter(assessment=assessment_pk)
+
+    @action(detail=True, methods=['get'])
+    def table_data(self, request, assessment_pk=None, pk=None):
+        """
+            Fetch assessment topics table data
+        """
+
+        topics = AssessmentTopic.objects.filter(
+            assessment=assessment_pk)
+
+        serializer = AssessmentTopicTableSerializer(
+            self.get_queryset(), many=True)
+
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=200, headers=headers)
 
 
 class QuestionsViewSet(ModelViewSet):
@@ -166,7 +194,7 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
         if 'topic' in request.data:
             formatted_data = list(map(
                 lambda x: {'student': x, 'topic': request.data['topic'],
-                        'start_date': start_date, 'end_date': end_date},
+                           'start_date': start_date, 'end_date': end_date},
                 request.data['students']))
         elif 'topics' in request.data:
             formatted_data = []
