@@ -25,7 +25,7 @@ def check_answer_number_line_validity(sender, instance=None, **kwargs):
     Check answer validity for question input.
     """
     question_answer = Question.objects.get_subclass(
-        id=instance.question_id).valid_answer
+        id=instance.question_id).expected_value
     if question_answer == instance.value:
         instance.valid = True
     else:
