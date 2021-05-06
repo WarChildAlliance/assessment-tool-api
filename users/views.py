@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from admin.lib.viewsets import ModelViewSet
 from users.models import User, Language,  Country
 from users.permissions import HasAccess, IsSupervisor
-from users.serializers import UserSerializer, LanguageSerializer, CountrySerializer, UserTableSerializer
+from users.serializers import UserSerializer, LanguageSerializer, CountrySerializer
 
 
 def student_key_generator():
@@ -142,22 +142,6 @@ class UsersViewSet(ModelViewSet):
         user = self.request.user
         serializer = self.get_serializer(user)
         return Response(serializer.data, status=200)
-
-    @action(detail=False, methods=['get'])
-    def table_data(self, request, pk=None):
-        """
-        Fetch users table data
-        """
-        users = self.filter_queryset(self.get_queryset()).filter(created_by=self.request.user, role='STUDENT')
-
-        serializer = UserTableSerializer(
-            users, many=True)
-
-        headers = self.get_success_headers(serializer.data)
-
-        return Response(serializer.data, status=200, headers=headers)
-
-
 
 
 class LanguagesViewSet(ModelViewSet):

@@ -11,7 +11,7 @@ from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess,
 from .serializers import (AssessmentSerializer,
                           AssessmentTopicAccessSerializer,
                           AssessmentTopicSerializer, AttachmentSerializer,
-                          QuestionSerializer, AssessmentTableSerializer, AssessmentTopicTableSerializer)
+                          QuestionSerializer)
 
 
 class AssessmentsViewSet(ModelViewSet):
@@ -50,19 +50,6 @@ class AssessmentsViewSet(ModelViewSet):
             assessmenttopic__assessmenttopicaccess__student=user
         ).distinct()
 
-    @action(detail=False, methods=['get'])
-    def table_data(self, request, pk=None):
-        """
-        Fetch assessments table data
-        """
-
-        serializer = AssessmentTableSerializer(self.get_queryset(), many=True)
-
-        headers = self.get_success_headers(serializer.data)
-
-        return Response(serializer.data, status=200, headers=headers)
-
-
 class AssessmentTopicsViewSet(ModelViewSet):
     """
     Assessment topics viewset.
@@ -97,22 +84,6 @@ class AssessmentTopicsViewSet(ModelViewSet):
                 assessmenttopicaccess__student=user
             ).distinct()
         return AssessmentTopic.objects.filter(assessment=assessment_pk)
-
-    @action(detail=False, methods=['get'])
-    def table_data(self, request, assessment_pk=None):
-        """
-        Fetch assessment topics table data
-        """
-
-        topics = AssessmentTopic.objects.filter(
-            assessment=assessment_pk)
-
-        serializer = AssessmentTopicTableSerializer(
-            self.get_queryset(), many=True)
-
-        headers = self.get_success_headers(serializer.data)
-
-        return Response(serializer.data, status=200, headers=headers)
 
 
 class QuestionsViewSet(ModelViewSet):

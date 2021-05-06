@@ -12,9 +12,9 @@ from admin.lib.viewsets import ModelViewSet
 
 from .models import Answer, AnswerSession, AssessmentTopicAnswer
 from .serializers import (AnswerSerializer, AnswerSessionFullSerializer,
-                          AnswerSessionSerializer, AnswerSessionTableSerializer,
+                          AnswerSessionSerializer,
                           AssessmentTopicAnswerFullSerializer,
-                          AssessmentTopicAnswerSerializer, AssessmentTopicAnswerTableSerializer)
+                          AssessmentTopicAnswerSerializer)
 
 
 class AnswersViewSet(ModelViewSet):
@@ -156,21 +156,6 @@ class AnswerSessionsViewSet(ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
 
-    @action(detail=False, methods=['get'])
-    def table_data(self, request, student_id=None):
-        """
-        Fetch answers session table data
-        """
-
-        answers_session = AnswerSession.objects.filter(student=student_id)
-
-        serializer = AnswerSessionTableSerializer(
-            answers_session, many=True)
-
-        headers = self.get_success_headers(serializer.data)
-
-        return Response(serializer.data, status=200, headers=headers)
-
 class AssessmentTopicAnswersViewSet(ModelViewSet):
     """
     Topic answers viewset.
@@ -296,23 +281,3 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
-
-    @action(detail=False, methods=['get'])
-    def table_data(self, request, student_id=None, *args, **kwargs):
-        """
-        Fetch assessment answers table data
-        """
-
-        print('ARGS')
-        print(args)
-        print('KWARGS')
-        print(kwargs)
-
-        assessment_answers = AssessmentTopicAnswer.objects.filter(student=student_id)
-
-        serializer = AssessmentTopicAnswerTableSerializer(
-            assessment_answers, many=True)
-
-        headers = self.get_success_headers(serializer.data)
-
-        return Response(serializer.data, status=200, headers=headers)
