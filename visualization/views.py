@@ -136,33 +136,29 @@ class AssessmentAnswersTableViewSet(ModelViewSet):
         """
         Queryset to get allowed assessment answers.
         """
-        user = self.request.user
         student_pk = int(self.kwargs.get('student_pk', None))
+        session_pk = self.request.GET.get('session', None)
+
+        if(session_pk):
+            return Assessment.objects.filter(
+                assessmenttopic__assessmenttopicaccess__assessment_topic_answers__session__student = student_pk,
+                assessmenttopic__assessmenttopicaccess__assessment_topic_answers__session = session_pk
+            ).distinct()
 
         return Assessment.objects.filter(
-            assessmenttopic__assessmenttopicaccess__assessment_topic_answers__session__student=student_pk
-        )
+            assessmenttopic__assessmenttopicaccess__assessment_topic_answers__session__student = student_pk
+        ).distinct()
 
 
     def list(self, request, *args, **kwargs):
 
-        user = self.request.user
-
-        student_pk = int(self.kwargs.get('student_pk', None))
-        session_pk = request.query_params.get('session', None)
-
-        queryset = self.get_queryset()
-        
-        print(session_pk)
-
-        if (session_pk):
-            print('HAKUNAMATATA')
-            queryset = self.get_queryset().filter(assessmenttopic__assessmenttopicaccess__assessment_topic_answers__session=session_pk)
-            session = Assessment.objects.filter(assessmenttopic__assessmenttopicaccess__assessment_topic_answers__session=session_pk)
-            print(queryset)
-            print(session)
-
-        serializer = AssessmentAnswerTableSerializer(queryset, many=True, context={'student_pk': student_pk, 'session_pk': session_pk})
+        serializer = AssessmentAnswerTableSerializer(
+            self.get_queryset(), many = True,
+            context = {
+                'student_pk': int(self.kwargs.get('student_pk', None)),
+                'session_pk': request.query_params.get('session', None)
+                }
+            )
 
         return Response(serializer.data)
 
