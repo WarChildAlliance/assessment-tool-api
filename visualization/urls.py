@@ -27,17 +27,17 @@ router.register(r'users', views.UserTableViewSet, basename='users')
 
 router.register(r'sessions', views.AnswerSessionsTableViewSet, basename='sessions')
 
-router.register(r'student_answers/(?P<student_pk>\d+)/assessments', views.AssessmentAnswersTableViewSet, basename="assessments")
+router.register(r'student_answers/(?P<student_pk>\d+)/assessments', views.AssessmentAnswersTableViewSet, basename="assessment")
 
-answers_router = routers.NestedSimpleRouter(router, r'student_answers/(?P<student_pk>\d+)/assessments', lookup='assessments')
+answers_router = routers.NestedSimpleRouter(router, r'student_answers/(?P<student_pk>\d+)/assessments', lookup='assessment')
 
 #localhost:8002/visualization/student_answers/<student_pk>/assessments/
 
-answers_router.register(r'topics', views.AssessmentTopicsTableViewset, basename='topics')
+answers_router.register(r'topics', views.TopicAnswersTableViewSet, basename='topic')
 
-questions_router = routers.NestedSimpleRouter(answers_router, r'topics', lookup='topics')
+questions_router = routers.NestedSimpleRouter(answers_router, r'topics', lookup='topic')
 
-questions_router.register(r'questions', views.AssessmentTopicsTableViewset, basename='questions')
+questions_router.register(r'questions', views.AssessmentTopicsTableViewset, basename='question')
 
 
 

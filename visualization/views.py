@@ -162,7 +162,8 @@ class AssessmentAnswersTableViewSet(ModelViewSet):
 
         return Response(serializer.data)
 
-
+    def retrieve(self, request, *args, **kwargs):
+        return Response('Cannot access', status=403)
 
     def create(self, request):
         return Response('Cannot create user table', status=403)
@@ -183,12 +184,16 @@ class TopicAnswersTableViewSet(ModelViewSet):
 
     def get_queryset(self):
         """
-        Queryset to get allowed assessment answers.
+        Queryset to get allowed assessment topics answers.
         """
         student_pk = int(self.kwargs.get('student_pk', None))
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
 
-        return AssessmentTopicAnswer.objects.filter(topic_access__student=student_pk, topic_access__topic__assessment=assessment_pk)
+        queryset = AssessmentTopicAnswer.objects.filter(topic_access__student=student_pk, topic_access__topic__assessment=assessment_pk)
+
+        print(queryset)
+
+        return queryset
     
     def create(self, request):
         return Response('Cannot create user table', status=403)
