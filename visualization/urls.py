@@ -31,6 +31,8 @@ router.register(r'student_answers/(?P<student_pk>\d+)/assessments', views.Assess
 
 answers_router = routers.NestedSimpleRouter(router, r'student_answers/(?P<student_pk>\d+)/assessments', lookup='assessments')
 
+#localhost:8002/visualization/student_answers/<student_pk>/assessments/
+
 answers_router.register(r'topics', views.AssessmentTopicsTableViewset, basename='topics')
 
 questions_router = routers.NestedSimpleRouter(answers_router, r'topics', lookup='topics')

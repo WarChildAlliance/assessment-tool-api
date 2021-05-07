@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from users.models import User, Language, Country
-from assessments.models import Assessment, AssessmentTopic, Question
+from assessments.models import Assessment, AssessmentTopic, AssessmentTopicAccess, Question
 from answers.models import AnswerSession, AssessmentTopicAnswer, Answer
 
 
@@ -142,19 +142,30 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     completed_topics_count = serializers.SerializerMethodField()
     # Total of topics accessible by the student
     accessible_topics_count = serializers.SerializerMethodField()
+    # Total of topics completed per assessment
+    uncompleted_topics_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Assessment
-        fields = ('completed_topics_count', 'accessible_topics_count', 'title', 'language', 'country')
+        fields = ('completed_topics_count', 'uncompleted_topics_count', 'accessible_topics_count', 'title', 'language', 'country')
 
     def get_completed_topics_count(self, instance):
-        student_pk = self.context['request']
-        print('2')
-        print(student_pk)
-        return 2
+        student_pk = self.context['student_pk']
+        session_pk = self.context['session_pk']
+
+        if(session_pk):
+            return len(AssessmentTopicAnswer.objects.filter(session__student=student_pk, complete=True, session=session_pk))
+    
+        return len(AssessmentTopicAnswer.objects.filter(session__student=student_pk, complete=True))
     
     def get_accessible_topics_count(self, instance):
-        return 13
+        student_pk = self.context['student_pk']
+        
+        return len(AssessmentTopicAccess.objects.filter(student=student_pk, topic__assessment=instance))
+
+    def get_uncompleted_topics_count(self, instance):
+    
+        return (self.get_accessible_topics_count(instance) - self.get_completed_topics_count(instance))
 
 
 class TopicAnswerTableSerializer(serializers.ModelSerializer):

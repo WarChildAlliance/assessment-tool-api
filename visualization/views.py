@@ -7,9 +7,9 @@ from rest_framework.response import Response
 from users.models import User
 from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer
 
-from assessments.models import Assessment, AssessmentTopic
+from assessments.models import Assessment, AssessmentTopic, AssessmentTopicAccess
 
-from answers.models import AssessmentTopicAnswer
+from answers.models import AssessmentTopicAnswer, AnswerSession
 
 from django.db.models import Q
 
@@ -139,7 +139,33 @@ class AssessmentAnswersTableViewSet(ModelViewSet):
         user = self.request.user
         student_pk = int(self.kwargs.get('student_pk', None))
 
-        return Assessment.objects.filter(assessmenttopic__assessmenttopicaccess__assessment_topic_answers__session__student=student_pk)
+        return Assessment.objects.filter(
+            assessmenttopic__assessmenttopicaccess__assessment_topic_answers__session__student=student_pk
+        )
+
+
+    def list(self, request, *args, **kwargs):
+
+        user = self.request.user
+
+        student_pk = int(self.kwargs.get('student_pk', None))
+        session_pk = request.query_params.get('session', None)
+
+        queryset = self.get_queryset()
+        
+        print(session_pk)
+
+        if (session_pk):
+            print('HAKUNAMATATA')
+            queryset = self.get_queryset().filter(assessmenttopic__assessmenttopicaccess__assessment_topic_answers__session=session_pk)
+            session = Assessment.objects.filter(assessmenttopic__assessmenttopicaccess__assessment_topic_answers__session=session_pk)
+            print(queryset)
+            print(session)
+
+        serializer = AssessmentAnswerTableSerializer(queryset, many=True, context={'student_pk': student_pk, 'session_pk': session_pk})
+
+        return Response(serializer.data)
+
 
 
     def create(self, request):
