@@ -3,9 +3,6 @@ from rest_framework import serializers
 from admin.lib.serializers import NestedRelatedField
 
 from .models import Language, Country, User
-from assessments.models import Assessment
-from answers.models import AnswerSession, AssessmentTopicAnswer
-
 
 class LanguageSerializer(serializers.ModelSerializer):
 
