@@ -100,7 +100,7 @@ class AssessmentTopicTableSerializer(serializers.ModelSerializer):
     def get_students_completed_count(self, instance):
         return len(User.objects.filter(
             assessmenttopicaccess__topic=instance, 
-            assessmenttopicaccess__topic_answers__complete=True, 
+            assessmenttopicaccess__assessment_topic_answers__complete=True, 
         ).distinct())
 
 
@@ -122,16 +122,30 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
         model = AnswerSession
         fields = ('completed_topics_count', 'answered_questions_count', 'correct_answers_percentage', 'end_date', 'start_date')
 
+    # TODO make this works with the session instance
     def get_completed_topics_count(self, instance):
-        return len(AssessmentTopicAnswer.objects.filter(session__student=instance.student, complete=True))
+        return len(AssessmentTopicAnswer.objects.filter(
+            session__student=instance.student,
+            session=instance,
+            complete=True
+        ))
 
     def get_answered_questions_count(self, instance):
-        return len(Answer.objects.filter(topic_answer__topic_access__student=instance.student))
+        return len(Answer.objects.filter(
+            topic_answer__session__student=instance.student,
+            topic_answer__session=instance
+        ))
 
     def get_correct_answers_percentage(self, instance):
 
         total_answers = self.get_answered_questions_count(instance)
-        total_valid_answers = len(Answer.objects.filter(topic_answer__topic_access__student=instance.student, valid=True))
+
+        total_valid_answers = len(Answer.objects.filter(
+            topic_answer__session__student=instance.student,
+            topic_answer__session=instance,
+            valid=True
+        ))
+
         correct_answers_percentage = 100 * total_valid_answers / total_answers
 
         return correct_answers_percentage

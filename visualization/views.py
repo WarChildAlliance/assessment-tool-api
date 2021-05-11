@@ -159,8 +159,6 @@ class AssessmentAnswersTableViewSet(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
 
-        print(self.get_queryset())
-
         serializer = AssessmentAnswerTableSerializer(
             self.get_queryset(), many=True,
             context={
@@ -215,8 +213,6 @@ class TopicAnswersTableViewSet(ModelViewSet):
         )
 
     def list(self, request, *args, **kwargs):
-
-        print(self.get_queryset())
 
         serializer = TopicAnswerTableSerializer(
             self.get_queryset(), many=True,
@@ -276,8 +272,6 @@ class QuestionAnswersTableViewSet(ModelViewSet):
         )
 
     def list(self, request, *args, **kwargs):
-
-        print(self.get_queryset())
 
         serializer = QuestionAnswerTableSerializer(
             self.get_queryset(), many=True,

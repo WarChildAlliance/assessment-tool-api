@@ -15,13 +15,13 @@ assessments_router.register(r'topics', views.AssessmentTopicsTableViewset, basen
 # generates :
 # /visualization/assessments/{assessment_pk}/topics/
 
-router.register(r'users', views.UserTableViewSet, basename='users')
+router.register(r'students', views.UserTableViewSet, basename='students')
 # generates
-# /visualization/users/
+# /visualization/students/
 
-router.register(r'sessions', views.AnswerSessionsTableViewSet, basename='sessions')
+router.register(r'student_answers/(?P<student_pk>\d+)/sessions', views.AnswerSessionsTableViewSet, basename="sessions")
 # generates
-# /visualization/sessions/
+# /visualization/student_answers/{student_pk}/sessions/
 
 router.register(r'student_answers/(?P<student_pk>\d+)/assessments', views.AssessmentAnswersTableViewSet, basename="assessment")
 # generates
