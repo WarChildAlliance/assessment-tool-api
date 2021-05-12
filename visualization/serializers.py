@@ -66,6 +66,8 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
     """
     topics_count = serializers.SerializerMethodField()
     students_count = serializers.SerializerMethodField()
+    subject = serializers.SerializerMethodField()
+    private = serializers.SerializerMethodField()
 
     # Languages and countries formatted information
     language_name = serializers.SerializerMethodField()
@@ -75,9 +77,9 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assessment
-        fields = ('title', 'language_name', 'language_code',
-            'country_name', 'country_code', 'topics_count',
-            'students_count')
+        fields = ('id', 'title', 'language_name', 'language_code',
+                  'country_name', 'country_code', 'topics_count',
+                  'students_count', 'grade', 'subject', 'private')
 
     def get_topics_count(self, instance):
         return len(AssessmentTopic.objects.filter(assessment=instance))
@@ -97,6 +99,14 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
     def get_country_code(self, instance):
         return instance.country.code
 
+    def get_subject(self, instance):
+        return instance.get_subject_display()
+
+    def get_private(self, instance):
+        if (instance.private):
+            return 'Yes'
+        return 'No'
+
 
 class AssessmentTopicTableSerializer(serializers.ModelSerializer):
     """
@@ -110,8 +120,8 @@ class AssessmentTopicTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AssessmentTopic
-        fields = ('name', 'order',
-                  'students_count', 'students_completed_count')
+        fields = ('id', 'name', 'order', 'students_count',
+                  'students_completed_count')
 
     def get_students_count(self, instance):
         return len(User.objects.filter(assessmenttopicaccess__topic=instance).distinct())
@@ -121,6 +131,16 @@ class AssessmentTopicTableSerializer(serializers.ModelSerializer):
             assessmenttopicaccess__topic=instance,
             assessmenttopicaccess__assessment_topic_answers__complete=True,
         ).distinct())
+
+
+class QuestionTableSerializer(serializers.ModelSerializer):
+    """
+    Questions table serializer.
+    """
+
+    class Meta:
+        model = Question
+        fields = ('id', 'title', 'question_type', 'assessment_topic')
 
 
 class AnswerSessionTableSerializer(serializers.ModelSerializer):
@@ -137,7 +157,7 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnswerSession
-        fields = ('completed_topics_count', 'answered_questions_count',
+        fields = ('id', 'completed_topics_count', 'answered_questions_count',
                   'correct_answers_percentage', 'end_date', 'start_date')
 
     # TODO make this works with the session instance
@@ -164,7 +184,10 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
             valid=True
         ))
 
-        correct_answers_percentage = 100 * total_valid_answers / total_answers
+        correct_answers_percentage = None
+
+        if total_answers:
+            correct_answers_percentage = 100 * total_valid_answers / total_answers
 
         return correct_answers_percentage
 
@@ -174,6 +197,8 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     Assessment answers serializer 
     """
 
+    # Subject of the assessment in a readable format
+    subject = serializers.SerializerMethodField()
     # Total of topics completed per assessment
     completed_topics_count = serializers.SerializerMethodField()
     # Total of topics accessible by the student
@@ -181,9 +206,13 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     # Total of topics completed per assessment
     uncompleted_topics_count = serializers.SerializerMethodField()
 
+    # Languages and countries formatted information
+    language_name = serializers.SerializerMethodField()
+    country_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Assessment
-        fields = ('title', 'language', 'country', 'completed_topics_count',
+        fields = ('id', 'title', 'subject', 'language_name', 'country_name', 'completed_topics_count',
                   'uncompleted_topics_count', 'accessible_topics_count')
 
     def get_completed_topics_count(self, instance):  # For sessions and not
@@ -227,6 +256,15 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
 
         return len(AssessmentTopicAccess.objects.filter(student=student_pk, topic__assessment=instance))
 
+    def get_subject(self, instance):
+        return instance.get_subject_display()
+
+    def get_language_name(self, instance):
+        return instance.language.name_en
+
+    def get_country_name(self, instance):
+        return instance.country.name_en
+
 
 class TopicAnswerTableSerializer(serializers.ModelSerializer):
     """
@@ -242,9 +280,12 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
     # Percentage of correct answers on total
     topic_name = serializers.SerializerMethodField()
 
+    complete = serializers.SerializerMethodField()
+
+    # TODO Verify that this serializer is working properly. I'm not sure why student_pk aren't used
     class Meta:
         model = AssessmentTopicAnswer
-        fields = ('topic_name', 'complete', 'start_date', 'end_date',
+        fields = ('id', 'topic_name', 'complete', 'start_date', 'end_date',
                   'total_questions_count', 'answered_questions_count', 'correct_answers_percentage')
 
     def get_topic_name(self, instance):
@@ -294,6 +335,11 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
 
         return correct_answers_percentage
 
+    def get_complete(self, instance):
+        if(instance.complete):
+            return 'Yes'
+        return 'No'
+
 
 class QuestionAnswerTableSerializer(serializers.ModelSerializer):
     """
@@ -303,9 +349,16 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
     # Total number of questions
     question_type = serializers.SerializerMethodField()
 
+    valid = serializers.SerializerMethodField()
+
     class Meta:
         model = Answer
         fields = ('id', 'duration', 'valid', 'question_type')
 
     def get_question_type(self, instance):
         return instance.question.get_question_type_display()
+
+    def get_valid(self, instance):
+        if(instance.valid):
+            return 'Yes'
+        return 'No'

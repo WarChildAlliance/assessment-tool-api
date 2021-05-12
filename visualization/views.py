@@ -4,7 +4,7 @@ from admin.lib.viewsets import ModelViewSet
 from rest_framework.response import Response
 
 from users.models import User
-from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer
+from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer
 
 from assessments.models import Assessment, AssessmentTopic
 
@@ -48,7 +48,7 @@ class AssessmentTableViewSet(ModelViewSet):
     """
 
     serializer_class = AssessmentTableSerializer
-    filterset_fields = ['grade', 'country', 'language', 'subject']
+    filterset_fields = ['grade', 'subject', 'country', 'language']
 
     def get_queryset(self):
         """
@@ -76,6 +76,34 @@ class AssessmentTopicsTableViewset(ModelViewSet):
     """
 
     serializer_class = AssessmentTopicTableSerializer
+
+    def get_queryset(self):
+        """
+        Queryset to get allowed assessment topics table.
+        """
+
+        assessment_pk = int(self.kwargs.get('assessment_pk', None))
+        return AssessmentTopic.objects.filter(assessment=assessment_pk)
+
+    def create(self, request):
+        return Response('Unauthorized', status=403)
+
+    def update(self, request, pk=None):
+        return Response('Unauthorized', status=403)
+
+    def partial_update(self, request, pk=None):
+        return Response('Unauthorized', status=403)
+
+    def destroy(self, request, pk=None):
+        return Response('Unauthorized', status=403)
+
+
+class QuestionsTableViewset(ModelViewSet):
+    """
+    Assessment topics table viewset
+    """
+
+    serializer_class = QuestionTableSerializer
 
     def get_queryset(self):
         """

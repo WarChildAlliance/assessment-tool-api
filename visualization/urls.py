@@ -15,6 +15,13 @@ assessments_router.register(r'topics', views.AssessmentTopicsTableViewset, basen
 # generates :
 # /visualization/assessments/{assessment_pk}/topics/
 
+""" 
+questions_router = routers.NestedSimpleRouter(router, r'topics', lookup='assessment-topics')
+questions_router.register(r'questions', views.QuestionsTableViewset, basename='assessment-topics-questions')
+# generates :
+# /visualization/assessments/{assessment_pk}/topics/{topic_pk}/questions/
+"""
+
 router.register(r'students', views.UserTableViewSet, basename='students')
 # generates
 # /visualization/students/
@@ -32,14 +39,15 @@ answers_router.register(r'topics', views.TopicAnswersTableViewSet, basename='top
 # generates
 # /visualization/student_answers/{student_pk}/assessments/{assessment_pk}/topics/
 
-questions_router = routers.NestedSimpleRouter(answers_router, r'topics', lookup='topic')
-questions_router.register(r'questions', views.QuestionAnswersTableViewSet, basename='question')
+questions_answers_router = routers.NestedSimpleRouter(answers_router, r'topics', lookup='topic')
+questions_answers_router.register(r'questions', views.QuestionAnswersTableViewSet, basename='question')
 # generates
 # /visualization/student_answers/{student_pk}/assessments/{assessment_pk}/topics/{topic_pk}/questions/
 
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(assessments_router.urls)),
+    #path('', include(questions_router.urls)),
     path('', include(answers_router.urls)),
-    path('', include(questions_router.urls)),
+    path('', include(questions_answers_router.urls)),
 ]
