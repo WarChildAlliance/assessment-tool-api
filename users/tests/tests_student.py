@@ -5,7 +5,7 @@ from rest_framework.test import APIClient, APITestCase
 from users.models import User
 
 
-class StudentTests(APITestCase):
+class UsersStudentTests(APITestCase):
     """
     User tests from a student account.
     """

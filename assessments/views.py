@@ -33,6 +33,8 @@ class AssessmentsViewSet(ModelViewSet):
         elif self.action == 'destroy' or self.action == 'update':
             permission_classes.append(HasAccess)
             permission_classes.append(IsSupervisor)
+        elif self.action == 'create':
+            permission_classes.append(IsSupervisor)
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
@@ -57,18 +59,15 @@ class AssessmentTopicsViewSet(ModelViewSet):
     """
 
     serializer_class = AssessmentTopicSerializer
-    filterset_fields = ['name', 'order', 'assessment']
+    filterset_fields = ['name', 'assessment']
     search_fields = ['name']
 
     def get_permissions(self):
         """
         Instantiate and return the list of permissions that this view requires.
         """
-        permission_classes = [IsAuthenticated]
-        if self.action == 'retrieve':
-            permission_classes.append(HasAccess)
-        elif self.action == 'destroy' or self.action == 'update':
-            permission_classes.append(HasAccess)
+        permission_classes = [IsAuthenticated, HasAccess]
+        if self.action == 'destroy' or self.action == 'update':
             permission_classes.append(IsSupervisor)
         return [permission() for permission in permission_classes]
 
@@ -76,7 +75,6 @@ class AssessmentTopicsViewSet(ModelViewSet):
         """
         Queryset to get allowed assessment topics.
         """
-
         user = self.request.user
         assessment_pk = self.kwargs['assessment_pk']
         if user.is_student():
@@ -84,6 +82,7 @@ class AssessmentTopicsViewSet(ModelViewSet):
                 assessment=assessment_pk,
                 assessmenttopicaccess__student=user
             ).distinct()
+
         return AssessmentTopic.objects.filter(assessment=assessment_pk)
 
 
@@ -98,11 +97,8 @@ class QuestionsViewSet(ModelViewSet):
         """
         Instantiate and return the list of permissions that this view requires.
         """
-        permission_classes = [IsAuthenticated]
-        if self.action == 'retrieve':
-            permission_classes.append(HasAccess)
-        elif self.action == 'destroy' or self.action == 'update':
-            permission_classes.append(HasAccess)
+        permission_classes = [IsAuthenticated, HasAccess]
+        if self.action == 'destroy' or self.action == 'update':
             permission_classes.append(IsSupervisor)
         return [permission() for permission in permission_classes]
 
