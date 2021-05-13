@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from users.models import User
 from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer
 
-from assessments.models import Assessment, AssessmentTopic
+from assessments.models import Assessment, AssessmentTopic, Question
 
 from answers.models import AssessmentTopicAnswer, AnswerSession, Answer
 
@@ -110,8 +110,11 @@ class QuestionsTableViewset(ModelViewSet):
         Queryset to get allowed assessment topics table.
         """
 
-        assessment_pk = int(self.kwargs.get('assessment_pk', None))
-        return AssessmentTopic.objects.filter(assessment=assessment_pk)
+        topic_pk = int(self.kwargs.get('topic_pk', None))
+
+        return Question.objects.filter(
+            assessment_topic=topic_pk
+        )
 
     def create(self, request):
         return Response('Unauthorized', status=403)
@@ -245,7 +248,6 @@ class TopicAnswersTableViewSet(ModelViewSet):
         serializer = TopicAnswerTableSerializer(
             self.get_queryset(), many=True,
             context={
-                'student_pk': int(self.kwargs.get('student_pk', None)),
                 'assessment_pk': int(self.kwargs.get('assessment_pk', None)),
                 'session_pk': request.query_params.get('session', None)
             }

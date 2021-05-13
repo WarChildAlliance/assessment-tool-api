@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import serializers
 
 from users.models import User
@@ -39,7 +41,7 @@ class UserTableSerializer(serializers.ModelSerializer):
         if not last_session:
             return None
         else:
-            return last_session.start_date
+            return last_session.start_date.strftime("%d %B %Y")
 
     def get_completed_topics_count(self, instance):
         return len(AssessmentTopicAnswer.objects.filter(topic_access__student=instance, complete=True))
@@ -155,12 +157,14 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
     # Percentage of correct answers on total
     correct_answers_percentage = serializers.SerializerMethodField()
 
+    start_date = serializers.SerializerMethodField()
+    end_date = serializers.SerializerMethodField()
+
     class Meta:
         model = AnswerSession
         fields = ('id', 'completed_topics_count', 'answered_questions_count',
-                  'correct_answers_percentage', 'end_date', 'start_date')
+                  'correct_answers_percentage', 'start_date', 'end_date')
 
-    # TODO make this works with the session instance
     def get_completed_topics_count(self, instance):
         return len(AssessmentTopicAnswer.objects.filter(
             session__student=instance.student,
@@ -187,9 +191,19 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
         correct_answers_percentage = None
 
         if total_answers:
-            correct_answers_percentage = 100 * total_valid_answers / total_answers
+            correct_answers_percentage = round((100 * total_valid_answers / total_answers), 2)
 
         return correct_answers_percentage
+    
+    def get_start_date(self, instance):
+        if (instance.start_date):
+            return instance.start_date.strftime("%d %B %Y - %H:%M:%S")
+        return None
+
+    def get_end_date(self, instance):
+        if (instance.end_date):
+            return instance.end_date.strftime("%d %B %Y - %H:%M:%S")
+        return None
 
 
 class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
@@ -277,16 +291,22 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
     answered_questions_count = serializers.SerializerMethodField()
     # Percentage of correct answers on total
     correct_answers_percentage = serializers.SerializerMethodField()
-    # Percentage of correct answers on total
+
+    id = serializers.SerializerMethodField()
     topic_name = serializers.SerializerMethodField()
 
     complete = serializers.SerializerMethodField()
 
-    # TODO Verify that this serializer is working properly. I'm not sure why student_pk aren't used
+    start_date = serializers.SerializerMethodField()
+    end_date = serializers.SerializerMethodField()
+
     class Meta:
         model = AssessmentTopicAnswer
         fields = ('id', 'topic_name', 'complete', 'start_date', 'end_date',
                   'total_questions_count', 'answered_questions_count', 'correct_answers_percentage')
+
+    def get_id(self, instance):
+        return AssessmentTopic.objects.get(assessmenttopicaccess__assessment_topic_answers=instance).id
 
     def get_topic_name(self, instance):
         return AssessmentTopic.objects.get(assessmenttopicaccess__assessment_topic_answers=instance).name
@@ -295,7 +315,6 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
         return len(Question.objects.filter(assessment_topic__assessmenttopicaccess__assessment_topic_answers=instance))
 
     def get_answered_questions_count(self, instance):
-        student_pk = self.context['student_pk']
         session_pk = self.context['session_pk']
 
         if (session_pk):
@@ -310,7 +329,6 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
         return answered_questions
 
     def get_correct_answers_percentage(self, instance):
-        student_pk = self.context['student_pk']
         session_pk = self.context['session_pk']
 
         total_answers = self.get_answered_questions_count(instance)
@@ -331,7 +349,7 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
         correct_answers_percentage = None
 
         if total_answers:
-            correct_answers_percentage = 100 * total_valid_answers / total_answers
+            correct_answers_percentage = round((100 * total_valid_answers / total_answers), 2)
 
         return correct_answers_percentage
 
@@ -339,6 +357,16 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
         if(instance.complete):
             return 'Yes'
         return 'No'
+    
+    def get_start_date(self, instance):
+        if (instance.start_date):
+            return instance.start_date.strftime("%d %B %Y - %H:%M:%S")
+        return None
+
+    def get_end_date(self, instance):
+        if (instance.end_date):
+            return instance.end_date.strftime("%d %B %Y - %H:%M:%S")
+        return None
 
 
 class QuestionAnswerTableSerializer(serializers.ModelSerializer):
