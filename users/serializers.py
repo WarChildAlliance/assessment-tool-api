@@ -2,13 +2,20 @@ from rest_framework import serializers
 
 from admin.lib.serializers import NestedRelatedField
 
-from .models import Language, User
+from .models import Language, User, Country
 
 
 class LanguageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Language
+        fields = '__all__'
+
+    
+class CountrySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Country
         fields = '__all__'
 
 
@@ -20,6 +27,8 @@ class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(required=False, allow_blank=True, write_only=True)
     language = NestedRelatedField(
         model=Language, serializer_class=LanguageSerializer)
+    country = NestedRelatedField(
+        model=Country, serializer_class=CountrySerializer)
 
     class Meta:
         model = User

@@ -55,6 +55,7 @@
     {
         "fields": {
             "assessment_topic": 3,
+            "order": 1,
             "question_type": "INPUT",
             "title": "Mr and Mrs Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal, thank you very much.\nWhat is the subject of this sentence?"
         },
@@ -64,6 +65,7 @@
     {
         "fields": {
             "assessment_topic": 3,
+            "order": 2,
             "question_type": "SELECT",
             "title": "Harry – yer a ________.\n Fill in the missing word."
         },
@@ -73,6 +75,7 @@
     {
         "fields": {
             "assessment_topic": 2,
+            "order": 1,
             "question_type": "SORT",
             "title": "Sort the numbers that are less than 10 and more than 10."
         },
@@ -82,6 +85,7 @@
     {
         "fields": {
             "assessment_topic": 1,
+            "order": 1,
             "question_type": "NUMBER_LINE",
             "title": "Identify the following number on the line: 8"
         },
