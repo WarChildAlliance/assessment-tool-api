@@ -21,7 +21,7 @@ class AssessmentTopicAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AssessmentTopicAnswer
-        fields = ('complete', 'duration', 'topic_access', 'session')
+        fields = '__all__'
 
 
 class AnswerSessionSerializer(serializers.ModelSerializer):
@@ -31,7 +31,7 @@ class AnswerSessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnswerSession
-        fields = ('duration', 'date', 'student')
+        fields = '__all__'
 
 
 class AnswerSerializer(PolymorphicSerializer):

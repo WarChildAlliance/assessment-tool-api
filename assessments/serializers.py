@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from users.models import User
-from users.serializers import UserSerializer
+from users.models import Country, Language, User
+from users.serializers import (CountrySerializer, LanguageSerializer,
+                               UserSerializer)
 
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 
@@ -24,11 +25,14 @@ class AssessmentSerializer(serializers.ModelSerializer):
     """
     Assessment serializer.
     """
+    language = NestedRelatedField(
+        model=Language, serializer_class=LanguageSerializer)
+    country = NestedRelatedField(
+        model=Country, serializer_class=CountrySerializer)
 
     class Meta:
         model = Assessment
-        fields = ('id', 'title', 'grade', 'subject',
-                  'language', 'country', 'private', 'created_by')
+        fields = '__all__'
         extra_kwargs = {'created_by': {
             'default': serializers.CurrentUserDefault(),
             'write_only': True
@@ -61,7 +65,7 @@ class HintSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hint
-        fields = ('text', 'attachments', 'question')
+        fields = '__all__'
         extra_kwargs = {'question': {
             'required': False,
             'write_only': True
@@ -97,7 +101,7 @@ class SelectOptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SelectOption
-        fields = ('id', 'value', 'valid', 'attachments', 'question_select')
+        fields = '__all__'
         extra_kwargs = {'question_select': {
             'required': False,
             'write_only': True
@@ -133,7 +137,7 @@ class SortOptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SortOption
-        fields = ('id', 'value', 'category', 'attachments', 'question_sort')
+        fields = '__all__'
         extra_kwargs = {'question_sort': {
             'required': False,
             'write_only': True
@@ -273,8 +277,7 @@ class QuestionInputSerializer(AbstractQuestionSerializer):
 
     class Meta:
         model = QuestionInput
-        fields = ('id', 'title', 'assessment_topic', 'hint',
-                  'question_type', 'valid_answer', 'attachments')
+        fields = '__all__'
 
 
 class QuestionSelectSerializer(AbstractQuestionSerializer):
@@ -285,8 +288,7 @@ class QuestionSelectSerializer(AbstractQuestionSerializer):
 
     class Meta:
         model = QuestionSelect
-        fields = ('id', 'title', 'assessment_topic', 'options',
-                  'question_type', 'multiple', 'attachments', 'hint')
+        fields = '__all__'
 
     def create(self, validated_data):
         """
@@ -333,8 +335,7 @@ class QuestionSortSerializer(AbstractQuestionSerializer):
 
     class Meta:
         model = QuestionSort
-        fields = ('id', 'title', 'assessment_topic', 'options', 'hint',
-                  'question_type', 'category_A', 'category_B', 'attachments')
+        fields = '__all__'
 
     def create(self, validated_data):
         """
@@ -380,9 +381,7 @@ class QuestionNumberLineSerializer(AbstractQuestionSerializer):
 
     class Meta:
         model = QuestionNumberLine
-        fields = ('id', 'title', 'assessment_topic', 'hint',
-                  'question_type', 'expected_value', 'start',
-                  'end', 'step', 'show_value', 'show_ticks', 'attachments')
+        fields = '__all__'
 
 
 class AssessmentTopicAccessListSerializer(serializers.ListSerializer):

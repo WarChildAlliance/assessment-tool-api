@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from model_utils.managers import InheritanceManager
 from users.models import User
@@ -28,7 +29,9 @@ class Assessment(models.Model):
         max_length=256
     )
 
-    grade = models.IntegerField()
+    grade = models.CharField(
+        max_length=32
+    )
 
     subject = models.CharField(
         max_length=32,
@@ -86,8 +89,6 @@ class AssessmentTopic(models.Model):
         null=True
     )
 
-    order = models.IntegerField()
-
     assessment = models.ForeignKey(
         'Assessment',
         on_delete=models.CASCADE,
@@ -95,14 +96,6 @@ class AssessmentTopic(models.Model):
 
     def __str__(self):
         return f'{self.name} ({self.assessment.id})'
-
-    class Meta:
-        constraints = [
-            models.constraints.UniqueConstraint(
-                fields=['order', 'assessment'],
-                name='unique_order'
-            )
-        ]
 
 
 class AssessmentTopicAccess(models.Model):
@@ -161,7 +154,13 @@ class Question(models.Model):
         NUMBER_LINE = 'NUMBER_LINE', 'Number line'
 
     title = models.CharField(
-        max_length=256
+        max_length=256,
+        null=True,
+        blank=True
+    )
+
+    order = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)]
     )
 
     assessment_topic = models.ForeignKey(
@@ -177,6 +176,14 @@ class Question(models.Model):
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
+    class Meta:
+        constraints = [
+            models.constraints.UniqueConstraint(
+                fields=['order', 'assessment_topic'],
+                name='unique_order'
+            )
+        ]
+
 
 class Hint(models.Model):
     """
@@ -184,7 +191,9 @@ class Hint(models.Model):
     """
 
     text = models.CharField(
-        max_length=512
+        max_length=512,
+        null=True,
+        blank=True
     )
 
     question = models.OneToOneField(
@@ -269,7 +278,9 @@ class SelectOption(models.Model):
     """
 
     value = models.CharField(
-        max_length=256
+        max_length=256,
+        null=True,
+        blank=True
     )
 
     valid = models.BooleanField()
@@ -290,7 +301,9 @@ class SortOption(models.Model):
     """
 
     value = models.CharField(
-        max_length=256
+        max_length=256,
+        null=True,
+        blank=True
     )
 
     category = models.CharField(
