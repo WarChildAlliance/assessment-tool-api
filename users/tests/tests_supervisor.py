@@ -5,7 +5,7 @@ from rest_framework.test import APIClient, APITestCase
 from users.models import User
 
 
-class SupervisorTests(APITestCase):
+class UsersSupervisorTests(APITestCase):
     """
     User tests from a supervisor account.
     """
@@ -58,7 +58,7 @@ class SupervisorTests(APITestCase):
         """
         url = reverse('user-list')
         data = {'first_name': 'Neville', 'last_name': 'Longbottom', 'country': 'JOR',
-                'language': 'ENG', 'role': 'STUDENT'}
+                'language': 'EN', 'role': 'STUDENT'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertRegex(response.data['username'], r'\d{6,}')
@@ -71,7 +71,7 @@ class SupervisorTests(APITestCase):
         Ensure that supervisors can create a supervisor.
         """
         url = reverse('user-list')
-        data = {'first_name': 'Albus', 'last_name': 'Dumbledore', 'country': 'JOR', 'language': 'ENG',
+        data = {'first_name': 'Albus', 'last_name': 'Dumbledore', 'country': 'JOR', 'language': 'EN',
                 'role': 'SUPERVISOR', 'email': 'albus@yopmail.com', 'password': 'alohomora'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
@@ -118,13 +118,21 @@ class SupervisorTests(APITestCase):
 
     def test_delete_student(self):
         """
-        Ensure that supervisors can delete a student.
+        Ensure that supervisors can delete a student they created.
         """
         url = reverse('user-detail', args=[1])
         response = self.client.delete(url, format='json')
         self.assertEqual(response.status_code, 204)
         users = User.objects.filter(id=1)
         self.assertEqual(len(users), 0)
+
+    def test_delete_student_other(self):
+        """
+        Ensure that supervisors cannot delete a student they didn't create.
+        """
+        url = reverse('user-detail', args=[2])
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.status_code, 403)
 
     def test_delete_supervisor_self(self):
         """
@@ -152,7 +160,7 @@ class SupervisorTests(APITestCase):
         """
         url = reverse('user-update-student-code', args=[1])
         previous_username = User.objects.get(id=1).username
-        response = self.client.get(url, format='json')
+        response = self.client.post(url, format='json')
         self.assertEqual(response.status_code, 200)
         new_username = User.objects.get(id=1).username
         self.assertNotEqual(previous_username, new_username)
@@ -163,5 +171,5 @@ class SupervisorTests(APITestCase):
         Ensure that supervisors cannot update a student code on a supervisor.
         """
         url = reverse('user-update-student-code', args=[4])
-        response = self.client.get(url, format='json')
+        response = self.client.post(url, format='json')
         self.assertEqual(response.status_code, 400)

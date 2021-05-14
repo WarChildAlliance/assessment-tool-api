@@ -5,7 +5,7 @@
             "name_local": "اَلْعَرَبِيَّةُ"
         },
         "model": "users.language",
-        "pk": "ARA"
+        "pk": "AR"
     },
     {
         "fields": {
@@ -13,11 +13,11 @@
             "name_local": null
         },
         "model": "users.language",
-        "pk": "ENG"
+        "pk": "EN"
     },
     {
         "fields": {
-            "language": "ARA",
+            "language": "AR",
             "name_en": "Jordan",
             "name_local": "الأردن‎"
         },
@@ -26,7 +26,7 @@
     },
     {
         "fields": {
-            "language": "ENG",
+            "language": "EN",
             "name_en": "United States",
             "name_local": null
         },

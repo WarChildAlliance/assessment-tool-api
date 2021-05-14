@@ -24,7 +24,7 @@ assessments_router.register(
 topics_router = routers.NestedSimpleRouter(
     assessments_router, r'topics', lookup='topic')
 topics_router.register(r'questions', views.QuestionsViewSet,
-                       basename='questions-for-topic')
+                       basename='topic-questions')
 # generates:
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/
@@ -32,7 +32,7 @@ topics_router.register(r'questions', views.QuestionsViewSet,
 questions_router = routers.NestedSimpleRouter(
     topics_router, r'questions', lookup='question')
 questions_router.register(
-    r'attachments', views.AttachmentsViewSet, basename='attachments')
+    r'attachments', views.AttachmentsViewSet, basename='question-attachments')
 # generates:
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/attachments/
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/attachments/{attachment_pk}/
