@@ -88,14 +88,6 @@ class AssessmentsSupervisorTests(APITestCase):
         response = self.client.delete(url, format='json')
         self.assertEqual(response.status_code, 204)
 
-    def test_delete_assessment_no_access(self):
-        """
-        Ensure that supervisors cannot delete an assessessment they haven't created.
-        """
-        url = reverse('assessments-detail', args=[1])
-        response = self.client.delete(url, format='json')
-        self.assertEqual(response.status_code, 404)
-
     # TOPICS
 
     def test_get_all_topics(self):

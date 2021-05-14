@@ -67,7 +67,7 @@ class AssessmentTopicsViewSet(ModelViewSet):
         Instantiate and return the list of permissions that this view requires.
         """
         permission_classes = [IsAuthenticated, HasAccess]
-        if self.action == 'destroy' or self.action == 'update':
+        if self.action == 'destroy' or self.action == 'update' or self.action == 'create':
             permission_classes.append(IsSupervisor)
         return [permission() for permission in permission_classes]
 
@@ -113,6 +113,18 @@ class QuestionsViewSet(ModelViewSet):
         return Question.objects.filter(
             assessment_topic=topic_pk, assessment_topic__assessment=assessment_pk
         ).select_subclasses()
+
+    def create(self, request, **kwargs):
+        return Response('Cannot create question (method not implemented)', status=404)
+
+    def update(self, request, pk=None):
+        return Response('Cannot update question (method not implemented)', status=404)
+
+    def partial_update(self, request, pk=None):
+        return Response('Cannot update question (method not implemented)', status=404)
+
+    def destroy(self, request, pk=None):
+        return Response('Cannot delete question (method not implemented)', status=404)
 
 
 class AttachmentsViewSet(ModelViewSet):
@@ -162,7 +174,7 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
         if 'topic' in request.data:
             formatted_data = list(map(
                 lambda x: {'student': x, 'topic': request.data['topic'],
-                        'start_date': start_date, 'end_date': end_date},
+                           'start_date': start_date, 'end_date': end_date},
                 request.data['students']))
         elif 'topics' in request.data:
             formatted_data = []
