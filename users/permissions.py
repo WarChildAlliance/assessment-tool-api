@@ -44,17 +44,37 @@ class HasAccess(permissions.BasePermission):
 
     message = 'The current user cannot perform this action'
 
+    def has_permission(self, request, view):
+        """
+        Returns whether the can access the sub-resourc
+        """
+        if view.basename == 'assessment-topics':
+            assessment_pk = view.kwargs['assessment_pk']
+            try:
+                assessment = Assessment.objects.get(id=assessment_pk)
+                return self.has_object_permission(request, view, assessment)
+            except:
+                return False
+
+        if view.basename == 'topic-questions':
+            topic_pk = view.kwargs['topic_pk']
+            try:
+                topic = AssessmentTopic.objects.get(id=topic_pk)
+                return self.has_object_permission(request, view, topic)
+            except:
+                return False
+
+        return True
+
     def has_object_permission(self, request, view, obj):
         """
         Returns whether the user has access to the requested object
         """
-
         if isinstance(obj, User):
             if request.user and request.user.is_student():
                 return request.user.id == obj.id
             if request.user and request.user.is_supervisor():
-                # TODO: Update to check student was created by supervisor
-                return request.user.id == obj.id or obj.is_student()
+                return request.user.id == obj.id or (obj.is_student() and obj.created_by == request.user)
 
         if isinstance(obj, Assessment):
             if request.user and request.user.is_student():

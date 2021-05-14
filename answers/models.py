@@ -1,18 +1,21 @@
-from datetime import date
-
 from django.db import models
+from django.utils import timezone
 from model_utils.managers import InheritanceManager
 from users.models import User
+
 
 class AnswerSession(models.Model):
     """
     Answer session model.
     """
 
-    duration = models.DurationField()
+    start_date = models.DateTimeField(
+        default=timezone.now
+    )
 
-    date = models.DateField(
-        default=date.today
+    end_date = models.DateTimeField(
+        blank=True,
+        null=True
     )
 
     student = models.ForeignKey(
@@ -21,8 +24,12 @@ class AnswerSession(models.Model):
         on_delete=models.CASCADE
     )
 
+    @property
+    def duration(self):
+        return self.end_date - self.start_date
+
     def __str__(self):
-        return f'{self.student} on {self.date}'
+        return f'{self.student} on {self.start_date}'
 
 
 class AssessmentTopicAnswer(models.Model):
@@ -37,10 +44,17 @@ class AssessmentTopicAnswer(models.Model):
     )
 
     complete = models.BooleanField(
-        default=True
+        default=False
     )
 
-    duration = models.DurationField()
+    start_date = models.DateTimeField(
+        default=timezone.now
+    )
+
+    end_date = models.DateTimeField(
+        blank=True,
+        null=True
+    )
 
     session = models.ForeignKey(
         'AnswerSession',
@@ -49,8 +63,8 @@ class AssessmentTopicAnswer(models.Model):
     )
 
     @property
-    def date(self):
-        return self.session.date
+    def duration(self):
+        return self.end_date - self.start_date
 
     @property
     def student(self):
@@ -85,7 +99,7 @@ class Answer(models.Model):
         Answer date
         """
         return self.topic_answer.date
-    
+
     @property
     def student(self):
         """

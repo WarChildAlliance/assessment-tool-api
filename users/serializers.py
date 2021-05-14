@@ -2,13 +2,18 @@ from rest_framework import serializers
 
 from admin.lib.serializers import NestedRelatedField
 
-from .models import Language, User
-
+from .models import Language, Country, User
 
 class LanguageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Language
+        fields = '__all__'
+
+class CountrySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Country
         fields = '__all__'
 
 
@@ -17,9 +22,12 @@ class UserSerializer(serializers.ModelSerializer):
     User serializer.
     """
 
-    password = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    password = serializers.CharField(
+        required=False, allow_blank=True, write_only=True)
     language = NestedRelatedField(
         model=Language, serializer_class=LanguageSerializer)
+    country = NestedRelatedField(
+        model=Country, serializer_class=CountrySerializer)
 
     class Meta:
         model = User
@@ -36,18 +44,22 @@ class UserSerializer(serializers.ModelSerializer):
         or have a set password.
         """
         if self.instance and self.instance.is_student() and 'username' in data:
-            raise serializers.ValidationError('Student code cannot be changed.')
+            raise serializers.ValidationError(
+                'Student code cannot be changed.')
 
         if self.instance and self.instance.is_student() and 'password' in data:
-            raise serializers.ValidationError('Student cannot have a password.')
+            raise serializers.ValidationError(
+                'Student cannot have a password.')
 
         if (not self.instance and data['role'] == 'SUPERVISOR' and
                 (data['password'] is None or data['password'] == '')):
-            raise serializers.ValidationError('Supervisor must have a password.')
-        
-        if (not self.instance and data['role'] == 'STUDENT' and 
+            raise serializers.ValidationError(
+                'Supervisor must have a password.')
+
+        if (not self.instance and data['role'] == 'STUDENT' and
                 (not 'country' in data or not 'language' in data)):
-            raise serializers.ValidationError('Student must have a language and a country')
+            raise serializers.ValidationError(
+                'Student must have a language and a country')
 
         return data
 
@@ -65,8 +77,10 @@ class UserSerializer(serializers.ModelSerializer):
         """
         instance.username = validated_data.get('username', instance.username)
         instance.email = validated_data.get('email', instance.email)
-        instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.first_name = validated_data.get(
+            'first_name', instance.first_name)
+        instance.last_name = validated_data.get(
+            'last_name', instance.last_name)
         instance.language = validated_data.get('language', instance.language)
         instance.country = validated_data.get('country', instance.country)
         instance.role = validated_data.get('role', instance.role)

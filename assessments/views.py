@@ -33,6 +33,8 @@ class AssessmentsViewSet(ModelViewSet):
         elif self.action == 'destroy' or self.action == 'update':
             permission_classes.append(HasAccess)
             permission_classes.append(IsSupervisor)
+        elif self.action == 'create':
+            permission_classes.append(IsSupervisor)
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
@@ -50,25 +52,21 @@ class AssessmentsViewSet(ModelViewSet):
             assessmenttopic__assessmenttopicaccess__student=user
         ).distinct()
 
-
 class AssessmentTopicsViewSet(ModelViewSet):
     """
     Assessment topics viewset.
     """
 
     serializer_class = AssessmentTopicSerializer
-    filterset_fields = ['name', 'order', 'assessment']
+    filterset_fields = ['name', 'assessment']
     search_fields = ['name']
 
     def get_permissions(self):
         """
         Instantiate and return the list of permissions that this view requires.
         """
-        permission_classes = [IsAuthenticated]
-        if self.action == 'retrieve':
-            permission_classes.append(HasAccess)
-        elif self.action == 'destroy' or self.action == 'update':
-            permission_classes.append(HasAccess)
+        permission_classes = [IsAuthenticated, HasAccess]
+        if self.action == 'destroy' or self.action == 'update' or self.action == 'create':
             permission_classes.append(IsSupervisor)
         return [permission() for permission in permission_classes]
 
@@ -76,7 +74,6 @@ class AssessmentTopicsViewSet(ModelViewSet):
         """
         Queryset to get allowed assessment topics.
         """
-
         user = self.request.user
         assessment_pk = self.kwargs['assessment_pk']
         if user.is_student():
@@ -84,6 +81,7 @@ class AssessmentTopicsViewSet(ModelViewSet):
                 assessment=assessment_pk,
                 assessmenttopicaccess__student=user
             ).distinct()
+
         return AssessmentTopic.objects.filter(assessment=assessment_pk)
 
 
@@ -98,11 +96,8 @@ class QuestionsViewSet(ModelViewSet):
         """
         Instantiate and return the list of permissions that this view requires.
         """
-        permission_classes = [IsAuthenticated]
-        if self.action == 'retrieve':
-            permission_classes.append(HasAccess)
-        elif self.action == 'destroy' or self.action == 'update':
-            permission_classes.append(HasAccess)
+        permission_classes = [IsAuthenticated, HasAccess]
+        if self.action == 'destroy' or self.action == 'update':
             permission_classes.append(IsSupervisor)
         return [permission() for permission in permission_classes]
 
@@ -117,6 +112,18 @@ class QuestionsViewSet(ModelViewSet):
         return Question.objects.filter(
             assessment_topic=topic_pk, assessment_topic__assessment=assessment_pk
         ).select_subclasses()
+
+    def create(self, request, **kwargs):
+        return Response('Cannot create question (method not implemented)', status=404)
+
+    def update(self, request, pk=None):
+        return Response('Cannot update question (method not implemented)', status=404)
+
+    def partial_update(self, request, pk=None):
+        return Response('Cannot update question (method not implemented)', status=404)
+
+    def destroy(self, request, pk=None):
+        return Response('Cannot delete question (method not implemented)', status=404)
 
 
 class AttachmentsViewSet(ModelViewSet):
@@ -143,7 +150,7 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
     """
 
     serializer_class = AssessmentTopicAccessSerializer
-    parmission_classes = [IsAuthenticated, IsSupervisor]
+    permission_classes = [IsAuthenticated, IsSupervisor]
 
     def get_queryset(self):
         """
