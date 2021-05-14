@@ -120,11 +120,13 @@ class AssessmentTopicTableSerializer(serializers.ModelSerializer):
     students_count = serializers.SerializerMethodField()
     # Total of students who have this topic and completed it
     students_completed_count = serializers.SerializerMethodField()
+    # Total of questions in this topic and completed it
+    questions_count = serializers.SerializerMethodField()
 
     class Meta:
         model = AssessmentTopic
-        fields = ('id', 'name', 'order', 'students_count',
-                  'students_completed_count')
+        fields = ('id', 'name', 'students_count',
+                  'students_completed_count', 'questions_count')
 
     def get_students_count(self, instance):
         return User.objects.filter(assessmenttopicaccess__topic=instance).distinct().count()
@@ -134,6 +136,10 @@ class AssessmentTopicTableSerializer(serializers.ModelSerializer):
             assessmenttopicaccess__topic=instance,
             assessmenttopicaccess__assessment_topic_answers__complete=True,
         ).distinct().count()
+
+    def get_questions_count(self, instance):
+        return Question.objects.filter(assessment_topic=instance).count()
+
 
 
 class QuestionTableSerializer(serializers.ModelSerializer):
@@ -145,7 +151,7 @@ class QuestionTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ('id', 'title', 'question_type',
+        fields = ('id', 'title', 'order', 'question_type',
                   'assessment_topic', 'has_attachment')
 
     def get_has_attachment(self, instance):
