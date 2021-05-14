@@ -5,6 +5,9 @@ from users.serializers import (CountrySerializer, LanguageSerializer,
 
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 
+from users.models import Language, Country
+from users.serializers import LanguageSerializer, CountrySerializer
+
 from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess,
                      Attachment, Hint, Question, QuestionInput,
                      QuestionNumberLine, QuestionSelect, QuestionSort,
@@ -25,6 +28,11 @@ class AssessmentSerializer(serializers.ModelSerializer):
     """
     Assessment serializer.
     """
+    language = NestedRelatedField(
+        model=Language, serializer_class=LanguageSerializer)
+    country = NestedRelatedField(
+        model=Country, serializer_class=CountrySerializer)
+
     language = NestedRelatedField(
         model=Language, serializer_class=LanguageSerializer)
     country = NestedRelatedField(

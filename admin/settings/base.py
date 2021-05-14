@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     'assessments.apps.AssessmentsConfig',
     'users.apps.UsersConfig',
     'answers.apps.AnswersConfig',
+    'visualization.apps.VisualizationConfig',
 ]
 
 MIDDLEWARE = [

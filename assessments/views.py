@@ -52,7 +52,6 @@ class AssessmentsViewSet(ModelViewSet):
             assessmenttopic__assessmenttopicaccess__student=user
         ).distinct()
 
-
 class AssessmentTopicsViewSet(ModelViewSet):
     """
     Assessment topics viewset.
@@ -151,7 +150,7 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
     """
 
     serializer_class = AssessmentTopicAccessSerializer
-    parmission_classes = [IsAuthenticated, IsSupervisor]
+    permission_classes = [IsAuthenticated, IsSupervisor]
 
     def get_queryset(self):
         """

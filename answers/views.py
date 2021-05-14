@@ -156,7 +156,6 @@ class AnswerSessionsViewSet(ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
 
-
 class AssessmentTopicAnswersViewSet(ModelViewSet):
     """
     Topic answers viewset.
