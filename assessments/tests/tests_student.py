@@ -171,3 +171,12 @@ class AssessmentsStudentTests(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     # ACCESS
+
+    def test_create_bulk_topic_access(self):
+        """
+        Ensure that supervisors can give access to topics they have access to.
+        """
+        url = reverse('assessment-accesses-bulk-create', args=[1])
+        data = {'students': [1], 'accesses': [{'topic': 1, 'start_date': '2021-01-01'}]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 403)

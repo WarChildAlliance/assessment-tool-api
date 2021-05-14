@@ -1,3 +1,4 @@
+from users.models import User
 from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -51,6 +52,7 @@ class AssessmentsViewSet(ModelViewSet):
         return Assessment.objects.filter(
             assessmenttopic__assessmenttopicaccess__student=user
         ).distinct()
+
 
 class AssessmentTopicsViewSet(ModelViewSet):
     """
@@ -167,16 +169,35 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
         """
         Assign assessment topics to students.
         """
-
+        assessment_pk = kwargs.get('assessment_pk')
+        user = request.user
         formatted_data = []
+
         for student in request.data['students']:
+            try:
+                User.objects.get(
+                    id=student, created_by=user, role=User.UserRole.STUDENT)
+            except:
+                return Response('Cannot create access for unauthorized students', status=400)
             for access in request.data['accesses']:
+                try:
+                    AssessmentTopic.objects.get(
+                        Q(id=access.get('topic')),
+                        Q(assessment__id=assessment_pk),
+                        Q(assessment__created_by=user) | Q(assessment__private=False))
+                except:
+                    return Response('Cannot create access for unauthorized topics \
+                        or topics in another assessment', status=400)
+
                 formatted_data.append({
                     'student': student,
-                    'topic': access['topic'],
-                    'start_date': access['start_date'],
-                    'end_date': access['end_date']
+                    'topic': access.get('topic'),
+                    'start_date': access.get('start_date', None),
+                    'end_date': access.get('end_date', None)
                 })
+
+        if len(formatted_data) == 0:
+            return Response('No data', status=400)
 
         serializer = self.get_serializer(data=formatted_data, many=True)
         serializer.is_valid(raise_exception=True)
