@@ -1,3 +1,4 @@
+from users.models import User
 from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -51,6 +52,7 @@ class AssessmentsViewSet(ModelViewSet):
         return Assessment.objects.filter(
             assessmenttopic__assessmenttopicaccess__student=user
         ).distinct()
+
 
 class AssessmentTopicsViewSet(ModelViewSet):
     """
@@ -163,30 +165,39 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
             student__created_by=user, topic__assessment__id=assessment_pk)
 
     @action(detail=False, methods=['post'])
-    def bulk_create(self, request):
+    def bulk_create(self, request, *args, **kwargs):
         """
         Assign assessment topics to students.
         """
-        start_date = request.data.get('start_date', None)
-        end_date = request.data.get('end_date', None)
+        assessment_pk = kwargs.get('assessment_pk')
+        user = request.user
+        formatted_data = []
 
-        if 'topic' in request.data:
-            formatted_data = list(map(
-                lambda x: {'student': x, 'topic': request.data['topic'],
-                           'start_date': start_date, 'end_date': end_date},
-                request.data['students']))
-        elif 'topics' in request.data:
-            formatted_data = []
-            for topic in request.data['topics']:
-                for student in request.data['students']:
-                    formatted_data.append({
-                        'student': student,
-                        'topic': topic,
-                        'start_date': start_date,
-                        'end_date': end_date
-                    })
-        else:
-            return Response('Field \'topic\' or \'topics\' required', status=400)
+        for student in request.data['students']:
+            try:
+                User.objects.get(
+                    id=student, created_by=user, role=User.UserRole.STUDENT)
+            except:
+                return Response('Cannot create access for unauthorized students', status=400)
+            for access in request.data['accesses']:
+                try:
+                    AssessmentTopic.objects.get(
+                        Q(id=access.get('topic')),
+                        Q(assessment__id=assessment_pk),
+                        Q(assessment__created_by=user) | Q(assessment__private=False))
+                except:
+                    return Response('Cannot create access for unauthorized topics \
+                        or topics in another assessment', status=400)
+
+                formatted_data.append({
+                    'student': student,
+                    'topic': access.get('topic'),
+                    'start_date': access.get('start_date', None),
+                    'end_date': access.get('end_date', None)
+                })
+
+        if len(formatted_data) == 0:
+            return Response('No data', status=400)
 
         serializer = self.get_serializer(data=formatted_data, many=True)
         serializer.is_valid(raise_exception=True)

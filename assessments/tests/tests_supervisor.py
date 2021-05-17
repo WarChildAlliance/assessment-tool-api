@@ -215,3 +215,39 @@ class AssessmentsSupervisorTests(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     # ACCESS
+
+    def test_create_bulk_topic_access(self):
+        """
+        Ensure that supervisors can give access to topics they have access to.
+        """
+        url = reverse('assessment-accesses-bulk-create', args=[2])
+        data = {'students': [1, 3], 'accesses': [{'topic': 3, 'start_date': '2021-01-01'}]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_bulk_topic_access_unauthorized_student(self):
+        """
+        Ensure that supervisors can give access to topics they have access to.
+        """
+        url = reverse('assessment-accesses-bulk-create', args=[2])
+        data = {'students': [2], 'accesses': [{'topic': 3, 'start_date': '2021-01-01'}]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_bulk_topic_access_unauthorized_topic(self):
+        """
+        Ensure that supervisors can give access to topics they have access to.
+        """
+        url = reverse('assessment-accesses-bulk-create', args=[2])
+        data = {'students': [1, 3], 'accesses': [{'topic': 1}]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_bulk_topic_access_unauthorized_assessment(self):
+        """
+        Ensure that supervisors can give access to topics they have access to.
+        """
+        url = reverse('assessment-accesses-bulk-create', args=[1])
+        data = {'students': [1, 3], 'accesses': [{'topic': 1, 'start_date': '2021-01-01'}]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 400)
