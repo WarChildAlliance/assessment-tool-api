@@ -149,11 +149,12 @@ class QuestionTableSerializer(serializers.ModelSerializer):
 
     has_attachment = serializers.SerializerMethodField()
     question_type = serializers.SerializerMethodField()
+    correct_answers_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
         fields = ('id', 'title', 'order', 'question_type',
-                  'assessment_topic', 'has_attachment')
+                  'assessment_topic', 'has_attachment', 'correct_answers_percentage')
 
     def get_has_attachment(self, instance):
         if(Attachment.objects.filter(question=instance)):
@@ -163,7 +164,25 @@ class QuestionTableSerializer(serializers.ModelSerializer):
     def get_question_type(self, instance):
         return instance.get_question_type_display()
         
+    def get_correct_answers_percentage(self, instance):
+        
+        total_answers = Answer.objects.filter(
+            question=instance
+        ).count()
 
+        total_valid_answers = Answer.objects.filter(
+            question=instance,
+            valid=True
+        ).count()
+
+        correct_answers_percentage = None
+
+        if total_answers:
+            correct_answers_percentage = round(
+                (100 * total_valid_answers / total_answers), 2)
+
+        return correct_answers_percentage
+        
 class AnswerSessionTableSerializer(serializers.ModelSerializer):
     """
     Answer sessions serializer
@@ -377,15 +396,19 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
 
     # Total number of questions
     question_type = serializers.SerializerMethodField()
+    question_order = serializers.SerializerMethodField()
 
     valid = serializers.SerializerMethodField()
 
     class Meta:
         model = Answer
-        fields = ('id', 'duration', 'valid', 'question_type')
+        fields = ('id', 'question_order', 'duration', 'valid', 'question_type')
 
     def get_question_type(self, instance):
         return instance.question.get_question_type_display()
+
+    def get_question_order(self, instance):
+        return instance.question.order
 
     def get_valid(self, instance):
         if(instance.valid):
