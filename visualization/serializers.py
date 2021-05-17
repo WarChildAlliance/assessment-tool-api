@@ -148,6 +148,7 @@ class QuestionTableSerializer(serializers.ModelSerializer):
     """
 
     has_attachment = serializers.SerializerMethodField()
+    question_type = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
@@ -159,6 +160,9 @@ class QuestionTableSerializer(serializers.ModelSerializer):
             return 'Yes'
         return 'No'
 
+    def get_question_type(self, instance):
+        return instance.get_question_type_display()
+        
 
 class AnswerSessionTableSerializer(serializers.ModelSerializer):
     """
