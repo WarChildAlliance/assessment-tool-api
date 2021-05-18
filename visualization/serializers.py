@@ -1,8 +1,12 @@
 from rest_framework import serializers
 
+from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
+
 from users.models import User
-from assessments.models import Assessment, AssessmentTopic, Attachment, Question
-from answers.models import AnswerSession, AssessmentTopicAnswer, Answer
+from assessments.models import Assessment, AssessmentTopic, Attachment, Question, QuestionInput, QuestionNumberLine, SelectOption, SortOption
+from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
+
+from assessments.serializers import (SelectOptionSerializer, SortOptionSerializer)
 
 
 class UserTableSerializer(serializers.ModelSerializer):
@@ -387,3 +391,92 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
         if(instance.valid):
             return 'Yes'
         return 'No'
+
+class AnswerTableSerializer(PolymorphicSerializer):
+
+    class Meta:
+        model = Answer
+        fields = '__all__'
+    
+    def get_serializer_map(self):
+        return {
+            'AnswerInput': AnswerInputTableSerializer,
+            'AnswerNumberLine': AnswerNumberLineTableSerializer,
+            'AnswerSelect': AnswerSelectTableSerializer,
+            'AnswerSort': AnswerSortTableSerializer
+        }
+
+
+class AbstractAnswerTableSerializer(serializers.ModelSerializer):
+
+    question_title = serializers.SerializerMethodField()
+    question_type = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Answer
+        fields = ('question_type', 'question_title', 'duration', 'valid')
+    
+    def get_question_title(self, instance):
+        return instance.question.title
+    
+    def get_question_type(self, instance):
+        return instance.question.get_question_type_display()
+    
+
+class AnswerInputTableSerializer(AbstractAnswerTableSerializer):
+
+    valid_answer = serializers.SerializerMethodField()
+
+    class Meta(AbstractAnswerTableSerializer.Meta):
+        model = AnswerInput
+        fields = AbstractAnswerTableSerializer.Meta.fields + ('valid_answer', 'value',)
+    
+    def get_valid_answer(self, instance):
+        return QuestionInput.objects.get(id=instance.question.id).valid_answer
+
+class AnswerNumberLineTableSerializer(AbstractAnswerTableSerializer):
+
+    start = serializers.SerializerMethodField()
+    end = serializers.SerializerMethodField()
+    expected_value = serializers.SerializerMethodField()
+
+    class Meta(AbstractAnswerTableSerializer.Meta):
+        model = AnswerNumberLine
+        fields = AbstractAnswerTableSerializer.Meta.fields + ('value', 'start', 'end', 'expected_value',)
+      
+    def get_start(self, instance):
+        return QuestionNumberLine.objects.get(id=instance.question.id).start
+    
+    def get_end(self, instance):
+        return QuestionNumberLine.objects.get(id=instance.question.id).end
+
+    def get_expected_value(self, instance):
+        return QuestionNumberLine.objects.get(id=instance.question.id).expected_value
+
+class AnswerSelectTableSerializer(AbstractAnswerTableSerializer):
+
+    other_options = serializers.SerializerMethodField()
+
+    selected_options = NestedRelatedField(model=SelectOption, serializer_class=SelectOptionSerializer, many=True)
+
+    class Meta(AbstractAnswerTableSerializer.Meta):
+        model = AnswerSelect
+        fields = AbstractAnswerTableSerializer.Meta.fields + ('other_options', 'selected_options',)
+    
+    def get_other_options(self, instance):
+        other_options_queryset = SelectOption.objects.filter(question_select=instance.question)
+        other_options_serializer = SelectOptionSerializer(other_options_queryset, many=True)
+        return other_options_serializer.data
+
+class AnswerSortTableSerializer(AbstractAnswerTableSerializer):
+
+    category_A = NestedRelatedField(
+        model=SortOption, serializer_class=SortOptionSerializer, many=True)
+    category_B = NestedRelatedField(
+        model=SortOption, serializer_class=SortOptionSerializer, many=True)
+
+    class Meta(AbstractAnswerTableSerializer):
+        model = AnswerSort
+        fields = AbstractAnswerTableSerializer.Meta.fields + ('category_A', 'category_B',)
+
+
