@@ -256,13 +256,33 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     accessible_topics_count = serializers.SerializerMethodField()
 
     # Languages and countries formatted information
-    language_name = serializers.SerializerMethodField()
-    country_name = serializers.SerializerMethodField()
+    first_session_correct_answers_percentage = serializers.SerializerMethodField()
+    last_session_correct_answers_percentage = serializers.SerializerMethodField()
+    last_session = serializers.SerializerMethodField()
 
     class Meta:
         model = Assessment
-        fields = ('id', 'title', 'subject', 'language_name', 'country_name',
-            'completed_topics_count', 'accessible_topics_count')
+        fields = ('id', 'title', 'subject', 'completed_topics_count', 'accessible_topics_count',
+            'first_session_correct_answers_percentage', 'last_session_correct_answers_percentage', 'last_session')
+
+    def find_correct_answers_from_session(self, session):
+
+        total_answers = Answer.objects.filter(
+                topic_answer__session=session
+            ).distinct().count()
+
+        total_valid_answers = Answer.objects.filter(
+                topic_answer__session=session,
+                valid=True
+            ).distinct().count()
+            
+        correct_answers_percentage = None
+
+        if total_answers:
+            correct_answers_percentage = round(
+                (100 * total_valid_answers / total_answers), 2)
+
+        return correct_answers_percentage
 
     def get_completed_topics_count(self, instance):
         student_pk = self.context['student_pk']
@@ -292,11 +312,51 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     def get_subject(self, instance):
         return instance.get_subject_display()
 
-    def get_language_name(self, instance):
-        return instance.language.name_en
+    def get_first_session_correct_answers_percentage(self, instance):
+        student_pk = self.context['student_pk']
+        session_pk = self.context['session_pk']
 
-    def get_country_name(self, instance):
-        return instance.country.name_en
+        if (session_pk):
+            return None
+
+        first_session = AnswerSession.objects.filter(
+            assessment_topic_answers__topic_access__topic__assessment=instance,
+            student=student_pk,
+        ).earliest('start_date')
+
+        correct_answers_percentage = self.find_correct_answers_from_session(first_session)
+
+        return correct_answers_percentage
+
+    def get_last_session_correct_answers_percentage(self, instance):
+        student_pk = self.context['student_pk']
+        session_pk = self.context['session_pk']
+
+        if (session_pk):
+            return None
+
+        last_session = AnswerSession.objects.filter(
+            assessment_topic_answers__topic_access__topic__assessment=instance,
+            student=student_pk,
+        ).latest('start_date')
+
+        correct_answers_percentage = self.find_correct_answers_from_session(last_session)
+
+        return correct_answers_percentage
+
+    def get_last_session(self, instance):
+        student_pk = self.context['student_pk']
+        session_pk = self.context['session_pk']
+
+        if (session_pk):
+            return None
+
+        last_session = AnswerSession.objects.filter(
+            assessment_topic_answers__topic_access__topic__assessment=instance,
+            student=student_pk,
+        ).latest('start_date')
+
+        return last_session.start_date
 
 
 class TopicAnswerTableSerializer(serializers.ModelSerializer):
