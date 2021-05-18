@@ -192,6 +192,7 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
     completed_topics_count = serializers.SerializerMethodField()
     # Total of questions answered
     answered_questions_count = serializers.SerializerMethodField()
+    correctly_answered_questions_count = serializers.SerializerMethodField()
     # Percentage of correct answers on total
     correct_answers_percentage = serializers.SerializerMethodField()
 
@@ -200,7 +201,7 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnswerSession
-        fields = ('id', 'completed_topics_count', 'answered_questions_count',
+        fields = ('id', 'completed_topics_count', 'answered_questions_count', 'correctly_answered_questions_count',
                   'correct_answers_percentage', 'start_date', 'end_date')
 
     def get_completed_topics_count(self, instance):
@@ -209,20 +210,22 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
             assessmenttopicaccess__assessment_topic_answers__complete=True
         ).distinct().count()
         
-
     def get_answered_questions_count(self, instance):
         return Answer.objects.filter(
             topic_answer__session=instance
+        ).count()
+
+    def get_correctly_answered_questions_count(self, instance):
+        return Answer.objects.filter(
+            topic_answer__session=instance,
+            valid=True
         ).count()
 
     def get_correct_answers_percentage(self, instance):
 
         total_answers = self.get_answered_questions_count(instance)
 
-        total_valid_answers = Answer.objects.filter(
-            topic_answer__session=instance,
-            valid=True
-        ).count()
+        total_valid_answers = self.get_correctly_answered_questions_count(instance)
 
         correct_answers_percentage = None
 
