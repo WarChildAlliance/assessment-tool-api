@@ -16,9 +16,9 @@ test:
     - postgres:latest
   before_script:
     - pip install pipenv
-    - pipenv install --sequential --dev
+    - pipenv install --system
   script: 
-    - ENV=test POSTGRES_HOST=postgres pipenv run python manage.py test
+    - ENV=test POSTGRES_HOST=postgres python manage.py test
 
 deploy:
   stage: deploy
