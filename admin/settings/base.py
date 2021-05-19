@@ -39,7 +39,7 @@ SECRET_KEY = '_nnx-zxrozl5p8w58%evez(#$r0a_y8#8__)iczmlys=5iz322'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://glmt-api.development.humanitarian.tech']
+ALLOWED_HOSTS = ['glmt-api.development.humanitarian.tech']
 
 AUTH_USER_MODEL = 'users.User'
 
