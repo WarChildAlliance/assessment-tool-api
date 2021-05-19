@@ -39,7 +39,7 @@ class UserTableSerializer(serializers.ModelSerializer):
         if not last_session:
             return None
         else:
-            return last_session.start_date.strftime("%d %B %Y")
+            return last_session.start_date
 
     def get_completed_topics_count(self, instance):
         return AssessmentTopic.objects.filter(
@@ -154,12 +154,12 @@ class QuestionTableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ('id', 'title', 'order', 'question_type',
-                  'assessment_topic', 'has_attachment', 'correct_answers_percentage')
+                  'has_attachment', 'correct_answers_percentage')
 
     def get_has_attachment(self, instance):
         if(Attachment.objects.filter(question=instance)):
-            return 'Yes'
-        return 'No'
+            return True
+        return False
 
     def get_question_type(self, instance):
         return instance.get_question_type_display()
@@ -237,12 +237,12 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
 
     def get_start_date(self, instance):
         if (instance.start_date):
-            return instance.start_date.strftime("%d %B %Y - %H:%M:%S")
+            return instance.start_date
         return None
 
     def get_end_date(self, instance):
         if (instance.end_date):
-            return instance.end_date.strftime("%d %B %Y - %H:%M:%S")
+            return instance.end_date
         return None
 
 
@@ -443,12 +443,12 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
 
     def get_start_date(self, instance):
         if (instance.start_date):
-            return instance.start_date.strftime("%d %B %Y - %H:%M:%S")
+            return instance.start_date
         return None
 
     def get_end_date(self, instance):
         if (instance.end_date):
-            return instance.end_date.strftime("%d %B %Y - %H:%M:%S")
+            return instance.end_date
         return None
 
 
@@ -462,13 +462,19 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
     question_order = serializers.SerializerMethodField()
 
     valid = serializers.SerializerMethodField()
+    has_attachment = serializers.SerializerMethodField()
 
     class Meta:
         model = Answer
-        fields = ('id', 'question_order', 'duration', 'valid', 'question_type')
+        fields = ('id', 'question_order', 'duration', 'valid', 'question_type', 'has_attachment')
 
     def get_question_type(self, instance):
         return instance.question.get_question_type_display()
+
+    def get_has_attachment(self, instance):
+        if(Attachment.objects.filter(question=instance.question)):
+            return True
+        return False
 
     def get_question_order(self, instance):
         return instance.question.order
