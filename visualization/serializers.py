@@ -70,7 +70,6 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
     topics_count = serializers.SerializerMethodField()
     students_count = serializers.SerializerMethodField()
     subject = serializers.SerializerMethodField()
-    private = serializers.SerializerMethodField()
 
     # Languages and countries formatted information
     language_name = serializers.SerializerMethodField()
@@ -104,11 +103,6 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
 
     def get_subject(self, instance):
         return instance.get_subject_display()
-
-    def get_private(self, instance):
-        if (instance.private):
-            return 'Yes'
-        return 'No'
 
 
 class AssessmentTopicTableSerializer(serializers.ModelSerializer):
@@ -377,8 +371,6 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     topic_name = serializers.SerializerMethodField()
 
-    complete = serializers.SerializerMethodField()
-
     start_date = serializers.SerializerMethodField()
     end_date = serializers.SerializerMethodField()
 
@@ -436,11 +428,6 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
 
         return correct_answers_percentage
 
-    def get_complete(self, instance):
-        if(instance.complete):
-            return 'Yes'
-        return 'No'
-
     def get_start_date(self, instance):
         if (instance.start_date):
             return instance.start_date
@@ -461,7 +448,6 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
     question_type = serializers.SerializerMethodField()
     question_order = serializers.SerializerMethodField()
 
-    valid = serializers.SerializerMethodField()
     has_attachment = serializers.SerializerMethodField()
 
     class Meta:
@@ -478,8 +464,3 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
 
     def get_question_order(self, instance):
         return instance.question.order
-
-    def get_valid(self, instance):
-        if(instance.valid):
-            return 'Yes'
-        return 'No'
