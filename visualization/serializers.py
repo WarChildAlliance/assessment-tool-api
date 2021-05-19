@@ -67,7 +67,10 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
     """
     Assessment serializer for table.
     """
+
+    # Total number of topics for this assessment
     topics_count = serializers.SerializerMethodField()
+    # Total number of students linked to this assessment
     students_count = serializers.SerializerMethodField()
     subject = serializers.SerializerMethodField()
 
@@ -110,11 +113,11 @@ class AssessmentTopicTableSerializer(serializers.ModelSerializer):
     Assessment topics table serializer.
     """
 
-    # Total of students who have this topic
+    # Total of students linked to this topic
     students_count = serializers.SerializerMethodField()
-    # Total of students who have this topic and completed it
+    # Total of students linked to this topic and who completed it
     students_completed_count = serializers.SerializerMethodField()
-    # Total of questions in this topic and completed it
+    # Total of questions in this topic
     questions_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -143,6 +146,7 @@ class QuestionTableSerializer(serializers.ModelSerializer):
 
     has_attachment = serializers.SerializerMethodField()
     question_type = serializers.SerializerMethodField()
+    # Overall percentage of correct answers on this question
     correct_answers_percentage = serializers.SerializerMethodField()
 
     class Meta:
@@ -182,16 +186,14 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
     Answer sessions serializer
     """
 
-    # Total of topics completed
+    # Total of completed topics for this session
     completed_topics_count = serializers.SerializerMethodField()
-    # Total of questions answered
+    # Total of answered questions for this session
     answered_questions_count = serializers.SerializerMethodField()
+    # Total of correctly answered questions for this session
     correctly_answered_questions_count = serializers.SerializerMethodField()
-    # Percentage of correct answers on total
+    # Overall percentage of correct answers for this session
     correct_answers_percentage = serializers.SerializerMethodField()
-
-    start_date = serializers.SerializerMethodField()
-    end_date = serializers.SerializerMethodField()
 
     class Meta:
         model = AnswerSession
@@ -229,17 +231,6 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
 
         return correct_answers_percentage
 
-    def get_start_date(self, instance):
-        if (instance.start_date):
-            return instance.start_date
-        return None
-
-    def get_end_date(self, instance):
-        if (instance.end_date):
-            return instance.end_date
-        return None
-
-
 class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     """
     Assessment answers serializer 
@@ -251,10 +242,11 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     completed_topics_count = serializers.SerializerMethodField()
     # Total of topics accessible by the student
     accessible_topics_count = serializers.SerializerMethodField()
-
-    # Languages and countries formatted information
+    # Overall percentage of correct answers for the first session
     first_session_correct_answers_percentage = serializers.SerializerMethodField()
+    # Overall percentage of correct answers for the last session
     last_session_correct_answers_percentage = serializers.SerializerMethodField()
+    # Last session datetime
     last_session = serializers.SerializerMethodField()
 
     class Meta:
@@ -363,16 +355,14 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
 
     # Total number of questions
     total_questions_count = serializers.SerializerMethodField()
-    # Total of questions answered
+    # Total of answered questions
     answered_questions_count = serializers.SerializerMethodField()
-    # Percentage of correct answers on total
+    # Overall percentage of correct answers
     correct_answers_percentage = serializers.SerializerMethodField()
-
+    # We have the AssessmentTopicAnswer's id, but need the Topic id, so we have to fetch it
     id = serializers.SerializerMethodField()
+    # Name of the topic to which this AssessmentTopicAnswer is linked to
     topic_name = serializers.SerializerMethodField()
-
-    start_date = serializers.SerializerMethodField()
-    end_date = serializers.SerializerMethodField()
 
     class Meta:
         model = AssessmentTopicAnswer
@@ -428,17 +418,6 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
 
         return correct_answers_percentage
 
-    def get_start_date(self, instance):
-        if (instance.start_date):
-            return instance.start_date
-        return None
-
-    def get_end_date(self, instance):
-        if (instance.end_date):
-            return instance.end_date
-        return None
-
-
 class QuestionAnswerTableSerializer(serializers.ModelSerializer):
     """
     Question answer serializer
@@ -446,8 +425,9 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
 
     # Total number of questions
     question_type = serializers.SerializerMethodField()
+    # Order of the question to which the Answer is linked
     question_order = serializers.SerializerMethodField()
-
+    # Specify is the linked question has an attachment
     has_attachment = serializers.SerializerMethodField()
 
     class Meta:
