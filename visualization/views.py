@@ -1,16 +1,19 @@
 
-from admin.lib.viewsets import ModelViewSet
-
-from rest_framework.response import Response
-
-from users.models import User
-from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer
-
+from answers.models import Answer, AnswerSession, AssessmentTopicAnswer
 from assessments.models import Assessment, AssessmentTopic, Question
-
-from answers.models import AssessmentTopicAnswer, AnswerSession, Answer
-
 from django.db.models import Q
+from rest_framework.response import Response
+from users.models import User
+
+from admin.lib.viewsets import ModelViewSet
+from visualization.serializers import (AnswerSessionTableSerializer,
+                                       AssessmentAnswerTableSerializer,
+                                       AssessmentTableSerializer,
+                                       AssessmentTopicTableSerializer,
+                                       QuestionAnswerTableSerializer,
+                                       QuestionTableSerializer,
+                                       TopicAnswerTableSerializer,
+                                       UserTableSerializer)
 
 
 class UserTableViewSet(ModelViewSet):
@@ -26,8 +29,7 @@ class UserTableViewSet(ModelViewSet):
         """
         Queryset to get allowed users.
         """
-
-        return User.objects.filter(created_by=self.request.user)
+        return User.objects.filter(created_by=self.request.user, role=User.UserRole.STUDENT)
 
     def create(self, request):
         return Response('Unauthorized', status=403)
