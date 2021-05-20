@@ -39,7 +39,7 @@ SECRET_KEY = '_nnx-zxrozl5p8w58%evez(#$r0a_y8#8__)iczmlys=5iz322'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['glmt-api.development.humanitarian.tech']
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -48,7 +48,9 @@ AUTH_USER_MODEL = 'users.User'
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:4200',
     'http://localhost:4300',
-    'http://localhost:8080'
+    'http://localhost:8080',
+    'https://glmt-admin.development.humanitarian.tech',
+    'https://glmt-main.development.humanitarian.tech',
 ]
 
 CORS_ALLOW_METHODS = [
@@ -175,3 +177,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
