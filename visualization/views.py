@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from users.models import User
-from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer
+from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer
 
 from assessments.models import Assessment, AssessmentTopic, Question
 
@@ -116,6 +116,12 @@ class QuestionsTableViewset(ModelViewSet):
         return Question.objects.filter(
             assessment_topic=topic_pk
         )
+    
+    def retrieve(self, request, *args, **kwargs):
+        question_pk = self.kwargs.get('pk', None)
+        question = get_object_or_404(self.get_queryset().select_subclasses(), pk=question_pk)
+        serializer = QuestionDetailsTableSerializer(question, many=False)  
+        return Response(serializer.data)
 
     def create(self, request):
         return Response('Unauthorized', status=403)
