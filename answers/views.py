@@ -1,5 +1,8 @@
 from datetime import date
 
+from django.db.models.signals import post_save
+from gamification.signals import on_topic_answer_submission
+
 from assessments.models import AssessmentTopicAccess, Question
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
@@ -201,6 +204,8 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         request_data = request.data.copy()
         student_id = int(kwargs.get('student_id', None))
 
+        post_save.connect(on_topic_answer_submission)
+
         if request_data.get('topic', None):
             try:
                 topic_access = AssessmentTopicAccess.objects.get(
@@ -231,7 +236,9 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         instance = self.get_object()
 
         request_data = request.data.copy()
-    
+
+        post_save.connect(on_topic_answer_submission)
+
         # Check if topic answer is complete
         topic_id = instance.topic_access.topic.id
         count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
@@ -251,6 +258,8 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         request_data = request.data.copy()
         student_id = int(self.kwargs.get('student_id', None))
         topic_id = None
+
+        post_save.connect(on_topic_answer_submission)
 
         if request_data.get('topic', None):
             topic_id = request_data.get('topic')

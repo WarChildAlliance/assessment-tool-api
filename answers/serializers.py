@@ -1,4 +1,4 @@
-from assessments.models import (AssessmentTopicAccess, Question, QuestionInput,
+from assessments.models import (AssessmentTopicAccess, Question, 
                                 SelectOption, SortOption)
 from assessments.serializers import (AssessmentTopicAccessSerializer,
                                      SelectOptionSerializer,
@@ -160,6 +160,7 @@ class AssessmentTopicAnswerFullSerializer(serializers.ModelSerializer):
         """
         Create assessment topic answer with answers.
         """
+
         if 'answers' in validated_data:
             validated_data.pop('answers')
             answers = self.initial_data['answers']
