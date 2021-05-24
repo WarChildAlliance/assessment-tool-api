@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'answers.apps.AnswersConfig',
     'visualization.apps.VisualizationConfig',
+    'gamification.apps.GamificationConfig',
 ]
 
 MIDDLEWARE = [

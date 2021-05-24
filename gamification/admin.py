@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Profile, TopicCompetency
+
+
+admin.site.register(Profile, admin.ModelAdmin)
+admin.site.register(TopicCompetency, admin.ModelAdmin)
