@@ -1,3 +1,6 @@
+from answers.models import Answer, AnswerSession, AssessmentTopicAnswer
+from assessments.models import (Assessment, AssessmentTopic, Attachment,
+                                Question)
 from rest_framework import serializers
 
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
@@ -145,7 +148,6 @@ class AssessmentTopicTableSerializer(serializers.ModelSerializer):
         return Question.objects.filter(assessment_topic=instance).count()
 
 
-
 class QuestionTableSerializer(serializers.ModelSerializer):
     """
     Questions table serializer.
@@ -285,7 +287,6 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
             assessmenttopicaccess__assessment_topic_answers__session=instance,
             assessmenttopicaccess__assessment_topic_answers__complete=True
         ).distinct().count()
-        
 
     def get_answered_questions_count(self, instance):
         return Answer.objects.filter(
@@ -339,7 +340,7 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessment
         fields = ('id', 'title', 'subject', 'language_name', 'country_name',
-            'completed_topics_count', 'accessible_topics_count')
+                  'completed_topics_count', 'accessible_topics_count')
 
     def get_completed_topics_count(self, instance):
         student_pk = self.context['student_pk']
@@ -352,7 +353,7 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
                 assessmenttopicaccess__assessment_topic_answers__session=session_pk,
                 assessmenttopicaccess__assessment_topic_answers__complete=True
             ).distinct().count()
-        
+
         return AssessmentTopic.objects.filter(
             assessment=instance,
             assessmenttopicaccess__student=student_pk,
@@ -435,12 +436,11 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
                 topic_answer=instance,
                 topic_answer__session=session_pk,
                 valid=True).distinct().count()
-            
+
         else:
             total_valid_answers = Answer.objects.filter(
                 topic_answer=instance,
                 valid=True).distinct().count()
-            
 
         correct_answers_percentage = None
 

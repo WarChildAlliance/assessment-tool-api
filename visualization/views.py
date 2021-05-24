@@ -1,6 +1,7 @@
 
-from admin.lib.viewsets import ModelViewSet
-
+from answers.models import Answer, AnswerSession, AssessmentTopicAnswer
+from assessments.models import Assessment, AssessmentTopic, Question
+from django.db.models import Q
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
@@ -12,6 +13,9 @@ from assessments.models import Assessment, AssessmentTopic, Question
 from answers.models import AssessmentTopicAnswer, AnswerSession, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 
 from django.db.models import Q
+from users.models import User
+
+from admin.lib.viewsets import ModelViewSet
 
 
 class UserTableViewSet(ModelViewSet):
@@ -27,8 +31,7 @@ class UserTableViewSet(ModelViewSet):
         """
         Queryset to get allowed users.
         """
-
-        return User.objects.filter(created_by=self.request.user)
+        return User.objects.filter(created_by=self.request.user, role=User.UserRole.STUDENT)
 
     def create(self, request):
         return Response('Unauthorized', status=403)
