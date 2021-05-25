@@ -36,6 +36,8 @@ class TopicCompetency(models.Model):
     competency = models.IntegerField(
         default=0
     )
+    class Meta:
+        verbose_name_plural = 'Topic competencies'
 
     def __str__(self):
         return f'Competency of {self.profile} on {self.topic} equals {self.competency}'
