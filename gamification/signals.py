@@ -42,7 +42,7 @@ def on_topic_answer_submission(sender, **kwargs):
         if (submissions_count < 2):
             effort_amount = 5
 
-        student_profile.effort = effort_amount
+        student_profile.effort += effort_amount
         student_profile.save()
 
         increase_topic_competency(student_profile, topic_answer.topic_access.topic, submitted_topic_competency)
