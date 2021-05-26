@@ -1,3 +1,4 @@
+from  django.dispatch import receiver
 from django.db.models.signals import post_save
 from gamification.models import Profile, TopicCompetency
 
@@ -6,10 +7,8 @@ from assessments.models import AssessmentTopic, Question
 
 
 # This is a receiver for post_save on AssessmentTopicAnswer
+@receiver(post_save, sender=AssessmentTopicAnswer)
 def on_topic_answer_submission(sender, **kwargs):
-
-    # Disconnect the event receiver once it has been triggered
-    post_save.disconnect(on_topic_answer_submission)
 
     topic_answer = kwargs['instance']
 

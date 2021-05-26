@@ -204,8 +204,6 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         request_data = request.data.copy()
         student_id = int(kwargs.get('student_id', None))
 
-        post_save.connect(on_topic_answer_submission)
-
         if request_data.get('topic', None):
             try:
                 topic_access = AssessmentTopicAccess.objects.get(
@@ -237,7 +235,6 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
 
         request_data = request.data.copy()
 
-        post_save.connect(on_topic_answer_submission)
 
         # Check if topic answer is complete
         topic_id = instance.topic_access.topic.id
@@ -259,7 +256,6 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         student_id = int(self.kwargs.get('student_id', None))
         topic_id = None
 
-        post_save.connect(on_topic_answer_submission)
 
         if request_data.get('topic', None):
             topic_id = request_data.get('topic')
