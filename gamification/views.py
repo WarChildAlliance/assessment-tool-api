@@ -46,15 +46,12 @@ class TopicCompetencyViewSet(ModelViewSet):
     filterset_fields = ['topic']
 
     def get_queryset(self):
-        return TopicCompetency.objects.all()
+        return TopicCompetency.objects.filter(profile__student=self.request.user)
 
     def retrieve(self, request, pk=None):
-        user = self.request.user
-        topic_competencies = TopicCompetency.objects.get(
-            profile__student=user,
+        topic_competencies = self.get_queryset().get(
             topic=pk
         )
-
         serializer = self.get_serializer(topic_competencies)
         return Response(serializer.data, status=200)
 
@@ -66,13 +63,3 @@ class TopicCompetencyViewSet(ModelViewSet):
 
     def destroy(self, request, pk=None):
         return Response('Cannot delete profile', status=403)
-    
-    @action(detail=False)
-    def get_self(self, request):
-        """
-        Get logged-in user's profile information
-        """
-        user = self.request.user
-        topic_competencies = TopicCompetency.objects.filter(profile__student=user)
-        serializer = self.get_serializer(topic_competencies, many=True)
-        return Response(serializer.data, status=200)
