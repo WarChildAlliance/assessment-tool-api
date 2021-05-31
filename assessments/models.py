@@ -94,6 +94,10 @@ class AssessmentTopic(models.Model):
         on_delete=models.CASCADE,
     )
 
+    evaluated = models.BooleanField(
+        default=True
+    )
+
     def __str__(self):
         return f'{self.name} ({self.assessment.id})'
 
