@@ -21,11 +21,13 @@ def on_topic_answer_submission(sender, **kwargs):
             valid=True
         ).count()
 
-
         total_questions = Question.objects.filter(assessment_topic=topic_answer.topic_access.topic).count()
 
-        # Compute the topic competency for the submitted topic answer
-        submitted_topic_competency = round(((correct_answers_total * 3) / total_questions), 1)
+        submitted_topic_competency = 3
+        
+        if (topic_answer.topic_access.topic.evaluated == True & total_questions > 0):
+            # Compute the topic competency for the submitted topic answer
+            submitted_topic_competency = round(((correct_answers_total * 3) / total_questions), 1)
 
         # Check if other complete topic answers have already been submitted for same student and topic
         submissions_count = AssessmentTopicAnswer.objects.filter(

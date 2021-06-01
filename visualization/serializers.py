@@ -290,6 +290,7 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
 
     def get_answered_questions_count(self, instance):
         return Answer.objects.filter(
+            question__assessment_topic__evaluated=True,
             topic_answer__session=instance
         ).count()
 
@@ -298,6 +299,7 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
         total_answers = self.get_answered_questions_count(instance)
 
         total_valid_answers = Answer.objects.filter(
+            question__assessment_topic__evaluated=True,
             topic_answer__session=instance,
             valid=True
         ).count()
@@ -397,9 +399,11 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
     start_date = serializers.SerializerMethodField()
     end_date = serializers.SerializerMethodField()
 
+    evaluated = serializers.SerializerMethodField()
+
     class Meta:
         model = AssessmentTopicAnswer
-        fields = ('id', 'topic_name', 'complete', 'start_date', 'end_date',
+        fields = ('id', 'topic_name', 'complete', 'start_date', 'end_date', 'evaluated',
                   'total_questions_count', 'answered_questions_count', 'correct_answers_percentage')
 
     def get_id(self, instance):
@@ -427,6 +431,9 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
 
     def get_correct_answers_percentage(self, instance):
         session_pk = self.context['session_pk']
+
+        if (instance.topic_access.topic.evaluated!=True):
+            return None
 
         total_answers = self.get_answered_questions_count(instance)
         total_valid_answers = None
@@ -465,6 +472,8 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
             return instance.end_date.strftime("%d %B %Y - %H:%M:%S")
         return None
 
+    def get_evaluated(self, instance):
+        return instance.topic_access.topic.evaluated
 
 class QuestionAnswerTableSerializer(serializers.ModelSerializer):
     """

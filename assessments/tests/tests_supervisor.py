@@ -55,8 +55,6 @@ class AssessmentsSupervisorTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertFalse(response.data['private'])
-        self.assertFalse(response.data['allow_skip'])
-        self.assertEqual(response.data['show_feedback'], 2)
         assessment = Assessment.objects.get(id=response.data['id'])
         self.assertEqual(assessment.created_by.id, 4)
 
@@ -65,11 +63,11 @@ class AssessmentsSupervisorTests(APITestCase):
         Ensure that supervisors can update the details of an assessment they have access to.
         """
         url = reverse('assessments-detail', args=[2])
-        data = {'show_feedback': 0, 'grade': '1-3'}
+        data = {'title': 'This is the right title for this assessment', 'grade': '1-3'}
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['grade'], '1-3')
-        self.assertEqual(response.data['show_feedback'], 0)
+        self.assertEqual(response.data['title'], 'This is the right title for this assessment')
 
     def test_edit_assessment_no_access(self):
         """
@@ -132,6 +130,8 @@ class AssessmentsSupervisorTests(APITestCase):
         url = reverse('assessment-topics-list', args=[2])
         data = {'assessment': 2, 'name': 'New topic'}
         response = self.client.post(url, data, format='json')
+        self.assertEqual(response.data['show_feedback'], 2)
+        self.assertFalse(response.data['allow_skip'])
         self.assertEqual(response.status_code, 201)
 
     def test_create_topic_no_access(self):
