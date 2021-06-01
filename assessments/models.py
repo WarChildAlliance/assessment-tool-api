@@ -334,8 +334,9 @@ class Attachment(models.Model):
         choices=AttachmentType.choices
     )
 
-    link = models.CharField(
-        max_length=2048
+    file = models.FileField(
+        upload_to='attachments',
+        null=True
     )
 
     topic = models.ForeignKey(
@@ -379,4 +380,13 @@ class Attachment(models.Model):
     )
 
     def __str__(self):
-        return f'[{self.attachment_type}] {self.link}'
+        return f'[{self.attachment_type}] {self.file}'
+
+    """
+        If we want to delete attachments, we cannot filter and call .delete() on the query result.
+        instead we need to get all attachments and delete them one by one in a for loop to trigger this delete
+        But if we don't overwrite the delete in this fashion, we will have zombie files, as only the reference is deleted
+    """
+    def delete(self, *args, **kwargs):
+        self.file.delete()
+        super().delete(*args, **kwargs)

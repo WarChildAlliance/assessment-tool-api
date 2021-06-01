@@ -21,8 +21,11 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Attachment
-        fields = ('id', 'attachment_type', 'link')
+        fields = ('id', 'attachment_type', 'file')
 
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        return instance
 
 class AssessmentSerializer(serializers.ModelSerializer):
     """
