@@ -60,7 +60,7 @@ class AssessmentsStudentTests(APITestCase):
         Ensure that students cannot update the details of an assessment.
         """
         url = reverse('assessments-detail', args=[2])
-        data = {'show_feedback': 0, 'grade': '1-3'}
+        data = {'title': 'An assessment should not have this title', 'grade': '1-3'}
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, 403)
 

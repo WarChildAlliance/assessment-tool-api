@@ -16,15 +16,6 @@ class Assessment(models.Model):
         MATH = 'MATH', 'Math'
         LITERACY = 'LITERACY', 'Literacy'
 
-    class AssessmentFeedback(models.IntegerChoices):
-        """
-        Feedback options enumeration.
-        """
-        NEVER = 0, 'Never'
-        ALWAYS = 1, 'Always'
-        SECOND = 2, 'Second attempt on'
-
-
     title = models.CharField(
         max_length=256
     )
@@ -60,15 +51,6 @@ class Assessment(models.Model):
         default=False
     )
 
-    show_feedback = models.IntegerField(
-        choices=AssessmentFeedback.choices,
-        default=AssessmentFeedback.SECOND
-    )
-
-    allow_skip = models.BooleanField(
-        default=False
-    )
-
     def __str__(self):
         return f'{self.title}' \
             f' ({self.subject} grade {self.grade}, {self.country} - {self.language})'
@@ -78,6 +60,14 @@ class AssessmentTopic(models.Model):
     """
     Assessment topic model.
     """
+
+    class TopicFeedback(models.IntegerChoices):
+        """
+        Feedback options enumeration.
+        """
+        NEVER = 0, 'Never'
+        ALWAYS = 1, 'Always'
+        SECOND = 2, 'Second attempt on'
 
     name = models.CharField(
         max_length=256
@@ -92,6 +82,15 @@ class AssessmentTopic(models.Model):
     assessment = models.ForeignKey(
         'Assessment',
         on_delete=models.CASCADE,
+    )
+
+    show_feedback = models.IntegerField(
+        choices=TopicFeedback.choices,
+        default=TopicFeedback.SECOND
+    )
+
+    allow_skip = models.BooleanField(
+        default=False
     )
 
     evaluated = models.BooleanField(
