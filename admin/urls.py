@@ -22,4 +22,5 @@ urlpatterns = [
     path('assessments/', include('assessments.urls')),
     path('users/', include('users.urls')),
     path('visualization/', include('visualization.urls')),
+    path('gamification/', include('gamification.urls')),
 ]

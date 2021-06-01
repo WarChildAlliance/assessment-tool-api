@@ -1,8 +1,15 @@
+from answers.models import Answer, AnswerSession, AssessmentTopicAnswer
+from assessments.models import (Assessment, AssessmentTopic, Attachment,
+                                Question)
 from rest_framework import serializers
 
+from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
+
 from users.models import User
-from assessments.models import Assessment, AssessmentTopic, Attachment, Question
-from answers.models import AnswerSession, AssessmentTopicAnswer, Answer
+from assessments.models import Assessment, AssessmentTopic, Attachment, Question, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
+from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
+
+from assessments.serializers import (SelectOptionSerializer, SortOptionSerializer, HintSerializer, AttachmentSerializer)
 
 
 class UserTableSerializer(serializers.ModelSerializer):
@@ -138,7 +145,6 @@ class AssessmentTopicTableSerializer(serializers.ModelSerializer):
         return Question.objects.filter(assessment_topic=instance).count()
 
 
-
 class QuestionTableSerializer(serializers.ModelSerializer):
     """
     Questions table serializer.
@@ -178,8 +184,101 @@ class QuestionTableSerializer(serializers.ModelSerializer):
         if total_answers:
             correct_answers_percentage = round(
                 (100 * total_valid_answers / total_answers), 2)
+class QuestionDetailsTableSerializer(PolymorphicSerializer):
 
+    class Meta:
+        model = Question
+        fields = '__all__'
+    
+    def get_serializer_map(self):
+        return {
+            'QuestionInput': QuestionInputTableSerializer,
+            'QuestionNumberLine': QuestionNumberLineTableSerializer,
+            'QuestionSelect': QuestionSelectTableSerializer,
+            'QuestionSort': QuestionSortTableSerializer
+        }
+
+
+class AbstractQuestionDetailsTableSerializer(serializers.ModelSerializer):
+
+    total_answers_count = serializers.SerializerMethodField()
+    correct_answers_count = serializers.SerializerMethodField()
+    correct_answers_percentage = serializers.SerializerMethodField()
+    hint = NestedRelatedField(model=Hint, serializer_class=HintSerializer, many=False)
+    attachments = NestedRelatedField(model=Attachment, serializer_class=AttachmentSerializer, many=True)
+
+    class Meta:
+        model = Question
+        fields = ('title', 'order', 'question_type', 'total_answers_count', 'correct_answers_count', 'correct_answers_percentage', 'hint', 'attachments')
+    
+    
+    def get_total_answers_count(self, instance):
+        return Answer.objects.filter(question=instance).count()
+    
+    def get_correct_answers_count(self, instance):
+        return Answer.objects.filter(question=instance, valid=True).count()
+    
+    def get_correct_answers_percentage(self, instance):
+        correct_answers_percentage = None
+
+        if self.get_total_answers_count(instance):
+            correct_answers_percentage = round(
+                (100 * self.get_correct_answers_count(instance) / self.get_total_answers_count(instance)), 2)
+        
         return correct_answers_percentage
+
+
+class QuestionInputTableSerializer(AbstractQuestionDetailsTableSerializer):
+
+    class Meta(AbstractQuestionDetailsTableSerializer.Meta):
+        model = QuestionInput
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + ('valid_answer',)   
+
+class QuestionNumberLineTableSerializer(AbstractQuestionDetailsTableSerializer):
+
+    class Meta(AbstractQuestionDetailsTableSerializer.Meta):
+        model = QuestionNumberLine
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + ('expected_value', 'start', 'end', 'step', 'show_ticks', 'show_value')
+
+class QuestionSelectTableSerializer(AbstractQuestionDetailsTableSerializer):
+
+    options = NestedRelatedField(model=SelectOption, serializer_class=SelectOptionSerializer, many=True)
+    most_selected_incorrect_option = serializers.SerializerMethodField()
+    
+    class Meta(AbstractQuestionDetailsTableSerializer.Meta):
+        model = QuestionSelect
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + ('options', 'most_selected_incorrect_option')
+    
+    def get_most_selected_incorrect_option(self, instance):
+        select_options_list = SelectOption.objects.filter(question_select=instance, valid=False)
+        most_incorrect_select_arr = []
+        count = 0
+        
+        for option in select_options_list:
+            answer_select = AnswerSelect.objects.filter(question=instance, selected_options=option)
+            if answer_select:
+                if count < answer_select.count():
+                    count = answer_select.count()
+                    most_incorrect_select_arr = []
+                    most_incorrect_select_arr.append(option)
+                
+                elif count == answer_select.count():
+                    count = answer_select.count()
+                    most_incorrect_select = option
+                    most_incorrect_select_arr.append(option)
+
+        
+        select_options_serializer = SelectOptionSerializer(most_incorrect_select_arr, many=True)
+        return select_options_serializer.data
+
+
+class QuestionSortTableSerializer(AbstractQuestionDetailsTableSerializer):
+
+    options = NestedRelatedField(model=SortOption, serializer_class=SortOptionSerializer, many=True)
+
+    class Meta(AbstractQuestionDetailsTableSerializer.Meta):
+        model = QuestionSort
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + ('category_A', 'category_B', 'options')
         
 class AnswerSessionTableSerializer(serializers.ModelSerializer):
     """
@@ -208,6 +307,7 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
         
     def get_answered_questions_count(self, instance):
         return Answer.objects.filter(
+            question__assessment_topic__evaluated=True,
             topic_answer__session=instance
         ).count()
 
@@ -221,7 +321,11 @@ class AnswerSessionTableSerializer(serializers.ModelSerializer):
 
         total_answers = self.get_answered_questions_count(instance)
 
-        total_valid_answers = self.get_correctly_answered_questions_count(instance)
+        total_valid_answers = Answer.objects.filter(
+            question__assessment_topic__evaluated=True,
+            topic_answer__session=instance,
+            valid=True
+        ).count()
 
         correct_answers_percentage = None
 
@@ -284,7 +388,7 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
                 assessmenttopicaccess__assessment_topic_answers__session=session_pk,
                 assessmenttopicaccess__assessment_topic_answers__complete=True
             ).distinct().count()
-        
+
         return AssessmentTopic.objects.filter(
             assessment=instance,
             assessmenttopicaccess__student=student_pk,
@@ -364,9 +468,11 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
     # Name of the topic to which this AssessmentTopicAnswer is linked to
     topic_name = serializers.SerializerMethodField()
 
+    evaluated = serializers.SerializerMethodField()
+
     class Meta:
         model = AssessmentTopicAnswer
-        fields = ('id', 'topic_name', 'complete', 'start_date', 'end_date',
+        fields = ('id', 'topic_name', 'complete', 'start_date', 'end_date', 'evaluated',
                   'total_questions_count', 'answered_questions_count', 'correct_answers_percentage')
 
     def get_id(self, instance):
@@ -395,6 +501,9 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
     def get_correct_answers_percentage(self, instance):
         session_pk = self.context['session_pk']
 
+        if (instance.topic_access.topic.evaluated!=True):
+            return None
+
         total_answers = self.get_answered_questions_count(instance)
         total_valid_answers = None
 
@@ -403,12 +512,11 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
                 topic_answer=instance,
                 topic_answer__session=session_pk,
                 valid=True).distinct().count()
-            
+
         else:
             total_valid_answers = Answer.objects.filter(
                 topic_answer=instance,
                 valid=True).distinct().count()
-            
 
         correct_answers_percentage = None
 
@@ -417,6 +525,9 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
                 (100 * total_valid_answers / total_answers), 2)
 
         return correct_answers_percentage
+
+    def get_evaluated(self, instance):
+        return instance.topic_access.topic.evaluated
 
 class QuestionAnswerTableSerializer(serializers.ModelSerializer):
     """
@@ -444,3 +555,102 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
 
     def get_question_order(self, instance):
         return instance.question.order
+
+class AnswerTableSerializer(PolymorphicSerializer):
+
+    class Meta:
+        model = Answer
+        fields = '__all__'
+    
+    def get_serializer_map(self):
+        return {
+            'AnswerInput': AnswerInputTableSerializer,
+            'AnswerNumberLine': AnswerNumberLineTableSerializer,
+            'AnswerSelect': AnswerSelectTableSerializer,
+            'AnswerSort': AnswerSortTableSerializer
+        }
+
+
+class AbstractAnswerTableSerializer(serializers.ModelSerializer):
+
+    question_title = serializers.SerializerMethodField()
+    question_type = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Answer
+        fields = ('question_type', 'question_title', 'duration', 'valid')
+    
+    def get_question_title(self, instance):
+        return instance.question.title
+    
+    def get_question_type(self, instance):
+        return instance.question.get_question_type_display()
+    
+
+class AnswerInputTableSerializer(AbstractAnswerTableSerializer):
+
+    valid_answer = serializers.SerializerMethodField()
+
+    class Meta(AbstractAnswerTableSerializer.Meta):
+        model = AnswerInput
+        fields = AbstractAnswerTableSerializer.Meta.fields + ('valid_answer', 'value',)
+    
+    def get_valid_answer(self, instance):
+        return QuestionInput.objects.get(id=instance.question.id).valid_answer
+
+class AnswerNumberLineTableSerializer(AbstractAnswerTableSerializer):
+
+    start = serializers.SerializerMethodField()
+    end = serializers.SerializerMethodField()
+    expected_value = serializers.SerializerMethodField()
+
+    class Meta(AbstractAnswerTableSerializer.Meta):
+        model = AnswerNumberLine
+        fields = AbstractAnswerTableSerializer.Meta.fields + ('value', 'start', 'end', 'expected_value',)
+      
+    def get_start(self, instance):
+        return QuestionNumberLine.objects.get(id=instance.question.id).start
+    
+    def get_end(self, instance):
+        return QuestionNumberLine.objects.get(id=instance.question.id).end
+
+    def get_expected_value(self, instance):
+        return QuestionNumberLine.objects.get(id=instance.question.id).expected_value
+
+class AnswerSelectTableSerializer(AbstractAnswerTableSerializer):
+
+    all_options = serializers.SerializerMethodField()
+
+    class Meta(AbstractAnswerTableSerializer.Meta):
+        model = AnswerSelect
+        fields = AbstractAnswerTableSerializer.Meta.fields + ('all_options',)
+    
+    def get_all_options(self, instance):
+        select_options = list(SelectOption.objects.filter(question_select=instance.question).values())
+        selected_options = AnswerSelect.objects.filter(id=instance.id).values('selected_options')
+
+        all_options = []
+        for select_option in select_options:
+            for selected_option in selected_options:
+                if selected_option['selected_options'] == select_option['id']:
+                    select_option['selected'] = True
+                
+                else :
+                    select_option['selected'] = False
+            
+            all_options.append(select_option)
+
+        return all_options
+
+class AnswerSortTableSerializer(AbstractAnswerTableSerializer):
+
+    category_A = NestedRelatedField(
+        model=SortOption, serializer_class=SortOptionSerializer, many=True)
+    category_B = NestedRelatedField(
+        model=SortOption, serializer_class=SortOptionSerializer, many=True)
+
+    class Meta(AbstractAnswerTableSerializer):
+        model = AnswerSort
+        fields = AbstractAnswerTableSerializer.Meta.fields + ('category_A', 'category_B',)
+
+

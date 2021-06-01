@@ -1,5 +1,8 @@
 from datetime import date
 
+from django.db.models.signals import post_save
+from gamification.signals import on_topic_answer_submission
+
 from assessments.models import AssessmentTopicAccess, Question
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
@@ -122,25 +125,18 @@ class AnswerSessionsViewSet(ModelViewSet):
         request_data = request.data.copy()
 
         for topic_answer in request_data.get('assessment_topic_answers', []):
-            # Check if topic answer is complete
-            if topic_answer['topic']:
-                topic_id = topic_answer['topic']
-            else:
-                topic_id = AssessmentTopicAccess.objects.values_list(
-                    'topic__id', flat=True).get(id=topic_answer['topic_acces'])
-            count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
-            count_questions_answered = len(topic_answer['answers'])
-            topic_answer['complete'] = (count_questions_answered == count_questions_in_topic)
+            topic_id = None
 
             # Get topic_access
-            if topic_answer['topic']:
+            if topic_answer.get('topic', None):
+                topic_id = topic_answer.get('topic')
                 try:
                     topic_access = AssessmentTopicAccess.objects.get(
-                        Q(topic=topic_answer['topic']),
+                        Q(topic=topic_id),
                         Q(student=student_id),
-                        Q(start_date__lte=date.today) | Q(
+                        Q(start_date__lte=date.today()) | Q(
                             start_date__isnull=True),
-                        Q(end_date__gte=date.today) | Q(end_date__isnull=True)
+                        Q(end_date__gte=date.today()) | Q(end_date__isnull=True)
                     )
                     topic_answer['topic_access'] = topic_access
                     topic_answer.pop('topic')
@@ -149,6 +145,14 @@ class AnswerSessionsViewSet(ModelViewSet):
 
             if not topic_answer['topic_access']:
                 return Response('No topic access defined', status=400)
+            
+            # Check if topic answer is complete
+            if topic_id is None:
+                topic_id = AssessmentTopicAccess.objects.values_list(
+                    'topic__id', flat=True).get(id=topic_answer.get('topic_access'))
+            count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
+            count_questions_answered = len(topic_answer['answers'])
+            topic_answer['complete'] = (count_questions_answered == count_questions_in_topic)
 
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
@@ -200,10 +204,10 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         request_data = request.data.copy()
         student_id = int(kwargs.get('student_id', None))
 
-        if request_data['topic']:
+        if request_data.get('topic', None):
             try:
                 topic_access = AssessmentTopicAccess.objects.get(
-                    Q(topic=request_data['topic']),
+                    Q(topic=request_data.get('topic')),
                     Q(student=student_id),
                     Q(start_date__isnull=True) | Q(start_date__lte=date.today()),
                     Q(end_date__isnull=True) | Q(end_date__gte=date.today())
@@ -230,7 +234,8 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         instance = self.get_object()
 
         request_data = request.data.copy()
-    
+
+
         # Check if topic answer is complete
         topic_id = instance.topic_access.topic.id
         count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
@@ -249,32 +254,33 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         """
         request_data = request.data.copy()
         student_id = int(self.kwargs.get('student_id', None))
+        topic_id = None
 
-        # Check if topic answer is complete
-        if request_data['topic']:
-            topic_id = request_data['topic']
-        else:
-            topic_id = AssessmentTopicAccess.objects.values_list(
-                'topic__id', flat=True).get(id=request_data['topic_acces'])
-        count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
-        count_questions_answered = len(request_data['answers'])
-        request_data['complete'] = (count_questions_answered == count_questions_in_topic)
 
-        if request_data['topic']:
+        if request_data.get('topic', None):
+            topic_id = request_data.get('topic')
             try:
                 topic_access = AssessmentTopicAccess.objects.get(
-                    Q(topic=request_data['topic']),
+                    Q(topic=topic_id),
                     Q(student=student_id),
-                    Q(start_date__lte=date.today) | Q(start_date__isnull=True),
-                    Q(end_date__gte=date.today) | Q(end_date__isnull=True)
+                    Q(start_date__lte=date.today()) | Q(start_date__isnull=True),
+                    Q(end_date__gte=date.today()) | Q(end_date__isnull=True)
                 )
                 request_data['topic_access'] = topic_access.id
                 request_data.pop('topic')
             except ObjectDoesNotExist:
                 return Response('Student does not have access to this topic', status=400)
 
-        if not request_data['topic_access']:
+        if not request_data.get('topic_access', None):
             return Response('No topic access defined', status=400)
+
+        # Check if topic answer is complete
+        if topic_id is None:
+            topic_id = AssessmentTopicAccess.objects.values_list(
+                'topic__id', flat=True).get(id=request_data.get('topic_access'))
+        count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
+        count_questions_answered = len(request_data['answers'])
+        request_data['complete'] = (count_questions_answered == count_questions_in_topic)
 
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)

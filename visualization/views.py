@@ -1,16 +1,21 @@
 
-from admin.lib.viewsets import ModelViewSet
-
+from answers.models import Answer, AnswerSession, AssessmentTopicAnswer
+from assessments.models import Assessment, AssessmentTopic, Question
+from django.db.models import Q
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 from users.models import User
-from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer
+from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer
 
 from assessments.models import Assessment, AssessmentTopic, Question
 
-from answers.models import AssessmentTopicAnswer, AnswerSession, Answer
+from answers.models import AssessmentTopicAnswer, AnswerSession, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 
 from django.db.models import Q
+from users.models import User
+
+from admin.lib.viewsets import ModelViewSet
 
 
 class UserTableViewSet(ModelViewSet):
@@ -26,8 +31,7 @@ class UserTableViewSet(ModelViewSet):
         """
         Queryset to get allowed users.
         """
-
-        return User.objects.filter(created_by=self.request.user)
+        return User.objects.filter(created_by=self.request.user, role=User.UserRole.STUDENT)
 
     def create(self, request):
         return Response('Unauthorized', status=403)
@@ -115,6 +119,12 @@ class QuestionsTableViewset(ModelViewSet):
         return Question.objects.filter(
             assessment_topic=topic_pk
         )
+    
+    def retrieve(self, request, *args, **kwargs):
+        question_pk = self.kwargs.get('pk', None)
+        question = get_object_or_404(self.get_queryset().select_subclasses(), pk=question_pk)
+        serializer = QuestionDetailsTableSerializer(question, many=False)  
+        return Response(serializer.data)
 
     def create(self, request):
         return Response('Unauthorized', status=403)
@@ -316,7 +326,10 @@ class QuestionAnswersTableViewSet(ModelViewSet):
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
-        return Response('Unauthorized', status=403)
+        answer_pk = self.kwargs.get('pk', None)
+        answer = get_object_or_404(self.get_queryset().select_subclasses(), pk=answer_pk)
+        serializer = AnswerTableSerializer(answer, many=False)  
+        return Response(serializer.data)
 
     def create(self, request):
         return Response('Unauthorized', status=403)
