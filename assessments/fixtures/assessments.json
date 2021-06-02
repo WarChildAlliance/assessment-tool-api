@@ -2,7 +2,7 @@
     {
         "fields": {
             "country": "JOR",
-            "created_by": 1,
+            "created_by": 5,
             "grade": "4",
             "language": "AR",
             "private": true,
@@ -18,8 +18,7 @@
             "created_by": 4,
             "grade": "6",
             "language": "EN",
-            "private": false,
-            "show_feedback": 0,
+            "private": true,
             "subject": "LITERACY",
             "title": "Literacy Assessment"
         },
@@ -29,7 +28,7 @@
     {
         "fields": {
             "country": "JOR",
-            "created_by": 1,
+            "created_by": 5,
             "grade": "4",
             "language": "AR",
             "private": false,
