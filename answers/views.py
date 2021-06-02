@@ -165,6 +165,8 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
     Topic answers viewset.
     """
 
+    filterset_fields = ['topic_access__topic', 'complete']
+
     serializer_class = AssessmentTopicAnswerSerializer
 
     def get_permissions(self):
