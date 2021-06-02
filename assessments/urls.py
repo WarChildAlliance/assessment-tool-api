@@ -1,4 +1,6 @@
 from django.urls import include, path
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework_nested import routers
 
 from . import views
@@ -37,9 +39,12 @@ questions_router.register(
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/attachments/
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/attachments/{attachment_pk}/
 
+
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(assessments_router.urls)),
     path('', include(topics_router.urls)),
     path('', include(questions_router.urls)),
 ]
+
+

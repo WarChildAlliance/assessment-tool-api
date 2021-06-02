@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from users.permissions import HasAccess, IsSupervisor
+from django.views.generic import TemplateView, ListView, CreateView
 
 from admin.lib.viewsets import ModelViewSet
 
@@ -128,11 +129,12 @@ class QuestionsViewSet(ModelViewSet):
         return Response('Cannot delete question (method not implemented)', status=404)
 
 
-class AttachmentsViewSet(ModelViewSet):
+class AttachmentsViewSet(ModelViewSet, CreateView):
     """
     Attachments viewset.
     """
 
+    model = Attachment
     serializer_class = AttachmentSerializer
     permission_classes = [IsAuthenticated]
 
@@ -144,6 +146,8 @@ class AttachmentsViewSet(ModelViewSet):
         question_pk = self.kwargs['question_pk']
 
         return Attachment.objects.filter(question=question_pk)
+
+
 
 
 class AssessmentTopicAccessesViewSets(ModelViewSet):

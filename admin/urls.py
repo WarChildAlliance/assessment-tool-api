@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,3 +26,9 @@ urlpatterns = [
     path('visualization/', include('visualization.urls')),
     path('gamification/', include('gamification.urls')),
 ]
+
+
+
+# ideally some other server should serve files and not django for production
+#if settings.DEBUG:
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
