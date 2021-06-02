@@ -14,7 +14,7 @@ router.register(r'profiles', views.ProfileViewSet,
 router.register(r'topic-competencies', views.TopicCompetencyViewSet,
                 basename='topic-competencies')
 # generates :
-# /gamification/topic_competencies/get_self/
+# /gamification/topic_competencies/
 # /gamification/topic_competencies/<topic_pk>/
 
 urlpatterns = [
