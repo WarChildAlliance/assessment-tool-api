@@ -15,6 +15,8 @@ class Assessment(models.Model):
         """
         MATH = 'MATH', 'Math'
         LITERACY = 'LITERACY', 'Literacy'
+        PRESEL = 'PRESEL', 'PreSel'
+        POSTSEL = 'POSTSEL', 'PostSel'
 
     title = models.CharField(
         max_length=256
