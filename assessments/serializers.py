@@ -41,6 +41,12 @@ class AssessmentSerializer(serializers.ModelSerializer):
     country = NestedRelatedField(
         model=Country, serializer_class=CountrySerializer)
 
+
+    # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
+    # Verifies that all topics linked to this assessment are complete
+    all_topics_complete = serializers.SerializerMethodField()
+    # END OF TEMPORARY
+    
     class Meta:
         model = Assessment
         fields = '__all__'
@@ -49,6 +55,20 @@ class AssessmentSerializer(serializers.ModelSerializer):
             'write_only': True
         }}
 
+    # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
+    def get_all_topics_complete(self, instance):
+
+        completed_assessment_topics = AssessmentTopic.objects.filter(
+            assessment=instance,
+            assessmenttopicaccess__assessment_topic_answers__complete=True
+        ).distinct().count()
+
+        total_assessment_topics = AssessmentTopic.objects.filter(
+            assessment=instance,
+        ).distinct().count()
+
+        return (completed_assessment_topics == total_assessment_topics)
+    # END OF TEMPORARY
 
 class AssessmentTopicSerializer(serializers.ModelSerializer):
     """
