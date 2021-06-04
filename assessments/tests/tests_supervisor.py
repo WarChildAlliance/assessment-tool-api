@@ -9,7 +9,7 @@ class AssessmentsSupervisorTests(APITestCase):
     Assessment tests from a supervisor account.
     """
     fixtures = ['languages_countries.json', 'users.json',
-                'assessments.json', 'assessments_access.json']
+                'assessments-test.json', 'assessments_access.json']
 
     def setUp(self):
         """

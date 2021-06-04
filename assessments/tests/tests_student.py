@@ -143,7 +143,7 @@ class AssessmentsStudentTests(APITestCase):
         url = reverse('topic-questions-list', args=[1, 1])
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), 15)
 
     def test_get_all_questions_no_access(self):
         """
