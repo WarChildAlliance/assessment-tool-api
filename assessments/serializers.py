@@ -58,6 +58,9 @@ class AssessmentSerializer(serializers.ModelSerializer):
     # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
     def get_all_topics_complete(self, instance):
 
+        if not ('student_pk' in self.context):
+            return None
+
         student_pk = self.context['student_pk']
 
         completed_assessment_topics = AssessmentTopic.objects.filter(
