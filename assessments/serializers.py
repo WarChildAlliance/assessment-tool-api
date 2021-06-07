@@ -58,9 +58,12 @@ class AssessmentSerializer(serializers.ModelSerializer):
     # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
     def get_all_topics_complete(self, instance):
 
+        student_pk = self.context['student_pk']
+
         completed_assessment_topics = AssessmentTopic.objects.filter(
             assessment=instance,
-            assessmenttopicaccess__assessment_topic_answers__complete=True
+            assessmenttopicaccess__student=student_pk,
+            assessmenttopicaccess__assessment_topic_answers__session__student=student_pk
         ).distinct().count()
 
         total_assessment_topics = AssessmentTopic.objects.filter(

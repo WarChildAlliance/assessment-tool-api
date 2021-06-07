@@ -55,6 +55,20 @@ class AssessmentsViewSet(ModelViewSet):
         ).distinct()
 
 
+    # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
+    def list(self, request, *args, **kwargs):
+
+        serializer = AssessmentSerializer(
+            self.get_queryset(), many=True,
+            context={
+                'student_pk': int(self.request.user.id)
+            }
+        )
+
+        return Response(serializer.data)
+    # END OF TEMPORARY
+
+
 class AssessmentTopicsViewSet(ModelViewSet):
     """
     Assessment topics viewset.
