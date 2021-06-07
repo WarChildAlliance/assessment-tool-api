@@ -34,7 +34,7 @@ class UserTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'full_name', 'last_session', 'completed_topics_count',
+        fields = ('id', 'username', 'full_name', 'last_session', 'completed_topics_count',
                   'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code')
 
     def get_full_name(self, instance):
