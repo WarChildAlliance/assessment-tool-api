@@ -1,0 +1,282 @@
+@startuml "Learning_Outcomes_Database_UML_Diagram"
+
+skinparam linetype ortho
+skinparam BackgroundColor white
+
+/'
+Version 2 - 18/06/2021 (Author Matthis M) - changes:
+- Changed title
+- Deletion of outdated Groups with managers / members
+- Switched from camelCase to snake_case
+- Specialization of some links as aggregations / compositions
+- Redefined Student and Supervisor classes as simple UserRole enum
+- Other minors fixes
+'/
+
+enum LanguageDirection {
+    LTR
+    RTL
+}
+
+class Country {
+    id: Integer
+    code: String
+    name_en: String
+    name_local: String
+    language: Language
+}
+
+class Language {
+    id: Integer
+    code: String
+    name_en: String
+    name_local: String
+    direction: LanguageDirection
+}
+
+enum UserRole {
+    STUDENT
+    SUPERVISOR
+}
+
+class User {
+    id: Integer
+    role: UserRole
+    first_name: String
+    last_name: String
+    language: Language
+    country: Country
+    created_by: Supervisor
+}
+
+enum AssessmentSubject {
+    MATH
+    LITERACY
+    PRESEL
+    POSTSEL
+}
+
+class Assessment {
+    id: Integer
+    title: String
+    grade: String
+    subject: AssessmentSubject
+    language: Language
+    country: Country
+    created_by: Supervisor
+    private: Boolean
+}
+
+enum TopicFeedback {
+    NEVER
+    ALWAYS
+    SECOND
+}
+
+class AssessmentTopic {
+    id: Integer
+    name: String
+    description: String
+    assessment: Assessment
+    'order: Integer'
+    show_feedback: TopicFeedback
+    allow_skip: Boolean
+    evaluated: Boolean
+    'stop_rule: Integer'
+}
+
+class AssessmentTopicAccess {
+    id: Integer
+    start_date: Date
+    end_date: Date
+    student: Student
+    topic: AssessmentTopic
+}
+
+enum QuestionType {
+    SELECT
+    SORT
+    INPUT
+    NUMBER_LINE
+}
+
+class Question {
+    id: Integer
+    title: String
+    order: Integer
+    assessment_topic: AssessmentTopic
+    question_type: QuestionType
+    hint: Hint
+}
+
+class Hint {
+    id: Integer
+    text: String
+    question: Question
+}
+
+class QuestionInput {
+    id: Integer
+    valid_answer: String
+}
+
+class QuestionSelect {
+    id: Integer
+    multiple: Boolean
+}
+
+class SelectOption {
+    id: Integer
+    value: String
+    valid: Boolean
+    question_select: QuestionSelect
+}
+
+class QuestionSort {
+    id: Integer
+    category_A: String
+    category_B: String
+    options: SortOption[]
+}
+
+class SortOption {
+    id: Integer
+    value: String
+    category: String
+    question_sort: QuestionSort
+}
+
+class QuestionNumberLine {
+    id: Integer
+    expected_value: Integer
+    start: Integer
+    end: Integer
+    step: Integer
+    show_ticks: Boolean
+    show_value: Boolean
+}
+
+enum AttachmentType {
+    AUDIO
+    IMAGE
+}
+
+class Attachment {
+    id: Integer
+    attachment_type: AttachmentType
+    file: File
+    topic: AssessmentTopic
+    question: Question
+    hint: Hint
+    select_option: SelectOption
+    sort_option: SortOption
+}
+
+class AnswerSession {
+    id: Integer
+    start_date: Date
+    end_date: Date
+    student: Student
+    duration: duration (@property)
+}
+
+class AssessmentTopicAnswer {
+    id: Integer
+    topic_access: AssessmentTopicAccess
+    complete: Boolean
+    start_date: Date
+    end_date: Date
+    session: AnswerSession
+    duration: duration (@property)
+    student: Student (@property)
+}
+
+class Answer {
+    id: Integer
+    topic_answer: AssessmentTopicAnswer
+    question: Question
+    duration: duration
+    valid: Boolean
+    date: Date (@property)
+    student: Student (@property)
+}
+
+class AnswerInput {
+    id: Integer
+    value: String
+}
+
+class AnswerSelect {
+    id: Integer
+    selected_options: SelectOption[]
+}
+
+class AnswerSort {
+    id: Integer
+    category_A: SortOption[]
+    category_B: SortOption[]
+}
+
+class AnswerNumberLine {
+    id: Integer
+    value: Integer
+}
+
+Language "0..1" -- "0..*" Country
+
+User "0..*" -- "1" Language
+User "0..*" -- "1" Country
+
+Assessment "0..*" -- "1" Language
+Assessment "0..*" -- "1" Country
+
+
+User <|-[dashed]- Supervisor
+User <|-[dashed]- Student
+
+Student "0..*" -- "1" Supervisor
+
+
+Assessment "1" *-- "0..*" AssessmentTopic
+Assessment "0..*" -- "1" Supervisor
+
+AssessmentTopic "1" *-- "0..*" Question
+
+AnswerSession "1" o-- "1..*" AssessmentTopicAnswer
+
+AssessmentTopicAccess "0..*" -- "1" AssessmentTopic
+
+Student "1" -- "0..*" AnswerSession
+Student "1" -- "0..*" AssessmentTopicAccess
+
+
+Hint "0..1" -- "0..*" Attachment
+
+Question "0..1" -- "0..*" Attachment
+Question "1" -- "0..1" Hint
+Question <|-- QuestionSelect
+Question <|-- QuestionSort
+Question <|-- QuestionInput
+Question <|-- QuestionNumberLine
+
+QuestionSelect "1" o-- "1..*" SelectOption
+SelectOption "0..1" -- "0..1" Attachment
+
+QuestionSort "1" o-- "1..*" SortOption
+SortOption "0..1" -- "0..1" Attachment
+
+
+AssessmentTopicAnswer "0..*" -- "1" AssessmentTopicAccess
+AssessmentTopicAnswer "1" *-- "0..*" Answer
+
+Question "1" -- "0..*" Answer
+
+Answer <|-- AnswerSelect
+Answer <|-- AnswerSort
+Answer <|-- AnswerInput
+Answer <|-- AnswerNumberLine
+
+AnswerSelect "0..*" o-- "1..*" SelectOption
+AnswerSort "0..*" o-- "1..*" SortOption
+
+@enduml
