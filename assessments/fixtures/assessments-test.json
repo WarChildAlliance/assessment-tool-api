@@ -4,7 +4,7 @@
             "country": "JOR",
             "created_by": 5,
             "grade": "4",
-            "language": "AR",
+            "language": "ARA",
             "private": true,
             "subject": "MATH",
             "title": "Math assessment"
@@ -17,7 +17,7 @@
             "country": "USA",
             "created_by": 4,
             "grade": "6",
-            "language": "EN",
+            "language": "ENG",
             "private": true,
             "subject": "LITERACY",
             "title": "Literacy Assessment"
@@ -30,7 +30,7 @@
             "country": "JOR",
             "created_by": 5,
             "grade": "4",
-            "language": "AR",
+            "language": "ARA",
             "private": false,
             "subject": "MATH",
             "title": "Empty assessment"
