@@ -99,6 +99,10 @@ class AssessmentTopic(models.Model):
         default=True
     )
 
+    praise = models.IntegerField(
+        default=0
+    )
+
     def __str__(self):
         return f'{self.name} ({self.assessment.id})'
 
