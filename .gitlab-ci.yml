@@ -12,6 +12,8 @@ variables:
 test:
   image: "python:3.7"
   stage: test
+  only:
+    - master
   services:
     - postgres:latest
   before_script:

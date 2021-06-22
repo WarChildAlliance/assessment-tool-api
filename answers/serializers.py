@@ -110,7 +110,7 @@ class AnswerSelectSerializer(AbstractAnswerSerializer):
     Answer select serializer.
     """
     selected_options = NestedRelatedField(
-        model=SelectOption, serializer_class=SelectOptionSerializer, many=True)
+        model=SelectOption, serializer_class=SelectOptionSerializer, many=True, required=False)
 
     class Meta(AbstractAnswerSerializer.Meta):
         model = AnswerSelect
@@ -122,9 +122,9 @@ class AnswerSortSerializer(AbstractAnswerSerializer):
     Answer sort serializer.
     """
     category_A = NestedRelatedField(
-        model=SortOption, serializer_class=SortOptionSerializer, many=True)
+        model=SortOption, serializer_class=SortOptionSerializer, many=True, required=False)
     category_B = NestedRelatedField(
-        model=SortOption, serializer_class=SortOptionSerializer, many=True)
+        model=SortOption, serializer_class=SortOptionSerializer, many=True, required=False)
 
     class Meta(AbstractAnswerSerializer.Meta):
         model = AnswerSort

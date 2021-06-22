@@ -117,7 +117,9 @@ class AnswerInput(Answer):
     """
 
     value = models.CharField(
-        max_length=512
+        max_length=512,
+        null=True,
+        blank=True
     )
 
 
@@ -127,7 +129,8 @@ class AnswerSelect(Answer):
     """
 
     selected_options = models.ManyToManyField(
-        'assessments.SelectOption'
+        'assessments.SelectOption',
+        blank=True
     )
 
 
@@ -138,12 +141,14 @@ class AnswerSort(Answer):
 
     category_A = models.ManyToManyField(
         'assessments.SortOption',
-        related_name='answer_category_A'
+        related_name='answer_category_A',
+        blank=True
     )
 
     category_B = models.ManyToManyField(
         'assessments.SortOption',
-        related_name='answer_category_B'
+        related_name='answer_category_B',
+        blank=True
     )
 
 
@@ -152,4 +157,7 @@ class AnswerNumberLine(Answer):
     Answer number line model (inherits Answer).
     """
 
-    value = models.IntegerField()
+    value = models.IntegerField(
+        null=True,
+        blank=True
+    )
