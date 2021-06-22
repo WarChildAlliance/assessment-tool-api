@@ -4,7 +4,7 @@ from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 
 from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 
-from assessments.models import Assessment, AssessmentTopic, Attachment, Question, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
+from assessments.models import Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
 from assessments.serializers import SelectOptionSerializer, SortOptionSerializer, HintSerializer, AttachmentSerializer
 
 from users.models import User
@@ -690,5 +690,160 @@ class AnswerSortTableSerializer(AbstractAnswerTableSerializer):
     class Meta(AbstractAnswerTableSerializer):
         model = AnswerSort
         fields = AbstractAnswerTableSerializer.Meta.fields + ('category_A', 'category_B',)
+
+
+class StudentsTopicsSuccessRateChartSerializer(serializers.ModelSerializer):
+
+    # Student's full name
+    full_name = serializers.SerializerMethodField()
+    topics = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'full_name', 'topics')
+    
+
+    def get_full_name(self, instance):
+        return (instance.first_name + ' ' + instance.last_name)
+    
+    def get_topics(self, instance):
+        assessment_pk = self.context['assessment_pk']
+
+        return AssessmentTopic.objects.filter(
+            assessmenttopicaccess__student=instance,
+            assessment=assessment_pk
+        ).values()
+
+
+
+class StudentsTopicsSuccessRateChartSerializer(serializers.ModelSerializer):
+
+    # Student's full name
+    full_name = serializers.SerializerMethodField()
+    topics = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'full_name', 'topics')
+    
+
+    def get_full_name(self, instance):
+        return (instance.first_name + ' ' + instance.last_name)
+    
+    def get_topics(self, instance):
+        assessment_pk = self.context['assessment_pk']
+
+        return AssessmentTopic.objects.filter(
+            assessmenttopicaccess__student=instance,
+            assessment=assessment_pk
+        ).values()
+
+
+
+class StudentsTopicsScoreChartSerializer(serializers.ModelSerializer):
+
+    users_scores = serializers.SerializerMethodField()
+    topics = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Assessment
+        fields = ('topics_names', 'users_scores')
+    
+    def get_topics(self, instance):
+
+        return AssessmentTopics.objects.filter(assessment=instance).order_by('id')
+
+    def get_topics_names(self, instance):
+        
+        topics_names = []
+
+        for topic in self.get_topics(instance):
+            topics_names.append(topic.name)
+        
+        return topics_names
+    
+    def get_users_scores(self, instance):
+        supervisor_pk = self.context['supervisor_pk']
+        
+        users_stats = []
+
+        users = User.objects.filter(created_by=supervisor_pk)
+
+        for user in users:
+
+            full_name = user.first_name + ' ' + user.last_name
+            topics_scores = []
+
+            topics = self.get_topics(instance)
+
+            for topic in topics:
+
+                return None
+
+
+        return AssessmentTopic.objects.filter(
+            assessmenttopicaccess__student=instance,
+            assessment=assessment_pk
+        ).values()
+
+
+class StudentsScoreByTopicsSerializer(serializers.ModelSerializer):
+
+    full_name = serializers.SerializerMethodField()
+    topics = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'full_name', 'topics')
+    
+    def get_full_name(self, instance):
+        return (instance.first_name + ' ' + instance.last_name)
+    
+    def get_topics(self, instance):
+        assessment_pk = self.context['assessment_pk']
+
+        topics = AssessmentTopic.objects.filter(assessment=assessment_pk)
+        topic_score = []
+
+        total_correct_answers = 0
+        total_answers = 0
+
+        for topic in topics:
+            topic_accesses = list(AssessmentTopicAccess.objects.filter(topic=topic, student=instance))
+
+            if topic_accesses:
+
+                for access in topic_accesses:
+
+                    earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
+                        topic_access=access,
+                        session__student=instance,
+                        complete=True
+                    ).earliest('start_date')
+
+                    total_correct_answers = total_correct_answers + Answer.objects.filter(
+                        topic_answer=earliest_topic_answer,
+                        valid=True
+                    ).count()
+
+                    total_answers = total_answers + Answer.objects.filter(
+                        topic_answer=earliest_topic_answer
+                    ).count()
+
+
+                    if (total_answers):
+                        correct_answers_percentage = round((total_correct_answers / total_answers) * 100, 2)
+                        topic_score_dict = {
+                            topic.name: correct_answers_percentage
+                        }
+                        topic_score.append(topic_score_dict)
+            else :
+                topic_score_dict = {
+                    topic.name: None
+                 }
+                topic_score.append(topic_score_dict)
+                    
+        
+        return topic_score
 
 

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from users.models import User
-from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer
+from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer, StudentsTopicsSuccessRateChartSerializer, StudentsScoreByTopicsSerializer
 
 from assessments.models import Assessment, AssessmentTopic, Question
 
@@ -342,3 +342,49 @@ class QuestionAnswersTableViewSet(ModelViewSet):
 
     def destroy(self, request, pk=None):
         return Response('Unauthorized', status=403)
+
+
+class StudentsTopicsSuccessRateChart(ModelViewSet):
+
+    serializer_class = StudentsTopicsSuccessRateChartSerializer
+
+    def get_queryset(self):
+
+        assessment_pk = int(self.kwargs.get('assessment_pk', None))
+
+        return User.objects.filter(assessmenttopicaccess__topic__assessment=assessment_pk).distinct()
+    
+    def list(self, request, *args, **kwargs):
+
+        serializer = StudentsTopicsSuccessRateChartSerializer(
+            self.get_queryset(), many=True,
+            context={
+                'assessment_pk': int(self.kwargs.get('assessment_pk', None))
+            }
+        )
+
+        return Response(serializer.data)
+
+
+class StudentsByTopicsChart(ModelViewSet):
+
+    serializer_class = StudentsScoreByTopicsSerializer
+
+    def get_queryset(self):
+
+        assessment_pk = int(self.kwargs.get('assessment_pk', None))
+
+        return User.objects.filter(assessmenttopicaccess__topic=assessment_pk).distinct()
+    
+
+    def list(self, request, *args, **kwargs):
+
+        serializer = StudentsScoreByTopicsSerializer(
+            self.get_queryset(), many=True,
+            context={
+                'assessment_pk': int(self.kwargs.get('assessment_pk', None))
+            }
+        )
+
+        return Response(serializer.data)
+
