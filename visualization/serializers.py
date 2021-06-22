@@ -423,7 +423,12 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
                 topic_access__topic=topic,
                 session__student=student_pk,
                 complete=True
-            ).earliest('start_date')
+            )
+
+            if not (earliest_topic_answer.exists()):
+                continue
+
+            earliest_topic_answer = earliest_topic_answer.earliest('start_date')
 
             total_correct_answers = total_correct_answers + Answer.objects.filter(
                 topic_answer=earliest_topic_answer,
@@ -457,7 +462,12 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
                 topic_access__topic=topic,
                 session__student=student_pk,
                 complete=True
-            ).latest('start_date')
+            )
+
+            if not (latest_topic_answer.exists()):
+                continue
+
+            latest_topic_answer = latest_topic_answer.latest('start_date')
 
             total_correct_answers = total_correct_answers + Answer.objects.filter(
                 topic_answer=latest_topic_answer,
