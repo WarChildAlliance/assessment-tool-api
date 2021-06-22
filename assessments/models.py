@@ -86,17 +86,39 @@ class AssessmentTopic(models.Model):
         on_delete=models.CASCADE,
     )
 
+    # Define when a feedback should be shown to the user
+    # when they answer a question
     show_feedback = models.IntegerField(
         choices=TopicFeedback.choices,
         default=TopicFeedback.SECOND
     )
 
+    # Define if the questions inside this topic can be
+    # skipped or not
     allow_skip = models.BooleanField(
         default=False
     )
 
+    # Define if the topic is evaluated or not. If it isn't,
+    # it will be excluded from datasets concerning, for example,
+    # valid answers percentages computation.
     evaluated = models.BooleanField(
         default=True
+    )
+
+    # Define the average number of valid answers a student
+    # will have to submit before being shown a praise message.
+    # A certain degree of randomness is included in the Frontend so it is
+    # not too repetitive and predictable
+    praise = models.IntegerField(
+        default=0
+    )
+
+    # Define the maximum number of invalid or skipped answers
+    # an user can submit for a topic. Once exceeded, the active topic answer
+    # will be closed and the user redirected to homepage.
+    max_wrong_answers = models.IntegerField(
+        default=0
     )
 
     def __str__(self):
