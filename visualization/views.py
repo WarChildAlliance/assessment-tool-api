@@ -373,8 +373,9 @@ class StudentsByTopicsChart(ModelViewSet):
     def get_queryset(self):
 
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
+        user = self.request.user
 
-        return User.objects.filter(assessmenttopicaccess__topic=assessment_pk).distinct()
+        return User.objects.filter(created_by=user)
     
 
     def list(self, request, *args, **kwargs):

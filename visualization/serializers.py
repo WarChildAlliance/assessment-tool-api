@@ -794,8 +794,8 @@ class StudentsScoreByTopicsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'full_name', 'topics')
-    
+        fields = ('full_name', 'topics')
+
     def get_full_name(self, instance):
         return (instance.first_name + ' ' + instance.last_name)
     
@@ -814,36 +814,44 @@ class StudentsScoreByTopicsSerializer(serializers.ModelSerializer):
             if topic_accesses:
 
                 for access in topic_accesses:
+                    
+                    if AssessmentTopicAnswer.objects.filter(topic_access=access,session__student=instance):
 
-                    earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
-                        topic_access=access,
-                        session__student=instance,
-                        complete=True
-                    ).earliest('start_date')
+                        earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
+                            topic_access=access,
+                            session__student=instance,
+                            complete=True
+                        ).earliest('start_date')
 
-                    total_correct_answers = total_correct_answers + Answer.objects.filter(
-                        topic_answer=earliest_topic_answer,
-                        valid=True
-                    ).count()
+                        total_correct_answers = total_correct_answers + Answer.objects.filter(
+                            topic_answer=earliest_topic_answer,
+                            valid=True
+                        ).count()
 
-                    total_answers = total_answers + Answer.objects.filter(
-                        topic_answer=earliest_topic_answer
-                    ).count()
+                        total_answers = total_answers + Answer.objects.filter(
+                            topic_answer=earliest_topic_answer
+                        ).count()
 
 
-                    if (total_answers):
-                        correct_answers_percentage = round((total_correct_answers / total_answers) * 100, 2)
+                        if (total_answers):
+                            correct_answers_percentage = round((total_correct_answers / total_answers) * 100, 1)
+                            topic_score_dict = {
+                                topic.name: correct_answers_percentage
+                            }
+                            topic_score.append(topic_score_dict)
+                    
+                    else :
                         topic_score_dict = {
-                            topic.name: correct_answers_percentage
+                            topic.name: 'not_started'
                         }
                         topic_score.append(topic_score_dict)
+
             else :
                 topic_score_dict = {
                     topic.name: None
                  }
                 topic_score.append(topic_score_dict)
-                    
-        
+                          
         return topic_score
 
 
