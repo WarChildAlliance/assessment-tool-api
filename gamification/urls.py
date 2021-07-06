@@ -11,6 +11,12 @@ router.register(r'profiles', views.ProfileViewSet,
 # generates :
 # /gamification/profiles/get_self/
 
+router.register(r'avatars', views.AvatarViewSet,
+                basename='avatars')
+# generates :
+# /gamification/avatars/
+# /gamification/avatars/<avatar_pk>/
+
 router.register(r'topic-competencies', views.TopicCompetencyViewSet,
                 basename='topic-competencies')
 # generates :
