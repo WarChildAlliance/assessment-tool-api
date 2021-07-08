@@ -6,9 +6,9 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from users.models import User
-from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer, StudentsTopicsSuccessRateChartSerializer, StudentsScoreByTopicsSerializer
+from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer, ScoreByTopicSerializer, AssessmentListForDashboardSerializer, QuestionOverviewSerializer
 
-from assessments.models import Assessment, AssessmentTopic, Question
+from assessments.models import Assessment, AssessmentTopic, Question, AssessmentTopicAccess
 
 from answers.models import AssessmentTopicAnswer, AnswerSession, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 
@@ -344,31 +344,9 @@ class QuestionAnswersTableViewSet(ModelViewSet):
         return Response('Unauthorized', status=403)
 
 
-class StudentsTopicsSuccessRateChart(ModelViewSet):
+class ScoreByTopicViewSet(ModelViewSet):
 
-    serializer_class = StudentsTopicsSuccessRateChartSerializer
-
-    def get_queryset(self):
-
-        assessment_pk = int(self.kwargs.get('assessment_pk', None))
-
-        return User.objects.filter(assessmenttopicaccess__topic__assessment=assessment_pk).distinct()
-    
-    def list(self, request, *args, **kwargs):
-
-        serializer = StudentsTopicsSuccessRateChartSerializer(
-            self.get_queryset(), many=True,
-            context={
-                'assessment_pk': int(self.kwargs.get('assessment_pk', None))
-            }
-        )
-
-        return Response(serializer.data)
-
-
-class StudentsByTopicsChart(ModelViewSet):
-
-    serializer_class = StudentsScoreByTopicsSerializer
+    serializer_class = ScoreByTopicSerializer
 
     def get_queryset(self):
 
@@ -380,7 +358,7 @@ class StudentsByTopicsChart(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
 
-        serializer = StudentsScoreByTopicsSerializer(
+        serializer = ScoreByTopicSerializer(
             self.get_queryset(), many=True,
             context={
                 'assessment_pk': int(self.kwargs.get('assessment_pk', None))
@@ -389,3 +367,51 @@ class StudentsByTopicsChart(ModelViewSet):
 
         return Response(serializer.data)
 
+class AssessmentListForDashboard(ModelViewSet):
+
+    serializer_class = AssessmentListForDashboardSerializer
+
+    def get_queryset(self):
+        """
+        Queryset to get allowed assessments for table.
+        """
+
+        return Assessment.objects.filter(Q(created_by=self.request.user) | Q(private=False))
+    
+    def list(self, request, *args, **kwargs):
+
+        serializer = AssessmentListForDashboardSerializer(
+            self.get_queryset(), many=True,
+            context={
+                'supervisor': self.request.user
+            }
+        )
+
+        return Response(serializer.data)
+
+
+class QuestionOverviewViewSet(ModelViewSet):
+
+    serializer_class = QuestionOverviewSerializer
+
+    def get_queryset(self):
+
+        topic_pk = int(self.kwargs.get('topic_pk', None))
+
+        return Question.objects.filter(
+            assessment_topic=topic_pk
+        )
+    
+    def list(self, request, *args, **kwargs):
+
+        serializer = QuestionOverviewSerializer(
+            self.get_queryset(), many=True,
+            context={
+                'supervisor': self.request.user,
+                'assessment_pk': int(self.kwargs.get('assessment_pk', None)),
+                'topic_pk': int(self.kwargs.get('topic_pk', None)),
+            }
+        )
+
+        return Response(serializer.data)
+    

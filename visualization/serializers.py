@@ -692,102 +692,7 @@ class AnswerSortTableSerializer(AbstractAnswerTableSerializer):
         fields = AbstractAnswerTableSerializer.Meta.fields + ('category_A', 'category_B',)
 
 
-class StudentsTopicsSuccessRateChartSerializer(serializers.ModelSerializer):
-
-    # Student's full name
-    full_name = serializers.SerializerMethodField()
-    topics = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = ('id', 'full_name', 'topics')
-    
-
-    def get_full_name(self, instance):
-        return (instance.first_name + ' ' + instance.last_name)
-    
-    def get_topics(self, instance):
-        assessment_pk = self.context['assessment_pk']
-
-        return AssessmentTopic.objects.filter(
-            assessmenttopicaccess__student=instance,
-            assessment=assessment_pk
-        ).values()
-
-
-
-class StudentsTopicsSuccessRateChartSerializer(serializers.ModelSerializer):
-
-    # Student's full name
-    full_name = serializers.SerializerMethodField()
-    topics = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = ('id', 'full_name', 'topics')
-    
-
-    def get_full_name(self, instance):
-        return (instance.first_name + ' ' + instance.last_name)
-    
-    def get_topics(self, instance):
-        assessment_pk = self.context['assessment_pk']
-
-        return AssessmentTopic.objects.filter(
-            assessmenttopicaccess__student=instance,
-            assessment=assessment_pk
-        ).values()
-
-
-
-class StudentsTopicsScoreChartSerializer(serializers.ModelSerializer):
-
-    users_scores = serializers.SerializerMethodField()
-    topics = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Assessment
-        fields = ('topics_names', 'users_scores')
-    
-    def get_topics(self, instance):
-
-        return AssessmentTopics.objects.filter(assessment=instance).order_by('id')
-
-    def get_topics_names(self, instance):
-        
-        topics_names = []
-
-        for topic in self.get_topics(instance):
-            topics_names.append(topic.name)
-        
-        return topics_names
-    
-    def get_users_scores(self, instance):
-        supervisor_pk = self.context['supervisor_pk']
-        
-        users_stats = []
-
-        users = User.objects.filter(created_by=supervisor_pk)
-
-        for user in users:
-
-            full_name = user.first_name + ' ' + user.last_name
-            topics_scores = []
-
-            topics = self.get_topics(instance)
-
-            for topic in topics:
-
-                return None
-
-
-        return AssessmentTopic.objects.filter(
-            assessmenttopicaccess__student=instance,
-            assessment=assessment_pk
-        ).values()
-
-
-class StudentsScoreByTopicsSerializer(serializers.ModelSerializer):
+class ScoreByTopicSerializer(serializers.ModelSerializer):
 
     full_name = serializers.SerializerMethodField()
     topics = serializers.SerializerMethodField()
@@ -809,49 +714,198 @@ class StudentsScoreByTopicsSerializer(serializers.ModelSerializer):
         total_answers = 0
 
         for topic in topics:
-            topic_accesses = list(AssessmentTopicAccess.objects.filter(topic=topic, student=instance))
 
-            if topic_accesses:
+            if topic.evaluated:
 
-                for access in topic_accesses:
-                    
-                    if AssessmentTopicAnswer.objects.filter(topic_access=access,session__student=instance):
+                topic_accesses = list(AssessmentTopicAccess.objects.filter(topic=topic, student=instance))
 
-                        earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
-                            topic_access=access,
-                            session__student=instance,
-                            complete=True
-                        ).earliest('start_date')
+                if topic_accesses:
 
-                        total_correct_answers = total_correct_answers + Answer.objects.filter(
-                            topic_answer=earliest_topic_answer,
-                            valid=True
-                        ).count()
+                    for access in topic_accesses:
+                        
+                        if AssessmentTopicAnswer.objects.filter(topic_access=access,session__student=instance):
 
-                        total_answers = total_answers + Answer.objects.filter(
-                            topic_answer=earliest_topic_answer
-                        ).count()
+                            if AssessmentTopicAnswer.objects.filter(topic_access=access, session__student=instance, complete=True):
+                                
+                                earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
+                                    topic_access=access,
+                                    session__student=instance,
+                                    complete=True
+                                ).earliest('start_date')
+
+                                total_correct_answers = total_correct_answers + Answer.objects.filter(
+                                    topic_answer=earliest_topic_answer,
+                                    valid=True
+                                ).count()
+
+                                total_answers = total_answers + Answer.objects.filter(
+                                    topic_answer=earliest_topic_answer
+                                ).count()
 
 
-                        if (total_answers):
-                            correct_answers_percentage = round((total_correct_answers / total_answers) * 100, 1)
+                                if (total_answers):
+                                    correct_answers_percentage = round((total_correct_answers / total_answers) * 100, 1)
+                                    topic_score_dict = {
+                                        topic.name: correct_answers_percentage
+                                    }
+                                    topic_score.append(topic_score_dict)
+
+                            else :
+                                topic_score_dict = {
+                                    topic.name: 'not_started'
+                                }
+                                topic_score.append(topic_score_dict)                    
+                        
+                        else :
                             topic_score_dict = {
-                                topic.name: correct_answers_percentage
+                                topic.name: 'not_started'
                             }
                             topic_score.append(topic_score_dict)
-                    
-                    else :
-                        topic_score_dict = {
-                            topic.name: 'not_started'
-                        }
-                        topic_score.append(topic_score_dict)
 
-            else :
-                topic_score_dict = {
-                    topic.name: None
-                 }
-                topic_score.append(topic_score_dict)
-                          
+                else :
+                    topic_score_dict = {
+                        topic.name: None
+                    }
+                    topic_score.append(topic_score_dict)               
+            
         return topic_score
+    
+
+class AssessmentListForDashboardSerializer(serializers.ModelSerializer):
+
+    topics = serializers.SerializerMethodField()
+    evaluated = serializers.SerializerMethodField()
+    topics_average = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Assessment
+        fields = ('id', 'title', 'evaluated', 'topics', 'topics_average')
+    
+
+    def get_topics(self, instance):
+
+        topics = []
+
+        for topic in AssessmentTopic.objects.filter(assessment=instance):
+
+            if topic.evaluated:
+                topics.append(topic.name)
+
+        return topics
+    
+    def get_evaluated(self, instance):
+
+        evaluated = True
+
+        for topic in AssessmentTopic.objects.filter(assessment=instance):
+
+            if topic.evaluated == False:
+                evaluated = False
+        
+        return evaluated
+    
+    def get_topics_average(self, instance):
+
+        supervisor = self.context['supervisor']
+        students_average = []
+        topic_average = []
+        total_correct_answers = 0
+        total_answers = 0
+
+        for topic in AssessmentTopic.objects.filter(assessment=instance):
+
+            if topic.evaluated:
+
+                for student in User.objects.filter(created_by=supervisor):
+
+                    topic_accesses = AssessmentTopicAccess.objects.filter(topic=topic, student=student)
+
+                    for topic_access in topic_accesses:
+
+                        if AssessmentTopicAnswer.objects.filter(topic_access=topic_access, session__student=student, complete=True):
+
+                            earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
+                                topic_access=topic_access,
+                                session__student=student,
+                                complete=True
+                            ).earliest('start_date')
+
+                            total_correct_answers = total_correct_answers + Answer.objects.filter(
+                                topic_answer=earliest_topic_answer,
+                                valid=True
+                            ).count()
+
+                            total_answers = total_answers + Answer.objects.filter(
+                                topic_answer=earliest_topic_answer
+                            ).count()
+
+
+                            if (total_answers):
+                                correct_answers_percentage = round((total_correct_answers / total_answers) * 100, 1)
+                                students_average.append(correct_answers_percentage)
+            
+            if len(students_average) != 0:            
+                topic_average.append(sum(students_average)/len(students_average))
+
+        return topic_average
+
+
+class QuestionOverviewSerializer(serializers.ModelSerializer):
+
+    correct_answers_count = serializers.SerializerMethodField()
+    incorrect_answers_count = serializers.SerializerMethodField()
+    total_of_first_try_answers = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Question
+        fields = ('id', 'title', 'order', 'question_type', 'correct_answers_count', 'incorrect_answers_count', 'total_of_first_try_answers')
+       
+    
+    def get_total_of_first_try_answers(self, instance):
+
+        supervisor = self.context['supervisor']
+        topic_pk = self.context['topic_pk']
+        total_answers = 0
+        students = User.objects.filter(created_by=supervisor)
+
+        for access in AssessmentTopicAccess.objects.filter(topic=topic_pk, student__in=students):
+
+            if AssessmentTopicAnswer.objects.filter(topic_access=access, session__student__in=students, complete=True):
+                earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
+                    topic_access=access,
+                    session__student__in=students,
+                    complete=True
+                ).earliest('start_date')
+
+                total_answers = total_answers + Answer.objects.filter(topic_answer=earliest_topic_answer, question=instance).count()
+        
+        return total_answers
+    
+    def get_correct_answers_count(self,  instance):
+
+        supervisor = self.context['supervisor']
+        topic_pk = self.context['topic_pk']
+        total_correct_answers = 0
+        students = User.objects.filter(created_by=supervisor)
+
+        for access in AssessmentTopicAccess.objects.filter(topic=topic_pk, student__in=students):
+
+            if AssessmentTopicAnswer.objects.filter(topic_access=access, session__student__in=students, complete=True):
+                earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
+                    topic_access=access,
+                    session__student__in=students,
+                    complete=True
+                ).earliest('start_date')
+
+                total_correct_answers = total_correct_answers + Answer.objects.filter(topic_answer=earliest_topic_answer, question=instance, valid=True).count()
+        
+        return total_correct_answers
+    
+    def get_incorrect_answers_count(self, instance):
+
+        correct_answers_count = self.get_correct_answers_count(instance) 
+        total_answers_count = self.get_total_of_first_try_answers(instance)
+
+        return total_answers_count - correct_answers_count   
 
 

@@ -56,8 +56,9 @@ questions_answers_router.register(
 # generates
 # /visualization/student_answers/{student_pk}/assessments/{assessment_pk}/topics/{topic_pk}/questions/
 
-router.register(r'charts/students_comparaison/(?P<assessment_pk>\d+)', views.StudentsTopicsSuccessRateChart, basename="students-comparaison")
-router.register(r'charts/by_topics/(?P<assessment_pk>\d+)', views.StudentsByTopicsChart, basename="students-topics")
+router.register(r'charts/score_by_topic/(?P<assessment_pk>\d+)', views.ScoreByTopicViewSet, basename="score-by-topic")
+router.register(r'charts/assessments', views.AssessmentListForDashboard, basename="dashboard-assessment")
+router.register(r'charts/assessments/(?P<assessment_pk>\d+)/topics/(?P<topic_pk>\d+)/questions', views.QuestionOverviewViewSet, basename="question-overview")
 
 urlpatterns = [
     path('', include(router.urls)),
