@@ -55,6 +55,7 @@ class AssessmentSerializer(serializers.ModelSerializer):
             'write_only': True
         }}
 
+
     # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
     def get_all_topics_complete(self, instance):
 

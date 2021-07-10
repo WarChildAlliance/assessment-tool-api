@@ -55,6 +55,18 @@ class AssessmentsViewSet(ModelViewSet):
         ).distinct()
 
 
+    def create(self, request):
+        """
+        Create a new Assessment.
+        """
+        request_data = request.data.copy()
+
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
+
     # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
     def list(self, request, *args, **kwargs):
 
@@ -100,6 +112,18 @@ class AssessmentTopicsViewSet(ModelViewSet):
             ).distinct()
 
         return AssessmentTopic.objects.filter(assessment=assessment_pk)
+
+    def create(self, request, *args, **kwargs):
+        """
+        Create a new Topic.
+        """
+        request_data = request.data.copy()
+
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
 
 
 class QuestionsViewSet(ModelViewSet):
