@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from users.models import User
-from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer, ScoreByTopicSerializer, AssessmentListForDashboardSerializer, QuestionOverviewSerializer
+from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer, ScoreByTopicSerializer, AssessmentListForDashboardSerializer, TopicLisForDashboardSerializer, QuestionOverviewSerializer, StudentsByTopicAccessSerializer, StudentAnswersSerializer
 
 from assessments.models import Assessment, AssessmentTopic, Question, AssessmentTopicAccess
 
@@ -390,6 +390,17 @@ class AssessmentListForDashboard(ModelViewSet):
         return Response(serializer.data)
 
 
+class TopicListForDashboard(ModelViewSet):
+
+    serializer_class = TopicLisForDashboardSerializer
+
+    def get_queryset(self):
+
+        assessment_pk = int(self.kwargs.get('assessment_pk', None))
+
+        return AssessmentTopic.objects.filter(assessment=assessment_pk)
+
+
 class QuestionOverviewViewSet(ModelViewSet):
 
     serializer_class = QuestionOverviewSerializer
@@ -413,5 +424,35 @@ class QuestionOverviewViewSet(ModelViewSet):
             }
         )
 
+        return Response(serializer.data)
+
+
+class StudentsByTopicAccessViewSet(ModelViewSet):
+
+    serializer_class = StudentsByTopicAccessSerializer
+
+    def get_queryset(self):
+
+        topic_pk = int(self.kwargs.get('topic_pk', None))
+        students = User.objects.filter(created_by=self.request.user)
+
+        return AssessmentTopicAccess.objects.filter(topic=topic_pk, student__in=students)
+
+
+class StudentAnswersViewSet(ModelViewSet):
+
+    serializer_class = StudentAnswersSerializer
+
+    def get_queryset(self):
+
+        topic_pk = int(self.kwargs.get('topic_pk', None))
+        assessment_topic_answer_pk = int(self.kwargs.get('assessment_topic_answer_pk', None))
+
+        return Answer.objects.filter(question__assessment_topic=topic_pk, topic_answer=assessment_topic_answer_pk)
+    
+    def retrieve(self, request, *args, **kwargs):
+        answer_pk = self.kwargs.get('pk', None)
+        answer = get_object_or_404(self.get_queryset().select_subclasses(), pk=answer_pk)
+        serializer = AnswerTableSerializer(answer, many=False)  
         return Response(serializer.data)
     
