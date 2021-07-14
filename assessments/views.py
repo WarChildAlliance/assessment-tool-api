@@ -138,7 +138,7 @@ class QuestionsViewSet(ModelViewSet):
         Instantiate and return the list of permissions that this view requires.
         """
         permission_classes = [IsAuthenticated, HasAccess]
-        if self.action == 'destroy' or self.action == 'update':
+        if self.action == 'destroy' or self.action == 'update' or self.action == 'create':
             permission_classes.append(IsSupervisor)
         return [permission() for permission in permission_classes]
 
@@ -153,9 +153,18 @@ class QuestionsViewSet(ModelViewSet):
         return Question.objects.filter(
             assessment_topic=topic_pk, assessment_topic__assessment=assessment_pk
         ).select_subclasses()
+    
+    def create(self, request, *args, **kwargs):
+        """
+        Create a new Topic.
+        """
+        request_data = request.data.copy()
 
-    def create(self, request, **kwargs):
-        return Response('Cannot create question (method not implemented)', status=404)
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
 
     def update(self, request, pk=None):
         return Response('Cannot update question (method not implemented)', status=404)
