@@ -32,7 +32,7 @@ router.register(r'students', views.UserTableViewSet,
 # generates
 # /visualization/students/
 
-router.register(r'students_assessments/(?P<student_pk>\d+)', views.UserAssessmentTreeViewset, 
+router.register(r'students_assessments/(?P<student_pk>\d+)', views.StudentLinkedAssessmentsViewSet, 
                 basename='student-assessments-visualization')
 
 router.register(r'student_answers/(?P<student_pk>\d+)/sessions',

@@ -1,11 +1,21 @@
 from rest_framework import serializers
 import datetime
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
+<<<<<<< HEAD
 from users.models import User
 from assessments.models import Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
 from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 
 from assessments.serializers import (SelectOptionSerializer, SortOptionSerializer, HintSerializer, AttachmentSerializer, AssessmentTopicSerializer)
+=======
+
+from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
+
+from assessments.models import Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
+from assessments.serializers import SelectOptionSerializer, SortOptionSerializer, HintSerializer, AttachmentSerializer
+
+from users.models import User
+>>>>>>> 39-add-route-and-serializer-to-get-student-assessments-and-topics-for-admin-dashboard
 
 
 class UserTableSerializer(serializers.ModelSerializer):
@@ -70,29 +80,34 @@ class UserTableSerializer(serializers.ModelSerializer):
         return instance.country.code
 
 
-class UserAssessmentTreeSerializer(serializers.ModelSerializer):
+class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 
-    topics = serializers.SerializerMethodField()
+    topic_access = serializers.SerializerMethodField()
 
     class Meta:
         model = Assessment
-        fields = ('title', 'topics')
+        fields = ('title', 'topic_access')
     
-    
-    def get_topics(self, instance):
+    def get_topic_access(self, instance):
+
         student_pk = self.context['student_pk']
-
-        topic_access_list = list(AssessmentTopicAccess.objects.filter(topic__assessment=instance, student=student_pk).values())
-        topics = []
-
-        for access in topic_access_list:
-            topic = []
-            topic.append(AssessmentTopic.objects.get(id=access['topic_id']).name)
-            topic.append(access['start_date'])
-            topic.append(access['end_date'])
-            topics.append(topic)
         
-        return topics
+        topic_list = AssessmentTopic.objects.filter(assessment=instance)
+        topic_access_list = []
+
+        for topic in topic_list:
+            topic_access = list(AssessmentTopicAccess.objects.filter(topic=topic, student=student_pk).values())
+
+            if topic_access:
+                access_dict = {
+                    'topic': topic.name,
+                    'start_date': topic_access[0]['start_date'],
+                    'end_date': topic_access[0]['end_date']
+                }
+            
+                topic_access_list.append(access_dict)
+
+        return topic_access_list
 
 
 
