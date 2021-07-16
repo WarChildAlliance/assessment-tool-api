@@ -1,21 +1,11 @@
 from rest_framework import serializers
 import datetime
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
-<<<<<<< HEAD
 from users.models import User
 from assessments.models import Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
 from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 
 from assessments.serializers import (SelectOptionSerializer, SortOptionSerializer, HintSerializer, AttachmentSerializer, AssessmentTopicSerializer)
-=======
-
-from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
-
-from assessments.models import Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
-from assessments.serializers import SelectOptionSerializer, SortOptionSerializer, HintSerializer, AttachmentSerializer
-
-from users.models import User
->>>>>>> 39-add-route-and-serializer-to-get-student-assessments-and-topics-for-admin-dashboard
 
 
 class UserTableSerializer(serializers.ModelSerializer):
