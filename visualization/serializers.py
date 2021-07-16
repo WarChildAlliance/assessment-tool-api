@@ -1,13 +1,11 @@
 from rest_framework import serializers
 import datetime
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
-
+from users.models import User
+from assessments.models import Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
 from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 
-from assessments.models import Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
-from assessments.serializers import SelectOptionSerializer, SortOptionSerializer, HintSerializer, AttachmentSerializer
-
-from users.models import User
+from assessments.serializers import (SelectOptionSerializer, SortOptionSerializer, HintSerializer, AttachmentSerializer, AssessmentTopicSerializer)
 
 
 class UserTableSerializer(serializers.ModelSerializer):
@@ -70,6 +68,32 @@ class UserTableSerializer(serializers.ModelSerializer):
 
     def get_country_code(self, instance):
         return instance.country.code
+
+
+class UserAssessmentTreeSerializer(serializers.ModelSerializer):
+
+    topics = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Assessment
+        fields = ('title', 'topics')
+    
+    
+    def get_topics(self, instance):
+        student_pk = self.context['student_pk']
+
+        topic_access_list = list(AssessmentTopicAccess.objects.filter(topic__assessment=instance, student=student_pk).values())
+        topics = []
+
+        for access in topic_access_list:
+            topic = []
+            topic.append(AssessmentTopic.objects.get(id=access['topic_id']).name)
+            topic.append(access['start_date'])
+            topic.append(access['end_date'])
+            topics.append(topic)
+        
+        return topics
+
 
 
 class AssessmentTableSerializer(serializers.ModelSerializer):

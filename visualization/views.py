@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from users.models import User
-from visualization.serializers import UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer, ScoreByTopicSerializer, AssessmentListForDashboardSerializer, TopicLisForDashboardSerializer, QuestionOverviewSerializer, StudentsByTopicAccessSerializer, StudentAnswersSerializer
+from visualization.serializers import UserTableSerializer,UserAssessmentTreeSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AnswerSessionTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer, ScoreByTopicSerializer, AssessmentListForDashboardSerializer, TopicLisForDashboardSerializer, QuestionOverviewSerializer, StudentsByTopicAccessSerializer, StudentAnswersSerializer
 
 from assessments.models import Assessment, AssessmentTopic, Question, AssessmentTopicAccess
 
@@ -44,6 +44,28 @@ class UserTableViewSet(ModelViewSet):
 
     def destroy(self, request, pk=None):
         return Response('Unauthorized', status=403)
+
+
+class UserAssessmentTreeViewset(ModelViewSet):
+
+    def get_queryset(self):
+
+        student_pk = int(self.kwargs.get('student_pk', None))
+
+        return Assessment.objects.filter(
+            assessmenttopic__assessmenttopicaccess__student=student_pk
+        ).distinct()
+    
+    def list(self, request, *args, **kwargs):
+
+        serializer = UserAssessmentTreeSerializer(
+            self.get_queryset(), many=True,
+            context={
+                'student_pk': int(self.kwargs.get('student_pk', None))
+            }
+        )
+
+        return Response(serializer.data)
 
 
 class AssessmentTableViewSet(ModelViewSet):
