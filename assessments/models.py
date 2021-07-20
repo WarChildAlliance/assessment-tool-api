@@ -53,6 +53,11 @@ class Assessment(models.Model):
         default=False
     )
 
+    icon = models.FileField(
+        upload_to='assessments_icons',
+        null=True
+    )
+
     def __str__(self):
         return f'{self.title}' \
             f' ({self.subject} grade {self.grade}, {self.country} - {self.language})'
@@ -119,6 +124,11 @@ class AssessmentTopic(models.Model):
     # will be closed and the user redirected to homepage.
     max_wrong_answers = models.IntegerField(
         default=0
+    )
+
+    icon = models.FileField(
+        upload_to='topics_icons',
+        null=True
     )
 
     def __str__(self):
