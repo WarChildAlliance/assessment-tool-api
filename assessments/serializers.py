@@ -96,6 +96,8 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
     def get_icon(self, instance):
+        if not (instance.icon):
+            return None
         return instance.icon.url
 
 
