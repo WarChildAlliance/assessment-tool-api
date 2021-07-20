@@ -55,7 +55,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('id', 'student', 'effort', 'total_competency', 'current_avatar')
+        fields = ('id', 'student', 'effort', 'total_competency', 'current_avatar', 'unlocked_avatars')
 
     def get_total_competency(self, instance):
         

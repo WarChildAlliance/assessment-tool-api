@@ -21,6 +21,17 @@ class ProfileViewSet(ModelViewSet):
     def create(self, request):
         return Response('Cannot create profile', status=403)
 
+
+    def put(self, request, **kwargs):
+        user = self.request.user
+        student_profile = Profile.objects.get(student=user)
+        profile = request.data.get("profile")
+        request_data = request.data.copy()
+        serializer = self.get_serializer(student_profile, data = profile)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
     def update(self, request, pk=None):
         return Response('Cannot update profile', status=403)
 
@@ -84,7 +95,7 @@ class AvatarViewSet(ModelViewSet):
 
         return Response(serializer.data)
 
-    def update(self, request, pk=None):
+    def update(self, request, **kwargs):
         return Response('Cannot update avatar', status=403)
 
     def partial_update(self, request, pk=None):
