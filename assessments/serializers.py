@@ -31,10 +31,6 @@ class AssessmentSerializer(serializers.ModelSerializer):
     """
     Assessment serializer.
     """
-    language = NestedRelatedField(
-        model=Language, serializer_class=LanguageSerializer)
-    country = NestedRelatedField(
-        model=Country, serializer_class=CountrySerializer)
 
     language = NestedRelatedField(
         model=Language, serializer_class=LanguageSerializer)
@@ -46,7 +42,7 @@ class AssessmentSerializer(serializers.ModelSerializer):
     # Verifies that all topics linked to this assessment are complete
     all_topics_complete = serializers.SerializerMethodField()
     # END OF TEMPORARY
-    
+
     class Meta:
         model = Assessment
         fields = '__all__'
@@ -76,11 +72,17 @@ class AssessmentSerializer(serializers.ModelSerializer):
         return (completed_assessment_topics == total_assessment_topics)
     # END OF TEMPORARY
 
+    def to_internal_value(self, data):
+        data = data.copy()
+        return super().to_internal_value(data)
+
 class AssessmentTopicSerializer(serializers.ModelSerializer):
     """
     Assessment topic serializer.
     """
     attachments = AttachmentSerializer(many=True, required=False)
+    
+    icon = serializers.SerializerMethodField()
 
     class Meta:
         model = AssessmentTopic
@@ -92,6 +94,9 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
         if 'assessment' not in data:
             data['assessment'] = kwargs.get('assessment_pk', None)
         return super().to_internal_value(data)
+
+    def get_icon(self, instance):
+        return instance.icon.url
 
 
 class HintSerializer(serializers.ModelSerializer):
