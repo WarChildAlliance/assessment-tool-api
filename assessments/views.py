@@ -50,6 +50,12 @@ class AssessmentsViewSet(ModelViewSet):
             return Assessment.objects.filter(Q(created_by=user) | Q(private=False))
 
         # Students can access assessments if they're linked to at least one of its topic
+        test = Assessment.objects.get(
+            assessmenttopic__assessmenttopicaccess__student=user
+        )
+        print("ASSESSMENT", test.icon)
+
+        # Students can access assessments if they're linked to at least one of its topic
         return Assessment.objects.filter(
             assessmenttopic__assessmenttopicaccess__student=user
         ).distinct()
@@ -93,6 +99,14 @@ class AssessmentTopicsViewSet(ModelViewSet):
         """
         user = self.request.user
         assessment_pk = self.kwargs['assessment_pk']
+
+        test = AssessmentTopic.objects.get(
+                        assessment=assessment_pk,
+                        assessmenttopicaccess__student=user
+                    )
+
+        print("TOPIC", test.icon)
+
         if user.is_student():
             return AssessmentTopic.objects.filter(
                 assessment=assessment_pk,
