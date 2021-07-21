@@ -72,10 +72,6 @@ class AssessmentSerializer(serializers.ModelSerializer):
         return (completed_assessment_topics == total_assessment_topics)
     # END OF TEMPORARY
 
-    def to_internal_value(self, data):
-        data = data.copy()
-        return super().to_internal_value(data)
-
 class AssessmentTopicSerializer(serializers.ModelSerializer):
     """
     Assessment topic serializer.
