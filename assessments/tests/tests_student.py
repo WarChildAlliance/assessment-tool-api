@@ -1,4 +1,4 @@
-""" from assessments.models import AssessmentTopicAccess, Assessment
+from assessments.models import AssessmentTopicAccess, Assessment
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
@@ -180,4 +180,3 @@ class AssessmentsStudentTests(APITestCase):
         data = {'students': [1], 'accesses': [{'topic': 1, 'start_date': '2021-01-01'}]}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 403)
- """
