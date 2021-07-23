@@ -53,9 +53,24 @@ class Assessment(models.Model):
         default=False
     )
 
+    icon = models.FileField(
+        upload_to='assessments_icons',
+        null=True,
+        blank=True
+    )
+
     def __str__(self):
         return f'{self.title}' \
             f' ({self.subject} grade {self.grade}, {self.country} - {self.language})'
+
+    """
+        If we want to delete attachments, we cannot filter and call .delete() on the query result.
+        instead we need to get all attachments and delete them one by one in a for loop to trigger this delete
+        But if we don't overwrite the delete in this fashion, we will have zombie files, as only the reference is deleted
+    """
+    def delete(self, *args, **kwargs):
+        self.icon.delete()
+        super().delete(*args, **kwargs)
 
 
 class AssessmentTopic(models.Model):
@@ -121,8 +136,23 @@ class AssessmentTopic(models.Model):
         default=0
     )
 
+    icon = models.FileField(
+        upload_to='topics_icons',
+        null=True,
+        blank=True
+    )
+
     def __str__(self):
         return f'{self.name} ({self.assessment.id})'
+
+    """
+        If we want to delete attachments, we cannot filter and call .delete() on the query result.
+        instead we need to get all attachments and delete them one by one in a for loop to trigger this delete
+        But if we don't overwrite the delete in this fashion, we will have zombie files, as only the reference is deleted
+    """
+    def delete(self, *args, **kwargs):
+        self.icon.delete()
+        super().delete(*args, **kwargs)
 
 
 class AssessmentTopicAccess(models.Model):

@@ -50,7 +50,7 @@ class AssessmentsSupervisorTests(APITestCase):
         Ensure that supervisors can create an assessment.
         """
         url = reverse('assessments-list')
-        data = {'country': 'JOR', 'grade': '4', 'language': 'AR',
+        data = {'country': 'JOR', 'grade': '4', 'language': 'ARA',
                 'subject': 'MATH', 'title': 'New assessment'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)

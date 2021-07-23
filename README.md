@@ -36,6 +36,12 @@
 
     docker-compose run --rm web python manage.py collectstatic
 
-### Load languages and countries
+### Load fixtures data
 
-    docker-compose run --rm web python manage.py loadlanguagescountries
+    docker-compose run --rm web python loaddata <fixture>
+
+    examples :
+    - docker-compose run --rm web python loaddata users
+    - docker-compose run --rm web python loaddata assessments
+
+*Be careful with the order*

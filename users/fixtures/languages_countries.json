@@ -2,22 +2,33 @@
     {
         "fields": {
             "name_en": "Arabic",
-            "name_local": "اَلْعَرَبِيَّةُ"
+            "name_local": "اَلْعَرَبِيَّةُ",
+            "direction": "RTL"
         },
         "model": "users.language",
-        "pk": "AR"
+        "pk": "ARA"
     },
     {
         "fields": {
             "name_en": "English",
-            "name_local": null
+            "name_local": null,
+            "direction": "LTR"
         },
         "model": "users.language",
-        "pk": "EN"
+        "pk": "ENG"
     },
     {
         "fields": {
-            "language": "AR",
+            "name_en": "French",
+            "name_local": "Français",
+            "direction": "LTR"
+        },
+        "model": "users.language",
+        "pk": "FRE"
+    },
+    {
+        "fields": {
+            "language": "ARA",
             "name_en": "Jordan",
             "name_local": "الأردن‎"
         },
@@ -26,11 +37,20 @@
     },
     {
         "fields": {
-            "language": "EN",
+            "language": "ENG",
             "name_en": "United States",
             "name_local": null
         },
         "model": "users.country",
         "pk": "USA"
+    },
+    {
+        "fields": {
+            "language": "FRE",
+            "name_en": "France",
+            "name_local": null
+        },
+        "model": "users.country",
+        "pk": "FRA"
     }
 ]

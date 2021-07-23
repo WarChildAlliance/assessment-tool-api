@@ -4,7 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from users.permissions import HasAccess, IsSupervisor
-from django.views.generic import TemplateView, ListView, CreateView
+from django.views.generic import CreateView
+from datetime import date
 
 from admin.lib.viewsets import ModelViewSet
 
@@ -51,7 +52,9 @@ class AssessmentsViewSet(ModelViewSet):
 
         # Students can access assessments if they're linked to at least one of its topic
         return Assessment.objects.filter(
-            assessmenttopic__assessmenttopicaccess__student=user
+            assessmenttopic__assessmenttopicaccess__student=user,
+            assessmenttopic__assessmenttopicaccess__start_date__lte=date.today(),
+            assessmenttopic__assessmenttopicaccess__end_date__gte=date.today()
         ).distinct()
 
 
@@ -68,6 +71,7 @@ class AssessmentsViewSet(ModelViewSet):
         return Response(serializer.data, status=201, headers=headers)
 
     # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
+
     def list(self, request, *args, **kwargs):
 
         serializer = AssessmentSerializer(
@@ -108,7 +112,9 @@ class AssessmentTopicsViewSet(ModelViewSet):
         if user.is_student():
             return AssessmentTopic.objects.filter(
                 assessment=assessment_pk,
-                assessmenttopicaccess__student=user
+                assessmenttopicaccess__student=user,
+                assessmenttopicaccess__start_date__lte=date.today(),
+                assessmenttopicaccess__end_date__gte=date.today()
             ).distinct()
 
         return AssessmentTopic.objects.filter(assessment=assessment_pk)
@@ -151,7 +157,8 @@ class QuestionsViewSet(ModelViewSet):
         assessment_pk = self.kwargs['assessment_pk']
 
         return Question.objects.filter(
-            assessment_topic=topic_pk, assessment_topic__assessment=assessment_pk
+            assessment_topic=topic_pk,
+            assessment_topic__assessment=assessment_pk
         ).select_subclasses()
     
     def create(self, request, *args, **kwargs):
@@ -193,8 +200,6 @@ class AttachmentsViewSet(ModelViewSet, CreateView):
         question_pk = self.kwargs['question_pk']
 
         return Attachment.objects.filter(question=question_pk)
-
-
 
 
 class AssessmentTopicAccessesViewSets(ModelViewSet):

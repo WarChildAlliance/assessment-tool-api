@@ -23,7 +23,7 @@ CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S docker-compose run --rm we
 ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 
 echo -e "Load languages and countries..."
-CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S docker-compose run --rm web python manage.py loadlanguagescountries""'"
+CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S docker-compose run --rm web python manage.py loaddata languages_countries""'"
 ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 
 echo -e "Deployed!"

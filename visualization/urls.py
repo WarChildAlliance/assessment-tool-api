@@ -32,6 +32,9 @@ router.register(r'students', views.UserTableViewSet,
 # generates
 # /visualization/students/
 
+router.register(r'students_assessments/(?P<student_pk>\d+)', views.StudentLinkedAssessmentsViewSet, 
+                basename='student-assessments-visualization')
+
 router.register(r'student_answers/(?P<student_pk>\d+)/sessions',
                 views.AnswerSessionsTableViewSet, basename="sessions-visualization")
 # generates
@@ -56,10 +59,23 @@ questions_answers_router.register(
 # generates
 # /visualization/student_answers/{student_pk}/assessments/{assessment_pk}/topics/{topic_pk}/questions/
 
+router.register(r'charts/assessments', views.AssessmentListForDashboard, basename="dashboard-assessment")
+
+dashboard_assessments_router = routers.NestedSimpleRouter(
+    router, r'charts/assessments', lookup='assessment')
+dashboard_assessments_router.register(
+    r'topics', views.TopicListForDashboard, basename='dashboard-topic')
+
+router.register(r'charts/score_by_topic/(?P<assessment_pk>\d+)', views.ScoreByTopicViewSet, basename="score-by-topic")
+router.register(r'charts/assessments/(?P<assessment_pk>\d+)/topics/(?P<topic_pk>\d+)/questions', views.QuestionOverviewViewSet, basename="question-overview")
+router.register(r'charts/topic/(?P<topic_pk>\d+)/students', views.StudentsByTopicAccessViewSet, basename="students-by-topics")
+router.register(r'charts/topic/(?P<topic_pk>\d+)/student/(?P<assessment_topic_answer_pk>\d+)/answers', views.StudentAnswersViewSet, basename="students_answers")
+
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(assessments_router.urls)),
     path('', include(questions_router.urls)),
     path('', include(answers_router.urls)),
     path('', include(questions_answers_router.urls)),
+    path('', include(dashboard_assessments_router.urls))
 ]
