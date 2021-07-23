@@ -53,8 +53,8 @@ class AssessmentsViewSet(ModelViewSet):
         # Students can access assessments if they're linked to at least one of its topic
         return Assessment.objects.filter(
             assessmenttopic__assessmenttopicaccess__student=user,
-            assessmenttopic__assessmenttopicaccess__start_date__lt=date.today(),
-            assessmenttopic__assessmenttopicaccess__end_date__gt=date.today()
+            assessmenttopic__assessmenttopicaccess__start_date__lte=date.today(),
+            assessmenttopic__assessmenttopicaccess__end_date__gte=date.today()
         ).distinct()
 
     # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
@@ -100,8 +100,8 @@ class AssessmentTopicsViewSet(ModelViewSet):
             return AssessmentTopic.objects.filter(
                 assessment=assessment_pk,
                 assessmenttopicaccess__student=user,
-                assessmenttopicaccess__start_date__lt=date.today(),
-                assessmenttopicaccess__end_date__gt=date.today()
+                assessmenttopicaccess__start_date__lte=date.today(),
+                assessmenttopicaccess__end_date__gte=date.today()
             ).distinct()
 
         return AssessmentTopic.objects.filter(assessment=assessment_pk)
