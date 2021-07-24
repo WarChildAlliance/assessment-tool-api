@@ -170,6 +170,7 @@ class AssessmentTopicAccess(models.Model):
         blank=True
     )
 
+    # TODO Matthis, i think this cascade is wrong, what do you think?
     student = models.ForeignKey(
         'users.User',
         limit_choices_to={'role': User.UserRole.STUDENT},

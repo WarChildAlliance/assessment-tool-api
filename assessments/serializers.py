@@ -357,7 +357,7 @@ class QuestionSelectSerializer(AbstractQuestionSerializer):
 
         if 'options' in validated_data:
             if instance_class == 'QuestionSelect':
-                instance.options.clear()
+                instance.options.all().delete()
             for option_data in validated_data.get('options', []):
                 select_option_serializer = SelectOptionSerializer(
                     data={**option_data, 'question_select': instance.id})

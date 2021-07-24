@@ -62,8 +62,9 @@ class AssessmentsViewSet(ModelViewSet):
         """
         Create a new Assessment.
         """
-        request_data = request.data.copy()
 
+        user = self.request.user
+        request_data = request.data.copy()
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -163,7 +164,7 @@ class QuestionsViewSet(ModelViewSet):
     
     def create(self, request, *args, **kwargs):
         """
-        Create a new Topic.
+        Create a new Question.
         """
         request_data = request.data.copy()
 
@@ -173,14 +174,9 @@ class QuestionsViewSet(ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
 
-    def update(self, request, pk=None):
-        return Response('Cannot update question (method not implemented)', status=404)
-
     def partial_update(self, request, pk=None):
         return Response('Cannot update question (method not implemented)', status=404)
 
-    def destroy(self, request, pk=None):
-        return Response('Cannot delete question (method not implemented)', status=404)
 
 
 class AttachmentsViewSet(ModelViewSet, CreateView):
@@ -200,6 +196,7 @@ class AttachmentsViewSet(ModelViewSet, CreateView):
         question_pk = self.kwargs['question_pk']
 
         return Attachment.objects.filter(question=question_pk)
+
 
 
 class AssessmentTopicAccessesViewSets(ModelViewSet):
