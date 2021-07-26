@@ -7,6 +7,7 @@ from . import views
 
 router = routers.SimpleRouter()
 router.register(r'', views.AssessmentsViewSet, basename='assessments')
+""" router.register(r'attachments', views.AttachmentsViewSet, basename='attachments') """
 # generates:
 # /assessments/
 # /assessments/{assessment_pk}/
@@ -17,11 +18,17 @@ assessments_router.register(
     r'topics', views.AssessmentTopicsViewSet, basename='assessment-topics')
 assessments_router.register(
     r'accesses', views.AssessmentTopicAccessesViewSets, basename='assessment-accesses')
+""" assessments_router.register(
+    r'attachments', views.AttachmentsViewSet, basename='assessment-attachments') """
 # generates:
 # /assessments/{assessment_pk}/topics/
 # /assessments/{assessment_pk}/topics/{topic_pk}/
 # /assessments/{assessment_pk}/accesses/
 # /assessments/{assessment_pk}/accesses/{topic_access_pk}/
+# /assessments/attachments/
+# /assessments/attachments/{attachment_pk}
+
+#TODO maybe generalAttachmentsViewset
 
 topics_router = routers.NestedSimpleRouter(
     assessments_router, r'topics', lookup='topic')
