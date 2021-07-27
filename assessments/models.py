@@ -283,7 +283,7 @@ class QuestionSelect(Question):
         HORIZONTAL = 'HORIZONTAL', 'Horizontal'
         VERTICAL = 'VERTICAL', 'Vertical'
 
-    displayType = models.CharField(
+    display_type = models.CharField(
         max_length=32,
         choices=displayTypes.choices,
         default=displayTypes.GRID
