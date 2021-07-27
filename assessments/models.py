@@ -279,6 +279,17 @@ class QuestionSelect(Question):
     Question select model (inherits Question).
     """
 
+    class displayTypes(models.TextChoices):
+        GRID = 'GRID', 'Grid'
+        HORIZONTAL = 'HORIZONTAL', 'Horizontal'
+        VERTICAL = 'VERTICAL', 'Vertical'
+
+    display_type = models.CharField(
+        max_length=32,
+        choices=displayTypes.choices,
+        default=displayTypes.GRID
+    )
+
     multiple = models.BooleanField(
         default=False
     )
