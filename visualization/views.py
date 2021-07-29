@@ -214,9 +214,9 @@ class TopicAnswersTableViewSet(ModelViewSet):
         student_pk = int(self.kwargs.get('student_pk', None))
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
 
-        return AssessmentTopicAnswer.objects.filter(
-            topic_access__student=student_pk,
-            topic_access__topic__assessment=assessment_pk
+        return AssessmentTopic.objects.filter(
+            assessmenttopicaccess__student=student_pk,
+            assessment=assessment_pk
         )
 
     def list(self, request, *args, **kwargs):
@@ -224,7 +224,8 @@ class TopicAnswersTableViewSet(ModelViewSet):
         serializer = TopicAnswerTableSerializer(
             self.get_queryset(), many=True,
             context={
-                'assessment_pk': int(self.kwargs.get('assessment_pk', None))
+                'assessment_pk': int(self.kwargs.get('assessment_pk', None)),
+                'student_pk': int(self.kwargs.get('student_pk', None))
             }
         )
 
@@ -261,10 +262,10 @@ class QuestionAnswersTableViewSet(ModelViewSet):
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
         topic_pk = int(self.kwargs.get('topic_pk', None))
 
-        return Answer.objects.filter(
-            topic_answer__topic_access__student=student_pk,
-            topic_answer__topic_access__topic__assessment=assessment_pk,
-            topic_answer__topic_access__topic=topic_pk
+        return Question.objects.filter(
+            assessment_topic__assessmenttopicaccess__student=student_pk,
+            assessment_topic__assessment=assessment_pk,
+            assessment_topic=topic_pk
         )
 
     def list(self, request, *args, **kwargs):
@@ -281,9 +282,9 @@ class QuestionAnswersTableViewSet(ModelViewSet):
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
-        answer_pk = self.kwargs.get('pk', None)
-        answer = get_object_or_404(self.get_queryset().select_subclasses(), pk=answer_pk)
-        serializer = AnswerTableSerializer(answer, many=False)  
+        question_pk = self.kwargs.get('pk', None)
+        question = get_object_or_404(self.get_queryset().select_subclasses(), pk=question_pk)
+        serializer = QuestionAnswerTableSerializer(question, many=False)  
         return Response(serializer.data)
 
     def create(self, request):
