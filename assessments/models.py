@@ -17,6 +17,7 @@ class Assessment(models.Model):
         LITERACY = 'LITERACY', 'Literacy'
         PRESEL = 'PRESEL', 'PreSel'
         POSTSEL = 'POSTSEL', 'PostSel'
+        TUTORIAL = 'TUTORIAL', 'Tutorial'
 
     title = models.CharField(
         max_length=256
