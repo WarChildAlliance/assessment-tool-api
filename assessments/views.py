@@ -214,7 +214,6 @@ class AttachmentsViewSet(ModelViewSet, CreateView):
         return Attachment.objects.filter(question=question_pk)
 
 
-
 class AssessmentTopicAccessesViewSets(ModelViewSet):
     """
     Assessment topic accesses viewset.
