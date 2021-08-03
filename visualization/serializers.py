@@ -312,17 +312,13 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     completed_topics_count = serializers.SerializerMethodField()
     # Total of topics accessible by the student
     accessible_topics_count = serializers.SerializerMethodField()
-    # Overall percentage of correct answers for the first topic answer
-    earliest_topic_answers_correct_answers_percentage = serializers.SerializerMethodField()
-    # Overall percentage of correct answers for the last topic answer
-    latest_topic_answers_correct_answers_percentage = serializers.SerializerMethodField()
     # Last session datetime
     last_session = serializers.SerializerMethodField()
 
     class Meta:
         model = Assessment
-        fields = ('id', 'title', 'subject', 'completed_topics_count', 'accessible_topics_count',
-                  'earliest_topic_answers_correct_answers_percentage', 'latest_topic_answers_correct_answers_percentage', 'last_session')
+        fields = ('id', 'title', 'subject', 'completed_topics_count',
+                  'accessible_topics_count', 'last_session')
 
     def get_completed_topics_count(self, instance):
         student_pk = self.context['student_pk']
@@ -343,79 +339,6 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
 
     def get_subject(self, instance):
         return instance.get_subject_display()
-
-    def get_earliest_topic_answers_correct_answers_percentage(self, instance):
-        student_pk = self.context['student_pk']
-
-        total_correct_answers = 0
-        total_answers = 0
-
-        for topic in AssessmentTopic.objects.filter(assessment=instance, evaluated=True):
-
-            earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
-                topic_access__topic=topic,
-                session__student=student_pk,
-                complete=True
-            )
-
-            if not (earliest_topic_answer.exists()):
-                continue
-
-            earliest_topic_answer = earliest_topic_answer.earliest(
-                'start_date')
-
-            total_correct_answers = total_correct_answers + Answer.objects.filter(
-                topic_answer=earliest_topic_answer,
-                valid=True
-            ).count()
-
-            total_answers = total_answers + Answer.objects.filter(
-                topic_answer=earliest_topic_answer
-            ).count()
-
-        correct_answers_percentage = None
-
-        if (total_answers):
-            correct_answers_percentage = round(
-                (total_correct_answers / total_answers) * 100, 2)
-
-        return correct_answers_percentage
-
-    def get_latest_topic_answers_correct_answers_percentage(self, instance):
-        student_pk = self.context['student_pk']
-
-        total_correct_answers = 0
-        total_answers = 0
-
-        for topic in AssessmentTopic.objects.filter(assessment=instance, evaluated=True):
-
-            latest_topic_answer = AssessmentTopicAnswer.objects.filter(
-                topic_access__topic=topic,
-                session__student=student_pk,
-                complete=True
-            )
-
-            if not (latest_topic_answer.exists()):
-                continue
-
-            latest_topic_answer = latest_topic_answer.latest('start_date')
-
-            total_correct_answers = total_correct_answers + Answer.objects.filter(
-                topic_answer=latest_topic_answer,
-                valid=True
-            ).count()
-
-            total_answers = total_answers + Answer.objects.filter(
-                topic_answer=latest_topic_answer
-            ).count()
-
-        correct_answers_percentage = None
-
-        if (total_answers):
-            correct_answers_percentage = round(
-                (total_correct_answers / total_answers) * 100, 2)
-
-        return correct_answers_percentage
 
     def get_last_session(self, instance):
         student_pk = self.context['student_pk']
@@ -446,8 +369,7 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AssessmentTopic
-        fields = ('id', 'name',
-                  'questions_count', 'student_tries_count',
+        fields = ('id', 'name', 'questions_count', 'student_tries_count',
                   'correct_answers_percentage_first_try',
                   'correct_answers_percentage_last_try',
                   'last_submission')
