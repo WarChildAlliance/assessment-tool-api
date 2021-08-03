@@ -1,5 +1,7 @@
 
 from rest_framework.response import Response
+from rest_framework.filters import OrderingFilter
+
 from django.shortcuts import get_object_or_404
 
 from users.models import User
@@ -22,6 +24,8 @@ class UserTableViewSet(ModelViewSet):
     serializer_class = UserTableSerializer
     filterset_fields = ['first_name', 'role',
                         'country', 'language', 'created_by']
+    filter_backends = [OrderingFilter]
+    ordering_fields = ['id']
 
     def get_queryset(self):
         """
