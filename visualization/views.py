@@ -107,9 +107,13 @@ class AssessmentTopicsTableViewset(ModelViewSet):
         """
         Queryset to get allowed assessment topics table.
         """
-
+        accessible_assessments = AssessmentTableViewSet.get_queryset(self)
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
-        return AssessmentTopic.objects.filter(assessment=assessment_pk)
+
+        return AssessmentTopic.objects.filter(
+            assessment=assessment_pk,
+            assessment__in=accessible_assessments
+        )
 
     def create(self, request):
         return Response('Unauthorized', status=403)
@@ -136,11 +140,29 @@ class QuestionsTableViewset(ModelViewSet):
         Queryset to get allowed assessment topics table.
         """
 
+        accessible_topics = AssessmentTopicsTableViewset.get_queryset(self)
+
         topic_pk = int(self.kwargs.get('topic_pk', None))
+        assessment_pk = int(self.kwargs.get('assessment_pk', None))
 
         return Question.objects.filter(
-            assessment_topic=topic_pk
+            assessment_topic=topic_pk,
+            assessment_topic__in=accessible_topics,
+            assessment_topic__assessment=assessment_pk
         )
+
+    def list(self, request, *args, **kwargs):
+
+        accessible_students = UserTableViewSet.get_queryset(self)
+
+        serializer = QuestionTableSerializer(
+            self.get_queryset(), many=True,
+            context={
+                'accessible_students': accessible_students
+            }
+        )
+
+        return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         question_pk = self.kwargs.get('pk', None)

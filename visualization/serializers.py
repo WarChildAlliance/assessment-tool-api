@@ -200,13 +200,16 @@ class QuestionTableSerializer(serializers.ModelSerializer):
 
     has_attachment = serializers.SerializerMethodField()
     question_type = serializers.SerializerMethodField()
-    # Overall percentage of correct answers on this question
-    correct_answers_percentage = serializers.SerializerMethodField()
+    # Overall percentage of correct answers on this question on first students' try
+    correct_answers_percentage_first = serializers.SerializerMethodField()
+    # Overall percentage of correct answers on this question on last students' try
+    correct_answers_percentage_last = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
         fields = ('id', 'title', 'order', 'question_type',
-                  'has_attachment', 'correct_answers_percentage')
+                  'has_attachment', 'correct_answers_percentage_first',
+                  'correct_answers_percentage_last')
 
     def get_has_attachment(self, instance):
         if(Attachment.objects.filter(question=instance)):
@@ -216,22 +219,74 @@ class QuestionTableSerializer(serializers.ModelSerializer):
     def get_question_type(self, instance):
         return instance.get_question_type_display()
 
-    def get_correct_answers_percentage(self, instance):
+    def get_correct_answers_percentage_first(self, instance):
 
-        total_answers = Answer.objects.filter(
-            question=instance
-        ).count()
+        accessible_students = self.context.get("accessible_students")
 
-        total_valid_answers = Answer.objects.filter(
-            question=instance,
-            valid=True
-        ).count()
+        total_answers = 0
+        total_correct_answers = 0
+
+        for student in accessible_students:
+
+            earliest_topic_answers = AssessmentTopicAnswer.objects.filter(
+                topic_access__student=student,
+                topic_access__topic=instance.assessment_topic,
+                complete=True
+            )
+
+            if earliest_topic_answers:
+
+                earliest_topic_answer = earliest_topic_answers.earliest("start_date")
+                answers_list = Answer.objects.filter(
+                    question=instance,
+                    topic_answer=earliest_topic_answer
+                )
+                total_answers += answers_list.count()
+                total_correct_answers += answers_list.filter(
+                    valid=True
+                ).count()
 
         correct_answers_percentage = None
 
         if total_answers:
             correct_answers_percentage = round(
-                (100 * total_valid_answers / total_answers), 2)
+                (100 * total_correct_answers / total_answers), 2)
+
+        return correct_answers_percentage
+
+    def get_correct_answers_percentage_last(self, instance):
+
+        accessible_students = self.context.get("accessible_students")
+
+        total_answers = 0
+        total_correct_answers = 0
+
+        for student in accessible_students:
+
+            latest_topic_answers = AssessmentTopicAnswer.objects.filter(
+                topic_access__student=student,
+                topic_access__topic=instance.assessment_topic,
+                complete=True
+            )
+
+            if latest_topic_answers:
+
+                latest_topic_answer = latest_topic_answers.latest("start_date")
+                answers_list = Answer.objects.filter(
+                    question=instance,
+                    topic_answer=latest_topic_answer
+                )
+
+                total_answers += answers_list.count()
+                total_correct_answers += answers_list.filter(
+                    valid=True
+                ).count()
+
+        correct_answers_percentage = None
+
+        if total_answers:
+            correct_answers_percentage = round(
+                (100 * total_correct_answers / total_answers), 2)
 
         return correct_answers_percentage
 
@@ -508,7 +563,6 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
             topic_answer=last_topic_answer,
             question=instance
         ).valid
-
 
 
 class AnswerTableSerializer(PolymorphicSerializer):
