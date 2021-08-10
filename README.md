@@ -38,10 +38,10 @@
 
 ### Load fixtures data
 
-    docker-compose run --rm web python loaddata <fixture>
+    docker-compose run --rm web python manage.py loaddata <fixture>
 
     examples :
-    - docker-compose run --rm web python loaddata users
-    - docker-compose run --rm web python loaddata assessments
+    - docker-compose run --rm web python manage.py loaddata users
+    - docker-compose run --rm web python manage.py loaddata manage.py assessments
 
 *Be careful with the order*

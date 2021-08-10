@@ -18,8 +18,8 @@ assessments_router.register(
     r'topics', views.AssessmentTopicsViewSet, basename='assessment-topics')
 assessments_router.register(
     r'accesses', views.AssessmentTopicAccessesViewSets, basename='assessment-accesses')
-""" assessments_router.register(
-    r'attachments', views.AttachmentsViewSet, basename='assessment-attachments') """
+assessments_router.register(
+    r'attachments', views.GeneralAttachmentsViewSet, basename='assessment-attachments')
 # generates:
 # /assessments/{assessment_pk}/topics/
 # /assessments/{assessment_pk}/topics/{topic_pk}/

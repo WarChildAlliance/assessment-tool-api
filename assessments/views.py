@@ -177,6 +177,22 @@ class QuestionsViewSet(ModelViewSet):
     def partial_update(self, request, pk=None):
         return Response('Cannot update question (method not implemented)', status=404)
 
+class GeneralAttachmentsViewSet(ModelViewSet, CreateView):
+    """
+    Attachments viewset.
+    """
+
+    model = Attachment
+    serializer_class = AttachmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Queryset to get allowed assessments.
+        """
+        user = self.request.user
+
+        return Attachment.objects.distinct()
 
 
 class AttachmentsViewSet(ModelViewSet, CreateView):
@@ -196,7 +212,6 @@ class AttachmentsViewSet(ModelViewSet, CreateView):
         question_pk = self.kwargs['question_pk']
 
         return Attachment.objects.filter(question=question_pk)
-
 
 
 class AssessmentTopicAccessesViewSets(ModelViewSet):
