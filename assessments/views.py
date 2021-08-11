@@ -58,6 +58,20 @@ class AssessmentsViewSet(ModelViewSet):
             assessmenttopic__assessmenttopicaccess__end_date__gte=date.today()
         ).distinct()
 
+
+    def create(self, request):
+        """
+        Create a new Assessment.
+        """
+
+        user = self.request.user
+        request_data = request.data.copy()
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
+
     # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
 
     def list(self, request, *args, **kwargs):
@@ -109,6 +123,18 @@ class AssessmentTopicsViewSet(ModelViewSet):
 
         return AssessmentTopic.objects.filter(assessment=assessment_pk)
 
+    def create(self, request, *args, **kwargs):
+        """
+        Create a new Topic.
+        """
+        request_data = request.data.copy()
+
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
+
 
 class QuestionsViewSet(ModelViewSet):
     """
@@ -122,7 +148,7 @@ class QuestionsViewSet(ModelViewSet):
         Instantiate and return the list of permissions that this view requires.
         """
         permission_classes = [IsAuthenticated, HasAccess]
-        if self.action == 'destroy' or self.action == 'update':
+        if self.action == 'destroy' or self.action == 'update' or self.action == 'create':
             permission_classes.append(IsSupervisor)
         return [permission() for permission in permission_classes]
 
@@ -138,18 +164,38 @@ class QuestionsViewSet(ModelViewSet):
             assessment_topic=topic_pk,
             assessment_topic__assessment=assessment_pk
         ).select_subclasses()
+    
+    def create(self, request, *args, **kwargs):
+        """
+        Create a new Question.
+        """
+        request_data = request.data.copy()
 
-    def create(self, request, **kwargs):
-        return Response('Cannot create question (method not implemented)', status=404)
-
-    def update(self, request, pk=None):
-        return Response('Cannot update question (method not implemented)', status=404)
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
 
     def partial_update(self, request, pk=None):
         return Response('Cannot update question (method not implemented)', status=404)
 
-    def destroy(self, request, pk=None):
-        return Response('Cannot delete question (method not implemented)', status=404)
+class GeneralAttachmentsViewSet(ModelViewSet, CreateView):
+    """
+    Attachments viewset.
+    """
+
+    model = Attachment
+    serializer_class = AttachmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Queryset to get allowed assessments.
+        """
+        user = self.request.user
+
+        return Attachment.objects.distinct()
 
 
 class AttachmentsViewSet(ModelViewSet, CreateView):

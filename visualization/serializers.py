@@ -255,7 +255,7 @@ class AbstractQuestionDetailsTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ('title', 'order', 'question_type', 'hint', 'attachments')
+        fields = ('id', 'title', 'order', 'question_type', 'hint', 'attachments')
 
 
 class QuestionInputTableSerializer(AbstractQuestionDetailsTableSerializer):
@@ -276,7 +276,7 @@ class QuestionSelectTableSerializer(AbstractQuestionDetailsTableSerializer):
     
     class Meta(AbstractQuestionDetailsTableSerializer.Meta):
         model = QuestionSelect
-        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + ('options',)
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + ('options', 'multiple', )
 
 
 class QuestionSortTableSerializer(AbstractQuestionDetailsTableSerializer):

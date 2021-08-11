@@ -21,7 +21,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Attachment
-        fields = ('id', 'attachment_type', 'file')
+        fields = '__all__'
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
@@ -50,6 +50,7 @@ class AssessmentSerializer(serializers.ModelSerializer):
             'default': serializers.CurrentUserDefault(),
             'write_only': True
         }}
+
 
     # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
     def get_all_topics_complete(self, instance):
@@ -356,7 +357,7 @@ class QuestionSelectSerializer(AbstractQuestionSerializer):
 
         if 'options' in validated_data:
             if instance_class == 'QuestionSelect':
-                instance.options.clear()
+                instance.options.all().delete()
             for option_data in validated_data.get('options', []):
                 select_option_serializer = SelectOptionSerializer(
                     data={**option_data, 'question_select': instance.id})

@@ -17,6 +17,7 @@ class Assessment(models.Model):
         LITERACY = 'LITERACY', 'Literacy'
         PRESEL = 'PRESEL', 'PreSel'
         POSTSEL = 'POSTSEL', 'PostSel'
+        TUTORIAL = 'TUTORIAL', 'Tutorial'
 
     title = models.CharField(
         max_length=256
@@ -170,6 +171,7 @@ class AssessmentTopicAccess(models.Model):
         blank=True
     )
 
+    # TODO Matthis, i think this cascade is wrong, what do you think?
     student = models.ForeignKey(
         'users.User',
         limit_choices_to={'role': User.UserRole.STUDENT},
@@ -277,6 +279,17 @@ class QuestionSelect(Question):
     """
     Question select model (inherits Question).
     """
+
+    class displayTypes(models.TextChoices):
+        GRID = 'GRID', 'Grid'
+        HORIZONTAL = 'HORIZONTAL', 'Horizontal'
+        VERTICAL = 'VERTICAL', 'Vertical'
+
+    display_type = models.CharField(
+        max_length=32,
+        choices=displayTypes.choices,
+        default=displayTypes.GRID
+    )
 
     multiple = models.BooleanField(
         default=False
