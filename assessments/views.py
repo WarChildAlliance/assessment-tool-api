@@ -33,10 +33,10 @@ class AssessmentsViewSet(ModelViewSet):
         permission_classes = [IsAuthenticated]
         if self.action == 'retrieve':
             permission_classes.append(HasAccess)
-        elif self.action == 'destroy':
+        elif self.action == 'destroy' or self.action == 'update':
             permission_classes.append(HasAccess)
             permission_classes.append(IsSupervisor)
-        elif self.action == 'create' or self.action == 'update':
+        elif self.action == 'create':
             permission_classes.append(IsSupervisor)
         return [permission() for permission in permission_classes]
 
@@ -162,6 +162,7 @@ class QuestionsViewSet(ModelViewSet):
             assessment_topic__assessment=assessment_pk
         ).select_subclasses()
     
+    print("hello")
     def create(self, request, *args, **kwargs):
         """
         Create a new Question.
@@ -174,7 +175,8 @@ class QuestionsViewSet(ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
 
-
+    def partial_update(self, request, pk=None):
+        return Response('Cannot update question (method not implemented)', status=404)
 
 class GeneralAttachmentsViewSet(ModelViewSet, CreateView):
     """
