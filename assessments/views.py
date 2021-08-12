@@ -177,8 +177,6 @@ class QuestionsViewSet(ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
 
-    def partial_update(self, request, pk=None):
-        return Response('Cannot update question (method not implemented)', status=404)
 
 class GeneralAttachmentsViewSet(ModelViewSet, CreateView):
     """

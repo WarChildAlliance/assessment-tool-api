@@ -52,6 +52,7 @@ class AssessmentSerializer(serializers.ModelSerializer):
         }}
 
 
+
     # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
     def get_all_topics_complete(self, instance):
 
@@ -73,12 +74,14 @@ class AssessmentSerializer(serializers.ModelSerializer):
         return (completed_assessment_topics == total_assessment_topics)
     # END OF TEMPORARY
 
+
+
 class AssessmentTopicSerializer(serializers.ModelSerializer):
     """
     Assessment topic serializer.
     """
     attachments = AttachmentSerializer(many=True, required=False)
-    
+
     icon = serializers.SerializerMethodField()
 
     class Meta:
@@ -96,6 +99,7 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
         if not (instance.icon):
             return None
         return instance.icon.url
+
 
 
 class HintSerializer(serializers.ModelSerializer):

@@ -12,8 +12,9 @@ def on_topic_answer_submission(sender, **kwargs):
 
     topic_answer = kwargs['instance']
 
+"""
     if (topic_answer.complete):
-
+        
         student_profile = Profile.objects.get(student = topic_answer.topic_access.student.id)
 
         correct_answers_total = Answer.objects.filter(
@@ -47,7 +48,7 @@ def on_topic_answer_submission(sender, **kwargs):
         student_profile.save()
 
         increase_topic_competency(student_profile, topic_answer.topic_access.topic, submitted_topic_competency)
-
+"""
 
 # Increase the topic competency for a given profile and topic
 def increase_topic_competency(profile, topic, new_amount):
