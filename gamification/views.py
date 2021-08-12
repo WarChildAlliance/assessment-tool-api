@@ -67,11 +67,10 @@ class TopicCompetencyViewSet(ModelViewSet):
         serializer = self.get_serializer(topic_competencies)
         return Response(serializer.data, status=200)
 
-    def update(self, request, pk=None):
-        return Response('Cannot update topic competency', status=403)
+    def update(self, request):
+        print("hello")
+        return Response('Test', status=200)
 
-    def partial_update(self, request, pk=None):
-        return Response('Cannot partially update topic competency', status=403)
 
     def destroy(self, request, pk=None):
         return Response('Cannot delete topic competency', status=403)
