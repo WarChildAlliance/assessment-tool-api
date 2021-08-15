@@ -10,6 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from users.permissions import HasAccess, IsStudent
+from gamification.models import Profile, TopicCompetency
 
 from admin.lib.viewsets import ModelViewSet
 
@@ -236,13 +237,29 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         instance = self.get_object()
 
         request_data = request.data.copy()
+        new_amount = request_data.get('topic_competency', None)
 
 
-        # Check if topic answer is complete
         topic_id = instance.topic_access.topic.id
         count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
         count_questions_answered = Answer.objects.filter(topic_answer=instance.id).count()
         request_data['complete'] = (count_questions_answered == count_questions_in_topic)
+
+        profile = Profile.objects.get(student = instance.topic_access.student.id)
+
+        # Updating the topic competency from the front
+        if (TopicCompetency.objects.filter(profile=profile, topic=instance.topic_access.topic).exists()):
+
+            current_competency = TopicCompetency.objects.get(profile=profile, topic=instance.topic_access.topic)
+
+            if (new_amount > current_competency.competency):
+                current_competency.competency = new_amount
+                current_competency.save()
+
+        # If no matching topic competency exists, create a new one with the new value
+        else:
+
+            TopicCompetency.objects.create(profile=profile, topic=instance.topic_access.topic, competency=new_amount)
 
         serializer = self.get_serializer(instance, data=request_data, partial=partial)
         serializer.is_valid(raise_exception=True)
