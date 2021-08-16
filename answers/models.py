@@ -89,9 +89,21 @@ class Answer(models.Model):
         on_delete=models.CASCADE
     )
 
-    duration = models.DurationField()
-
     valid = models.BooleanField()
+
+    start_datetime = models.DateTimeField(
+        blank=True,
+        null=True
+    )
+
+    end_datetime = models.DateTimeField(
+        blank=True,
+        null=True
+    )
+
+    @property
+    def duration(self):
+        return self.start_datetime - self.end_datetime
 
     @property
     def date(self):

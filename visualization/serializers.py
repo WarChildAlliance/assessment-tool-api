@@ -447,10 +447,15 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
             topic_access__topic=instance,
             session__student=student_pk,
             complete=True
-        ).earliest('end_date')
+        )
+
+        if not first_topic_answer.exists():
+            return None
 
         if (instance.evaluated != True):
             return None
+
+        first_topic_answer = first_topic_answer.earliest('end_date')
 
         total_answers = Answer.objects.filter(
             topic_answer=first_topic_answer
@@ -477,10 +482,15 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
             topic_access__topic=instance,
             session__student=student_pk,
             complete=True
-        ).latest('end_date')
+        )
+
+        if not last_topic_answer.exists():
+            return None
 
         if (instance.evaluated != True):
             return None
+
+        last_topic_answer = last_topic_answer.latest('end_date')
 
         total_answers = Answer.objects.filter(
             topic_answer=last_topic_answer
@@ -502,10 +512,15 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
     def get_last_submission(self, instance):
         student_pk = self.context['student_pk']
 
-        return AssessmentTopicAnswer.objects.filter(
+        last_topic_answer = AssessmentTopicAnswer.objects.filter(
             topic_access__topic=instance,
             session__student=student_pk
-        ).latest('end_date').end_date
+        )
+
+        if not last_topic_answer.exists():
+            return None
+
+        return last_topic_answer.latest('end_date').end_date
 
 
 class QuestionAnswerTableSerializer(serializers.ModelSerializer):
@@ -530,11 +545,22 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
     def get_average_duration(self, instance):
         student_pk = self.context['student_pk']
 
-        return Answer.objects.filter(
+        all_answers = Answer.objects.filter(
             question=instance,
             topic_answer__complete=True,
             topic_answer__session__student=student_pk
-        ).distinct().aggregate(Avg('duration'))['duration__avg']
+        ).distinct()
+
+        if not all_answers:
+            return None
+
+        total_durations = 0
+
+        for answer in all_answers:
+            if answer.start_datetime and answer.end_datetime:
+                total_durations =+ (answer.end_datetime - answer.start_datetime)
+
+        return (total_durations / all_answers.count())
 
     def get_correctly_answered_first_try(self, instance):
         student_pk = self.context['student_pk']
@@ -543,7 +569,12 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
             topic_access__topic__question=instance,
             session__student=student_pk,
             complete=True
-        ).earliest('end_date')
+        )
+
+        if not first_topic_answer:
+            return None
+
+        first_topic_answer = first_topic_answer.earliest('end_date')
 
         return Answer.objects.get(
             topic_answer=first_topic_answer,
@@ -557,7 +588,12 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
             topic_access__topic__question=instance,
             session__student=student_pk,
             complete=True
-        ).latest('end_date')
+        )
+
+        if not last_topic_answer:
+            return None
+
+        last_topic_answer = last_topic_answer.latest('end_date')
 
         return Answer.objects.get(
             topic_answer=last_topic_answer,
