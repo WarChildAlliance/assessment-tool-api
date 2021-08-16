@@ -26,6 +26,7 @@ class ProfileViewSet(ModelViewSet):
         user = self.request.user
         student_profile = Profile.objects.get(student=user)
         profile = request.data.get("profile")
+        print("profile", profile)
         request_data = request.data.copy()
         serializer = self.get_serializer(student_profile, data = profile)
         serializer.is_valid(raise_exception=True)
