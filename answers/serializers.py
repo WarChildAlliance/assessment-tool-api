@@ -78,7 +78,7 @@ class AbstractAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ('topic_answer', 'question', 'duration', 'valid')
+        fields = ('topic_answer', 'question', 'valid', 'start_datetime', 'end_datetime')
         extra_kwargs = {'topic_answer': {'required': False}}
 
     def create(self, validated_data):

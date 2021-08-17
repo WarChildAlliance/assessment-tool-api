@@ -34,11 +34,8 @@ router.register(r'students', views.UserTableViewSet,
 
 router.register(r'students_assessments/(?P<student_pk>\d+)', views.StudentLinkedAssessmentsViewSet, 
                 basename='student-assessments-visualization')
-
-router.register(r'student_answers/(?P<student_pk>\d+)/sessions',
-                views.AnswerSessionsTableViewSet, basename="sessions-visualization")
 # generates
-# /visualization/student_answers/{student_pk}/sessions/
+# /visualization/student_answers/{student_pk}/
 
 router.register(r'student_answers/(?P<student_pk>\d+)/assessments',
                 views.AssessmentAnswersTableViewSet, basename="assessment-visualization")
