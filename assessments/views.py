@@ -162,7 +162,7 @@ class QuestionsViewSet(ModelViewSet):
             assessment_topic__assessment=assessment_pk
         ).select_subclasses()
     
-    print("hello")
+
     def create(self, request, *args, **kwargs):
         """
         Create a new Question.
