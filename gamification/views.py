@@ -31,6 +31,7 @@ class ProfileViewSet(ModelViewSet):
         serializer = self.get_serializer(student_profile, data = profile)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        print("self", self)
         return Response(serializer.data)
 
     def update(self, request, pk=None):

@@ -275,8 +275,7 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         student_id = int(self.kwargs.get('student_id', None))
         topic_id = None
 
-        new_amount = request.topic_competency.copy()
-        print("NA", new_amount)
+        #new_amount = request.topic_competency.copy()
 
         if request_data.get('topic', None):
             topic_id = request_data.get('topic')
