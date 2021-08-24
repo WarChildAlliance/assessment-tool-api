@@ -131,6 +131,8 @@ class AnswerSessionsViewSet(ModelViewSet):
             # Get topic_access
             if topic_answer.get('topic', None):
                 topic_id = topic_answer.get('topic')
+                print(topic_id)
+                print(topic_answer)
                 try:
                     topic_access = AssessmentTopicAccess.objects.get(
                         Q(topic=topic_id),
