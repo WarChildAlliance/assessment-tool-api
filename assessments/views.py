@@ -11,7 +11,7 @@ from admin.lib.viewsets import ModelViewSet
 
 from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess,
                      Attachment, Question)
-from .serializers import (AssessmentSerializer,
+from .serializers import (AssessmentDeepSerializer, AssessmentSerializer,
                           AssessmentTopicAccessSerializer,
                           AssessmentTopicSerializer, AttachmentSerializer,
                           QuestionSerializer)
@@ -85,6 +85,15 @@ class AssessmentsViewSet(ModelViewSet):
 
         return Response(serializer.data)
     # END OF TEMPORARY
+
+    @action(detail=False, methods=['get'], serializer_class=AssessmentDeepSerializer)
+    def get_all(self, request):
+
+        serializer = AssessmentDeepSerializer(
+            self.get_queryset(), many=True
+        )
+
+        return Response(serializer.data, status=201)
 
 
 class AssessmentTopicsViewSet(ModelViewSet):
