@@ -7,10 +7,13 @@ from . import views
 
 router = routers.SimpleRouter()
 router.register(r'', views.AssessmentsViewSet, basename='assessments')
-""" router.register(r'attachments', views.AttachmentsViewSet, basename='attachments') """
 # generates:
 # /assessments/
 # /assessments/{assessment_pk}/
+
+""" router.register(r'attachments', views.AttachmentsViewSet, basename='attachments') """
+# We would like a single route for attachments but this doesn't work because Django thinks that
+#  in the route "assessments/attachments/", "attachments" is the primary key of an assessment...
 
 assessments_router = routers.NestedSimpleRouter(
     router, r'', lookup='assessment')
@@ -25,10 +28,12 @@ assessments_router.register(
 # /assessments/{assessment_pk}/topics/{topic_pk}/
 # /assessments/{assessment_pk}/accesses/
 # /assessments/{assessment_pk}/accesses/{topic_access_pk}/
-# /assessments/attachments/
-# /assessments/attachments/{attachment_pk}
+# /assessments/{assessment_pk}/attachments/
+# /assessments/{assessment_pk}/attachments/{attachment_pk}
 
-#TODO maybe generalAttachmentsViewset
+# TODO Shouldn't be that way
+# /assessments/{assessment_pk}/attachments/
+# /assessments/{assessment_pk}/attachments/{attachment_pk}
 
 topics_router = routers.NestedSimpleRouter(
     assessments_router, r'topics', lookup='topic')

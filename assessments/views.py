@@ -165,7 +165,6 @@ class QuestionsViewSet(ModelViewSet):
             assessment_topic__assessment=assessment_pk
         ).select_subclasses()
     
-
     def create(self, request, *args, **kwargs):
         """
         Create a new Question.
@@ -179,7 +178,7 @@ class QuestionsViewSet(ModelViewSet):
         return Response(serializer.data, status=201, headers=headers)
 
 
-class GeneralAttachmentsViewSet(ModelViewSet, CreateView):
+class GeneralAttachmentsViewSet(ModelViewSet):
     """
     Attachments viewset.
     """
@@ -192,10 +191,19 @@ class GeneralAttachmentsViewSet(ModelViewSet, CreateView):
         """
         Queryset to get allowed assessments.
         """
-        user = self.request.user
+        if not self.request.user.role == User.UserRole.SUPERVISOR:
+            return None
 
         return Attachment.objects.distinct()
 
+    def list(self, request, *args, **kwargs):
+        return Response('Cannot list attachments', status=403)
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response('Cannot retrieve attachment', status=403)
+
+    def destroy(self, request, *args, **kwargs):
+        return Response('Cannot delete attachment', status=403)
 
 class AttachmentsViewSet(ModelViewSet, CreateView):
     """
