@@ -24,10 +24,6 @@ class AnswerSession(models.Model):
         on_delete=models.CASCADE
     )
 
-    @property
-    def duration(self):
-        return self.end_date - self.start_date
-
     def __str__(self):
         return f'{self.student} on {self.start_date}'
 
@@ -63,10 +59,6 @@ class AssessmentTopicAnswer(models.Model):
     )
 
     @property
-    def duration(self):
-        return self.end_date - self.start_date
-
-    @property
     def student(self):
         return self.session.student
 
@@ -100,10 +92,6 @@ class Answer(models.Model):
         blank=True,
         null=True
     )
-
-    @property
-    def duration(self):
-        return self.start_datetime - self.end_datetime
 
     @property
     def date(self):

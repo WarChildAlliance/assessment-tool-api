@@ -15,10 +15,10 @@ class UserTableSerializer(serializers.ModelSerializer):
     Users table serializer.
     """
 
-    # Student's full name
-    full_name = serializers.SerializerMethodField()
     # Last session
     last_session = serializers.SerializerMethodField()
+    # Full name
+    full_name = serializers.SerializerMethodField()
     # Number of topics completed by the student
     completed_topics_count = serializers.SerializerMethodField()
     # Number of assessments that the student is linked to
@@ -32,7 +32,7 @@ class UserTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'full_name', 'last_session', 'completed_topics_count',
+        fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_topics_count',
                   'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code')
 
     def get_full_name(self, instance):
