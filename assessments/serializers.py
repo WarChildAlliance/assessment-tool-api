@@ -227,6 +227,10 @@ class QuestionSerializer(PolymorphicSerializer):
             'QuestionSort': QuestionSortSerializer
         }
 
+    def to_representation(self, obj):
+        sub_obj = Question.objects.get_subclass(id=obj.id)
+        return super().to_representation(sub_obj)
+
     def to_internal_value(self, data):
         data = data.copy()
         type_dict = {
@@ -462,3 +466,21 @@ class AssessmentTopicAccessSerializer(serializers.ModelSerializer):
         model = AssessmentTopicAccess
         fields = '__all__'
         list_serializer_class = AssessmentTopicAccessListSerializer
+
+
+class AssessmentTopicDeepSerializer(serializers.ModelSerializer):
+
+    questions = QuestionSerializer(many=True, read_only=True, source='question_set')
+
+    class Meta:
+        model = AssessmentTopic
+        fields = '__all__'
+
+class AssessmentDeepSerializer(serializers.ModelSerializer):
+    
+    topics = AssessmentTopicDeepSerializer(many=True, read_only=True, source='assessmenttopic_set')
+
+    class Meta:
+        model = Assessment
+        fields = '__all__'
+
