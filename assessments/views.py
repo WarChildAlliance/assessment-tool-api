@@ -90,7 +90,10 @@ class AssessmentsViewSet(ModelViewSet):
     def get_all(self, request):
 
         serializer = AssessmentDeepSerializer(
-            self.get_queryset(), many=True
+            self.get_queryset(), many=True,
+            context={
+                'student_pk': int(self.request.user.id)
+            }
         )
 
         return Response(serializer.data, status=201)

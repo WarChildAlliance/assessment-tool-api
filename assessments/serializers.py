@@ -1,3 +1,6 @@
+from datetime import date
+
+from django.db.models.query_utils import RegisterLookupMixin
 from rest_framework import serializers
 from users.models import Country, Language, User
 from users.serializers import (CountrySerializer, LanguageSerializer,
@@ -27,6 +30,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
         instance = super().save(*args, **kwargs)
         return instance
 
+
 class AssessmentSerializer(serializers.ModelSerializer):
     """
     Assessment serializer.
@@ -36,7 +40,6 @@ class AssessmentSerializer(serializers.ModelSerializer):
         model=Language, serializer_class=LanguageSerializer)
     country = NestedRelatedField(
         model=Country, serializer_class=CountrySerializer)
-
 
     # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
     # Verifies that all topics linked to this assessment are complete
@@ -51,9 +54,8 @@ class AssessmentSerializer(serializers.ModelSerializer):
             'write_only': True
         }}
 
-
-
     # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
+
     def get_all_topics_complete(self, instance):
 
         if not ('student_pk' in self.context):
@@ -73,7 +75,6 @@ class AssessmentSerializer(serializers.ModelSerializer):
 
         return (completed_assessment_topics == total_assessment_topics)
     # END OF TEMPORARY
-
 
 
 class AssessmentTopicSerializer(serializers.ModelSerializer):
@@ -99,7 +100,6 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
         if not (instance.icon):
             return None
         return instance.icon.url
-
 
 
 class HintSerializer(serializers.ModelSerializer):
@@ -470,17 +470,37 @@ class AssessmentTopicAccessSerializer(serializers.ModelSerializer):
 
 class AssessmentTopicDeepSerializer(serializers.ModelSerializer):
 
-    questions = QuestionSerializer(many=True, read_only=True, source='question_set')
+    questions = QuestionSerializer(
+        many=True, read_only=True, source='question_set')
 
     class Meta:
         model = AssessmentTopic
         fields = '__all__'
 
+
 class AssessmentDeepSerializer(serializers.ModelSerializer):
-    
-    topics = AssessmentTopicDeepSerializer(many=True, read_only=True, source='assessmenttopic_set')
+
+    topics = serializers.SerializerMethodField()
+
 
     class Meta:
         model = Assessment
         fields = '__all__'
+
+    def get_topics(self, instance):
+        student_pk = self.context['student_pk']
+
+        accessible_topics = AssessmentTopic.objects.filter(
+            assessment=instance,
+            assessmenttopicaccess__student=student_pk,
+            assessmenttopicaccess__start_date__lte=date.today(),
+            assessmenttopicaccess__end_date__gte=date.today()
+        ).distinct()
+
+        serializer = AssessmentTopicDeepSerializer(
+            accessible_topics, many=True, read_only=True
+        )
+
+        return serializer.data
+
 
