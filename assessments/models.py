@@ -242,6 +242,7 @@ class Question(models.Model):
                 name='unique_order'
             )
         ]
+        ordering = ['order']
 
 
 class Hint(models.Model):
