@@ -19,3 +19,4 @@ postgres/
 .htmlcov/
 .vscode/
 admin/settings/local.py
+media/*
