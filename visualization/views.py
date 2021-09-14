@@ -373,7 +373,7 @@ class AssessmentListForDashboard(ModelViewSet):
         Queryset to get allowed assessments for table.
         """
 
-        return Assessment.objects.filter(Q(created_by=self.request.user) | Q(private=False))
+        return Assessment.objects.filter(Q(created_by=self.request.user) | Q(private=False) | ~Q(subject='TUTORIAL'))
 
     def list(self, request, *args, **kwargs):
 
@@ -439,6 +439,7 @@ class StudentsByTopicAccessViewSet(ModelViewSet):
 class StudentAnswersViewSet(ModelViewSet):
 
     serializer_class = StudentAnswersSerializer
+    ordering_fields = ('answer__question_id')
 
     def get_queryset(self):
 

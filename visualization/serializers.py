@@ -680,10 +680,11 @@ class ScoreByTopicSerializer(serializers.ModelSerializer):
 
     full_name = serializers.SerializerMethodField()
     topics = serializers.SerializerMethodField()
+    student_access = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('full_name', 'topics')
+        fields = ('full_name', 'topics', 'student_access')
 
     def get_full_name(self, instance):
         return (instance.first_name + ' ' + instance.last_name)
@@ -761,13 +762,33 @@ class ScoreByTopicSerializer(serializers.ModelSerializer):
                 topic_score.append(topic_score_dict)
 
         return topic_score
+    
+    def get_student_access(self, instance):
+        assessment_pk = self.context['assessment_pk']
+
+        topics = AssessmentTopic.objects.filter(assessment=assessment_pk)
+        for access in AssessmentTopicAccess.objects.filter(student=instance, topic__in=topics):
+            if AssessmentTopicAnswer.objects.filter(topic_access=access, session__student=instance, complete=True):
+                return True
+        return False
 
 
 class TopicLisForDashboardSerializer(serializers.ModelSerializer):
 
+    started = serializers.SerializerMethodField()
+
     class Meta:
         model = AssessmentTopic
-        fields = ('id', 'name', 'evaluated')
+        fields = ('id', 'name', 'evaluated', 'started')
+    
+    def get_started(self, instance):
+
+        started = False
+        
+        if AssessmentTopicAnswer.objects.filter(topic_access__topic=instance, complete=True):
+            started = True
+
+        return started
 
 
 class AssessmentListForDashboardSerializer(serializers.ModelSerializer):
