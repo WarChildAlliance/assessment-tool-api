@@ -275,8 +275,12 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         student_id = int(self.kwargs.get('student_id', None))
         topic_id = None
 
-        print(request_data)
         new_amount = request_data.get('topic_competency')
+        if (new_amount is None):
+            new_amount = 0
+
+        print(new_amount)
+        
         topic_access = None
 
         if request_data.get('topic', None):
