@@ -805,7 +805,6 @@ class AssessmentListForDashboardSerializer(serializers.ModelSerializer):
                     percentage = round((total_correct_answers / total_answers) * 100, 1)
                     students_average.append(percentage)
             
-            print('STU', students_average)
             if len(students_average) != 0:
                 topic_dict = {
                     'id': topic.id,
