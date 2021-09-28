@@ -212,6 +212,12 @@ class Question(models.Model):
         SORT = 'SORT', 'Sort'
         NUMBER_LINE = 'NUMBER_LINE', 'Number line'
 
+    identifier = models.CharField(
+        max_length=256,
+        default='question-identifier-missing',
+        null=False
+    )
+
     title = models.CharField(
         max_length=256,
         null=True,
@@ -347,6 +353,12 @@ class SelectOption(models.Model):
     """
     Select option model.
     """
+
+    identifier = models.CharField(
+        max_length=256,
+        default='select-option-identifier-missing',
+        null=False
+    )
 
     value = models.CharField(
         max_length=256,
