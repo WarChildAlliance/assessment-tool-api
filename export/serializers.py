@@ -15,17 +15,17 @@ class CompleteStudentAnswersSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ('student_id','topic_name', 'assessment_title', 'question_id','attempt','valid', 'start_datetime', 'end_datetime')
+        fields = ('student_id','assessment_title', 'topic_name', 'question_id','attempt','valid', 'start_datetime', 'end_datetime')
 
     def get_student_id(self, instance):
-        return instance.topic_answer.topic_access.student.id
-    
-    def get_topic_name(self, instance):
-        return instance.topic_answer.topic_access.topic.name
-    
+        return instance.topic_answer.topic_access.student.username
+
     def get_assessment_title(self, instance):
         topic = instance.topic_answer.topic_access.topic
         return Assessment.objects.filter(assessmenttopic=topic).distinct().values()[0]['title']
+    
+    def get_topic_name(self, instance):
+        return instance.topic_answer.topic_access.topic.name
     
     def get_question_id(self, instance):
         return instance.question.id
