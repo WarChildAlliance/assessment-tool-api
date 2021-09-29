@@ -29,9 +29,22 @@ class SelectOptionAdmin(admin.ModelAdmin):
     list_display = ('id', 'value')
     search_fields = ('value',)
 
+
+class AssessmentTopicAccessAdmin(admin.ModelAdmin):
+    list_display = ('student_name', 'topic_name', 'start_date', 'end_date', )
+
+    def student_name(self, obj):
+        return obj.student.first_name
+
+    def topic_name(self, obj):
+        return obj.topic.name
+
+
+    
+
 admin.site.register(Assessment, admin.ModelAdmin)
 admin.site.register(AssessmentTopic, admin.ModelAdmin)
-admin.site.register(AssessmentTopicAccess, admin.ModelAdmin)
+admin.site.register(AssessmentTopicAccess, AssessmentTopicAccessAdmin)
 admin.site.register(Attachment, AttachmentAdmin)
 admin.site.register(QuestionInput, admin.ModelAdmin)
 admin.site.register(QuestionSelect, QuestionSelectAdmin)
