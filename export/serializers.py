@@ -1,9 +1,22 @@
 from answers.models import Answer
 from rest_framework import serializers
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
-from assessments.models import Question, Assessment
-from answers.models import AssessmentTopicAnswer
+from assessments.models import Question, Assessment, SelectOption, SortOption
+from answers.models import AssessmentTopicAnswer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 
+class AnswerTableSerializer(PolymorphicSerializer):
+
+    class Meta:
+        model = Answer
+        fields = '__all__'
+
+    def get_serializer_map(self):
+        return {
+            'AnswerInput': AnswerInputSerializer,
+            'AnswerNumberLine': AnswerNumberLineSerializer,
+            'AnswerSelect': AnswerSelectSerializer,
+            'AnswerSort': AnswerSortSerializer
+        }
 
 class CompleteStudentAnswersSerializer(serializers.ModelSerializer):
 
@@ -36,3 +49,62 @@ class CompleteStudentAnswersSerializer(serializers.ModelSerializer):
             if attempt == instance.topic_answer:
                 attempt_id = index + 1
         return attempt_id
+
+class AnswerInputSerializer(CompleteStudentAnswersSerializer):
+    """
+    Answer input serializer.
+    """
+
+    class Meta(CompleteStudentAnswersSerializer.Meta):
+        model = AnswerInput
+        fields = CompleteStudentAnswersSerializer.Meta.fields + ('value',)
+
+
+class SelectOptionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SelectOption
+        fields = ('value',)
+
+class AnswerSelectSerializer(CompleteStudentAnswersSerializer):
+    """
+    Answer select serializer.
+    """
+
+    selected_options = NestedRelatedField(
+        model=SelectOption, serializer_class=SelectOptionSerializer, many=True, required=False)
+
+    class Meta(CompleteStudentAnswersSerializer.Meta):
+        model = AnswerSelect
+        fields = CompleteStudentAnswersSerializer.Meta.fields + ('selected_options',)
+
+
+class AnswerNumberLineSerializer(CompleteStudentAnswersSerializer):
+    """
+    Answer number line serializer.
+    """
+
+    class Meta(CompleteStudentAnswersSerializer.Meta):
+        model = AnswerNumberLine
+        fields = CompleteStudentAnswersSerializer.Meta.fields + ('value',)
+
+class SortOptionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SortOption
+        fields = ('value',)
+
+class AnswerSortSerializer(CompleteStudentAnswersSerializer):
+    """
+    Answer sort line serializer.
+    """
+
+    category_A = NestedRelatedField(
+        model=SortOption, serializer_class=SortOptionSerializer, many=True, required=False)
+    category_B = NestedRelatedField(
+        model=SortOption, serializer_class=SortOptionSerializer, many=True, required=False)
+
+    class Meta(CompleteStudentAnswersSerializer.Meta):
+        model = AnswerSort
+        fields = CompleteStudentAnswersSerializer.Meta.fields + \
+            ('category_A', 'category_B',)
