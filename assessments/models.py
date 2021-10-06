@@ -331,11 +331,21 @@ class QuestionNumberLine(Question):
 
     expected_value = models.IntegerField()
 
-    start = models.IntegerField()
+    start = models.IntegerField(
+        null=False
+    )
 
-    end = models.IntegerField()
+    end = models.IntegerField(
+        null=False
+    )
 
-    step = models.IntegerField()
+    step = models.IntegerField(
+        default=1
+    )
+
+    tick_step = models.IntegerField(
+        default=1
+    )
 
     show_ticks = models.BooleanField(
         default=False
