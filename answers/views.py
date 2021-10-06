@@ -131,8 +131,6 @@ class AnswerSessionsViewSet(ModelViewSet):
             # Get topic_access
             if topic_answer.get('topic', None):
                 topic_id = topic_answer.get('topic')
-                print(topic_id)
-                print(topic_answer)
                 try:
                     topic_access = AssessmentTopicAccess.objects.get(
                         Q(topic=topic_id),
@@ -273,11 +271,17 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         """
         Create a topic answer and its answers.
         """
-        request_data = request.data.copy()
+        request_data = request.data.get('cachedAnswers').copy()
         student_id = int(self.kwargs.get('student_id', None))
         topic_id = None
 
-        #new_amount = request.topic_competency.copy()
+        new_amount = request_data.get('topic_competency')
+        if (new_amount is None):
+            new_amount = 0
+
+        print(new_amount)
+        
+        topic_access = None
 
         if request_data.get('topic', None):
             topic_id = request_data.get('topic')
@@ -293,8 +297,9 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
             except ObjectDoesNotExist:
                 return Response('Student does not have access to this topic', status=400)
 
-        if not request_data.get('topic_access', None):
-            return Response('No topic access defined', status=400)
+        #if not request_data.get('topic_access', None):
+        #    return Response('No topic access defined', status=400)
+
 
         # Check if topic answer is complete
         if topic_id is None:
@@ -303,6 +308,20 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
         count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
         count_questions_answered = len(request_data['answers'])
         request_data['complete'] = (count_questions_answered == count_questions_in_topic)
+
+        profile = Profile.objects.get(student = student_id)
+        # Updating the topic competency from the front
+        if (TopicCompetency.objects.filter(profile=profile, topic=topic_access.topic).exists()):
+
+            current_competency = TopicCompetency.objects.get(profile=profile, topic=topic_access.topic)
+
+            if (new_amount > current_competency.competency):
+                current_competency.competency = new_amount
+                current_competency.save()
+
+        # If no matching topic competency exists, create a new one with the new value
+        else:
+            TopicCompetency.objects.create(profile=profile, topic=topic_access.topic, competency=new_amount)
 
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)

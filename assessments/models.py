@@ -212,6 +212,12 @@ class Question(models.Model):
         SORT = 'SORT', 'Sort'
         NUMBER_LINE = 'NUMBER_LINE', 'Number line'
 
+    identifier = models.CharField(
+        max_length=256,
+        default='question-identifier-missing',
+        null=False
+    )
+
     title = models.CharField(
         max_length=256,
         null=True,
@@ -325,11 +331,21 @@ class QuestionNumberLine(Question):
 
     expected_value = models.IntegerField()
 
-    start = models.IntegerField()
+    start = models.IntegerField(
+        null=False
+    )
 
-    end = models.IntegerField()
+    end = models.IntegerField(
+        null=False
+    )
 
-    step = models.IntegerField()
+    step = models.IntegerField(
+        default=1
+    )
+
+    tick_step = models.IntegerField(
+        default=1
+    )
 
     show_ticks = models.BooleanField(
         default=False
@@ -347,6 +363,12 @@ class SelectOption(models.Model):
     """
     Select option model.
     """
+
+    identifier = models.CharField(
+        max_length=256,
+        default='select-option-identifier-missing',
+        null=False
+    )
 
     value = models.CharField(
         max_length=256,

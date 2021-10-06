@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group
 from .models import User, Language, Country
 
 
+
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
