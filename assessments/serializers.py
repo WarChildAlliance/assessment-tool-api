@@ -481,7 +481,7 @@ class AssessmentTopicDeepSerializer(serializers.ModelSerializer):
 class AssessmentDeepSerializer(serializers.ModelSerializer):
 
     topics = serializers.SerializerMethodField()
-
+    all_topics_complete = serializers.SerializerMethodField()
 
     class Meta:
         model = Assessment
@@ -502,5 +502,24 @@ class AssessmentDeepSerializer(serializers.ModelSerializer):
         )
 
         return serializer.data
+
+    def get_all_topics_complete(self, instance):
+
+        if not ('student_pk' in self.context):
+            return None
+
+        student_pk = self.context['student_pk']
+
+        completed_assessment_topics = AssessmentTopic.objects.filter(
+            assessment=instance,
+            assessmenttopicaccess__student=student_pk,
+            assessmenttopicaccess__assessment_topic_answers__session__student=student_pk
+        ).distinct().count()
+
+        total_assessment_topics = AssessmentTopic.objects.filter(
+            assessment=instance,
+        ).distinct().count()
+
+        return (completed_assessment_topics == total_assessment_topics)
 
 
