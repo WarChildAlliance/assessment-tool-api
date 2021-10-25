@@ -111,8 +111,10 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
     # Total number of topics for this assessment
     topics_count = serializers.SerializerMethodField()
     # Total number of students who have an active access to this assessment
+    topics = serializers.SerializerMethodField()
     students_count = serializers.SerializerMethodField()
     subject = serializers.SerializerMethodField()
+    can_edit = serializers.SerializerMethodField()
 
     # Languages and countries formatted information
     language_name = serializers.SerializerMethodField()
@@ -123,11 +125,14 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessment
         fields = ('id', 'title', 'language_name', 'language_code',
-                  'country_name', 'country_code', 'topics_count',
-                  'students_count', 'grade', 'subject', 'private')
+                  'country_name', 'country_code', 'topics_count', 'topics',
+                  'students_count', 'grade', 'subject', 'private', 'can_edit', 'icon')
 
     def get_topics_count(self, instance):
         return AssessmentTopic.objects.filter(assessment=instance).count()
+    
+    def get_topics(self, instance):
+        return AssessmentTopic.objects.filter(assessment=instance).values_list('id', 'name', 'description')
 
     def get_students_count(self, instance):
         return User.objects.filter(
@@ -150,6 +155,13 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
 
     def get_subject(self, instance):
         return instance.get_subject_display()
+    
+    def get_can_edit(self, instance):
+        supervisor = self.context['supervisor']
+        if instance.created_by == supervisor:
+            return True
+        else:
+            return False
 
 
 class AssessmentTopicTableSerializer(serializers.ModelSerializer):
@@ -784,7 +796,6 @@ class AssessmentListForDashboardSerializer(serializers.ModelSerializer):
             accesses = AssessmentTopicAccess.objects.filter(topic=topic, student__in=students)
             total_answers = Question.objects.filter(assessment_topic=topic).count()
             students_average = []
-            print('TOPIC', topic.name)
 
             #Iterate through the supervisors student to get topic accesses
             for access in accesses:

@@ -82,6 +82,17 @@ class AssessmentTableViewSet(ModelViewSet):
         """
 
         return Assessment.objects.filter(Q(created_by=self.request.user) | Q(private=False))
+    
+    def list(self, request, *args, **kwargs):
+
+        serializer = AssessmentTableSerializer(
+            self.get_queryset(), many=True,
+            context={
+                'supervisor': self.request.user
+            }
+        )
+
+        return Response(serializer.data)
 
     def create(self, request):
         return Response('Unauthorized', status=403)
