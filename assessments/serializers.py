@@ -516,10 +516,11 @@ class AssessmentDeepSerializer(serializers.ModelSerializer):
             assessmenttopicaccess__assessment_topic_answers__session__student=student_pk
         ).distinct().count()
 
-        total_assessment_topics = AssessmentTopic.objects.filter(
+        total_assessment_accessible_topics = AssessmentTopic.objects.filter(
+            assessmenttopicaccess__student=student_pk,
             assessment=instance,
         ).distinct().count()
 
-        return (completed_assessment_topics == total_assessment_topics)
+        return (completed_assessment_topics == total_assessment_accessible_topics)
 
 
