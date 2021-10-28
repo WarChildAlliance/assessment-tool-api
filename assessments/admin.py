@@ -26,8 +26,14 @@ class QuestionSelectAdmin(admin.ModelAdmin):
     search_fields = ('title',)
 
 class SelectOptionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'value', 'identifier')
+    list_display = ('id', 'value', 'identifier', 'question_select_identifier')
     search_fields = ('value',)
+
+    def question_select_identifier(self, obj):
+        if (obj.question_select):
+            return obj.question_select.identifier
+        else:
+            return None
 
 
 class AssessmentTopicAccessAdmin(admin.ModelAdmin):
