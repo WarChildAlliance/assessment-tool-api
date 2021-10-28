@@ -6,7 +6,7 @@ from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess, Attachm
 
 
 class AttachmentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'file', 'question_id', 'select_option_id', )
+    list_display = ('id', 'file', 'question_id', 'question_identifier', 'select_option_id', 'select_option_identifier',)
     search_fields = ('file',)
 
     def select_option_id(self, obj):
@@ -18,6 +18,18 @@ class AttachmentAdmin(admin.ModelAdmin):
     def question_id(self, obj):
         if (obj.question):
             return obj.question.id
+        else:
+            return None
+
+    def select_option_identifier(self, obj):
+        if (obj.select_option):
+            return obj.select_option.identifier
+        else:
+            return None
+    
+    def question_identifier(self, obj):
+        if (obj.question):
+            return obj.question.identifier
         else:
             return None
 
