@@ -22,11 +22,11 @@ class AttachmentAdmin(admin.ModelAdmin):
             return None
 
 class QuestionSelectAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title')
+    list_display = ('id', 'title', 'identifier')
     search_fields = ('title',)
 
 class SelectOptionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'value')
+    list_display = ('id', 'value', 'identifier')
     search_fields = ('value',)
 
 
