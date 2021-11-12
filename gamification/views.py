@@ -49,9 +49,12 @@ class ProfileViewSet(ModelViewSet):
         Get logged-in user's profile information
         """
         user = self.request.user
-        student_profile = Profile.objects.get(student=user)
-        serializer = self.get_serializer(student_profile)
-        return Response(serializer.data, status=200)
+        if (user != None):
+            student_profile = Profile.objects.get(student=user)
+            serializer = self.get_serializer(student_profile)
+            return Response(serializer.data, status=200)
+        return Response(None, status=200)
+
 
 
 class TopicCompetencyViewSet(ModelViewSet):
