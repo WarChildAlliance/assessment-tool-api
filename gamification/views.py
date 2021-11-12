@@ -49,11 +49,12 @@ class ProfileViewSet(ModelViewSet):
         Get logged-in user's profile information
         """
         user = self.request.user
-        if (user != None):
+        try:
             student_profile = Profile.objects.get(student=user)
             serializer = self.get_serializer(student_profile)
             return Response(serializer.data, status=200)
-        return Response(None, status=200)
+        except:
+            return Response(None, status=200)
 
 
 
