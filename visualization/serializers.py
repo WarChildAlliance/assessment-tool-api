@@ -157,6 +157,9 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
         return instance.get_subject_display()
     
     def get_can_edit(self, instance):
+        if not ('supervisor' in self.context):
+            return None
+        
         supervisor = self.context['supervisor']
         if instance.created_by == supervisor:
             return True

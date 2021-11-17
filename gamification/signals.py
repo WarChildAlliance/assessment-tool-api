@@ -11,7 +11,6 @@ from assessments.models import AssessmentTopic, Question
 def on_topic_answer_submission(sender, **kwargs):
 
     topic_answer = kwargs['instance']
-    print(topic_answer)
 
 """
     if (topic_answer.complete):
