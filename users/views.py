@@ -144,6 +144,7 @@ class UsersViewSet(ModelViewSet):
         print("USER", self.request.user)
         user = self.request.user
         serializer = self.get_serializer(user)
+        print("SERIALIZED", serializer.data)
         return Response(serializer.data, status=200)
 
 
