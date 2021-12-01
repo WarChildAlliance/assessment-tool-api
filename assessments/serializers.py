@@ -513,7 +513,8 @@ class AssessmentDeepSerializer(serializers.ModelSerializer):
         completed_assessment_topics = AssessmentTopic.objects.filter(
             assessment=instance,
             assessmenttopicaccess__student=student_pk,
-            assessmenttopicaccess__assessment_topic_answers__session__student=student_pk
+            assessmenttopicaccess__assessment_topic_answers__complete=True,
+            #assessmenttopicaccess__assessment_topic_answers__assessment_topic_access__student=student_pk
         ).distinct().count()
 
         total_assessment_accessible_topics = AssessmentTopic.objects.filter(

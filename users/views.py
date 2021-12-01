@@ -139,13 +139,10 @@ class UsersViewSet(ModelViewSet):
         """
         Get logged-in user.
         """
-        print(" ")
-        print("TOKEN", self.request.auth)
-        print("USER", self.request.user)
         user = self.request.user
         serializer = self.get_serializer(user)
-        print("SERIALIZED", serializer.data)
         return Response(serializer.data, status=200)
+
 
 
 class LanguagesViewSet(ModelViewSet):
