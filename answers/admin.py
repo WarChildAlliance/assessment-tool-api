@@ -19,6 +19,12 @@ class AnswerNumberlineAnswerAdmin(admin.ModelAdmin):
         return obj.question.identifier
 
 
+class AssessmentTopicAnswerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'complete', 'student')
+    search_fields = ('id',)
+
+    def student(self, obj):
+        return obj.student.first_name
 
 
 admin.site.register(AnswerSession, admin.ModelAdmin)
@@ -26,4 +32,4 @@ admin.site.register(AnswerInput, admin.ModelAdmin)
 admin.site.register(AnswerNumberLine, AnswerNumberlineAnswerAdmin)
 admin.site.register(AnswerSelect, AnswerSelectAnswerAdmin)
 admin.site.register(AnswerSort, admin.ModelAdmin)
-admin.site.register(AssessmentTopicAnswer, admin.ModelAdmin)
+admin.site.register(AssessmentTopicAnswer, AssessmentTopicAnswerAdmin)
