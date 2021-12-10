@@ -58,22 +58,6 @@ class AnswerSerializer(PolymorphicSerializer):
         if question_type == 'QuestionInput':
             data['type'] = 'AnswerInput'
         elif question_type == 'QuestionNumberLine':
-            questions = AnswerNumberLine.objects.all()
-            for q in questions:
-                if q.valid == False:
-                    question = Question.objects.get_subclass(
-                    id=q.question_id)
-                    error_margin = 0
-                    if (not question.show_ticks or question.tick_step != 1):
-                        error_margin = (question.end * 10) / 100 
-
-                    valid = q.valid
-                    if(q.value):
-                        if (q.value >= question.expected_value - error_margin and q.value <= question.expected_value + error_margin):
-                            valid = True 
-                    q.valid = valid
-                    q.save()
-
             data['type'] = 'AnswerNumberLine'
         elif question_type == 'QuestionSelect':
             data['type'] = 'AnswerSelect'
