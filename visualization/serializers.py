@@ -735,7 +735,11 @@ class ScoreByTopicSerializer(serializers.ModelSerializer):
                             valid=True
                         ).count()
 
-                        correct_answers_percentage = round((total_correct_answers / total_answers) * 100, 1)
+                        correct_answers_percentage = 0
+
+                        if (total_answers != 0):
+                            correct_answers_percentage = round((total_correct_answers / total_answers) * 100, 1)
+
                         topic_score_dict = {
                             topic.name: correct_answers_percentage
                         }
@@ -816,7 +820,11 @@ class AssessmentListForDashboardSerializer(serializers.ModelSerializer):
                         valid=True
                     ).count()
 
-                    percentage = round((total_correct_answers / total_answers) * 100, 1)
+                    percentage = 0
+
+                    if(total_answers != 0):
+                        percentage = round((total_correct_answers / total_answers) * 100, 1)
+
                     students_average.append(percentage)
             
             if len(students_average) != 0:
