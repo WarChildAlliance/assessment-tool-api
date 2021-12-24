@@ -96,6 +96,8 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
     def get_can_edit(self, instance):
+        if 'request' not in self.context:
+            return None
         supervisor = self.context['request'].user
         assessment = instance.assessment
         if assessment.created_by == supervisor:
