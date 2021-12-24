@@ -124,13 +124,12 @@ class AssessmentTopicsViewSet(ModelViewSet):
         user = self.request.user
         assessment_pk = self.kwargs['assessment_pk']
 
-
         if user.is_student():
             return AssessmentTopic.objects.filter(
                 assessment=assessment_pk,
                 assessmenttopicaccess__student=user,
                 assessmenttopicaccess__start_date__lte=date.today(),
-                assessmenttopicaccess__end_date__gte=date.today()
+                assessmenttopicaccess__end_date__gte=date.today(),
             ).distinct()
 
         return AssessmentTopic.objects.filter(assessment=assessment_pk)
@@ -214,8 +213,6 @@ class GeneralAttachmentsViewSet(ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         return Response('Cannot retrieve attachment', status=403)
 
-    def destroy(self, request, *args, **kwargs):
-        return Response('Cannot delete attachment', status=403)
 
 class AttachmentsViewSet(ModelViewSet, CreateView):
     """

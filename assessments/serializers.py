@@ -82,8 +82,7 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
     Assessment topic serializer.
     """
     attachments = AttachmentSerializer(many=True, required=False)
-
-    icon = serializers.SerializerMethodField()
+    can_edit = serializers.SerializerMethodField()
 
     class Meta:
         model = AssessmentTopic
@@ -96,10 +95,13 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
             data['assessment'] = kwargs.get('assessment_pk', None)
         return super().to_internal_value(data)
 
-    def get_icon(self, instance):
-        if not (instance.icon):
-            return None
-        return instance.icon.url
+    def get_can_edit(self, instance):
+        supervisor = self.context['request'].user
+        assessment = instance.assessment
+        if assessment.created_by == supervisor:
+            return True
+        else:
+            return False
 
 
 class HintSerializer(serializers.ModelSerializer):
