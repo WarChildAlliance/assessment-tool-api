@@ -11,6 +11,7 @@ router.register(r'answers', views.CompleteStudentAnswersViewSet,
 router.register(r'(?P<supervisor_id>\d+)/answers',
                 views.SupervisorStudentAnswerViewSet, basename='answer-supervisor')
 #url: /export/<supervisor_id>/answers
+#url: /export/<supervisor_id>/answers/<assessment_id>
 
 urlpatterns = [
     path('', include(router.urls))

@@ -25,4 +25,14 @@ class SupervisorStudentAnswerViewSet(ModelViewSet):
     def get_queryset(self):
         supervisor_id = int(self.kwargs.get('supervisor_id', None))
         return Answer.objects.filter(topic_answer__topic_access__student__created_by=supervisor_id).select_subclasses().order_by('topic_answer__topic_access__student', 'topic_answer__topic_access__topic__assessment', 'topic_answer__topic_access__topic', 'topic_answer__start_date', 'question')
+    
+    def retrieve(self, request, *args, **kwargs):
+        assessment_id = kwargs['pk']
+        supervisor_id = int(self.kwargs.get('supervisor_id', None))
+        answers_by_assessment = Answer.objects.filter(topic_answer__topic_access__student__created_by=supervisor_id, topic_answer__topic_access__topic__assessment=assessment_id).select_subclasses().order_by('topic_answer__topic_access__student', 'topic_answer__topic_access__topic__assessment', 'topic_answer__topic_access__topic', 'topic_answer__start_date', 'question')
+        serializer = AnswerTableSerializer(
+            answers_by_assessment, many=True,
+        )
+
+        return Response(serializer.data)
 
