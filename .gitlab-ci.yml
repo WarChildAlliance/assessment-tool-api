@@ -6,6 +6,8 @@ stages:
 
 variables:
   POSTGRES_DB: main
+  POSTGRES_USER: tester
+  POSTGRES_PASSWORD: dD4567891
 
 test:
   image: "python:3.7"
