@@ -23,6 +23,7 @@ test:
     - ENV=test POSTGRES_HOST=postgres python manage.py test
 
 deploy:
+  image: "assessment-tool-backend"
   stage: deploy
   before_script:
     - apt-get update -qq && apt-get install -y -qq sshpass rsync
