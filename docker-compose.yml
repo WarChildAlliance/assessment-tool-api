@@ -5,7 +5,7 @@ services:
     image: postgres:12-alpine
     restart: always
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_data_warchild:/var/lib/postgresql/data/
     environment:
       - POSTGRES_DB=main
       - POSTGRES_USER=tester
@@ -23,10 +23,4 @@ services:
     environment:
       - ENV=local
       - POSTGRES_DB=main
-      - POSTGRES_USER=tester
-      - POSTGRES_PASSWORD=dD4567891
-    depends_on:
-      - db
-
-volumes:
-  postgres_data:
+                                                                                                                              20,15         Top
