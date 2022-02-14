@@ -20,3 +20,4 @@ postgres/
 .vscode/
 admin/settings/local.py
 media/*
+.docker-compose.yml
