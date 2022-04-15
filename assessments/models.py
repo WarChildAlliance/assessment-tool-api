@@ -212,9 +212,9 @@ class Question(models.Model):
         SORT = 'SORT', 'Sort'
         NUMBER_LINE = 'NUMBER_LINE', 'Number line'
 
-    identifier = models.CharField(
+    value = models.CharField(
         max_length=256,
-        default='question-identifier-missing',
+        default='question-value-missing',
         null=False
     )
 
@@ -364,13 +364,13 @@ class SelectOption(models.Model):
     Select option model.
     """
 
-    identifier = models.CharField(
+    value = models.CharField(
         max_length=256,
-        default='select-option-identifier-missing',
+        default='select-option-value-missing',
         null=False
     )
 
-    value = models.CharField(
+    title = models.CharField(
         max_length=256,
         null=True,
         blank=True
@@ -385,7 +385,7 @@ class SelectOption(models.Model):
     )
 
     def __str__(self):
-        return f'[{self.question_select.id}] {self.value} ({self.valid})'
+        return f'[{self.question_select.id}] {self.title} ({self.valid})'
 
 
 class SortOption(models.Model):
@@ -393,7 +393,7 @@ class SortOption(models.Model):
     Sort option model.
     """
 
-    value = models.CharField(
+    title = models.CharField(
         max_length=256,
         null=True,
         blank=True
@@ -410,7 +410,7 @@ class SortOption(models.Model):
     )
 
     def __str__(self):
-        return f'[{self.question_sort.id}] {self.value} ({self.category})'
+        return f'[{self.question_sort.id}] {self.title} ({self.category})'
 
 
 class Attachment(models.Model):

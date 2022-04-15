@@ -7,7 +7,7 @@ from .models import (Answer, AnswerInput, AnswerNumberLine, AnswerSelect,
 
 
 class AnswerSelectAnswerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'topic_answer', 'question_identifier', 'valid')
+    list_display = ('id', 'topic_answer', 'question_value', 'valid')
     search_fields = ('id',)
     actions = ["export_as_csv"]
 
@@ -25,11 +25,11 @@ class AnswerSelectAnswerAdmin(admin.ModelAdmin):
 
         return response
 
-    def question_identifier(self, obj):
-        return obj.question.identifier
+    def question_value(self, obj):
+        return obj.question.value
 
 class AnswerNumberlineAnswerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'topic_answer', 'question_identifier', 'valid')
+    list_display = ('id', 'topic_answer', 'question_value', 'valid')
     search_fields = ('id',)
     actions = ["export_as_csv"]
 
@@ -47,8 +47,8 @@ class AnswerNumberlineAnswerAdmin(admin.ModelAdmin):
 
         return response
 
-    def question_identifier(self, obj):
-        return obj.question.identifier
+    def question_value(self, obj):
+        return obj.question.value
 
 
 class AssessmentTopicAnswerAdmin(admin.ModelAdmin):
