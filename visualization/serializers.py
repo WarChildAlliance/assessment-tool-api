@@ -132,7 +132,14 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
         return AssessmentTopic.objects.filter(assessment=instance).count()
     
     def get_topics(self, instance):
-        return AssessmentTopic.objects.filter(assessment=instance).values_list('id', 'name', 'description')
+        topics = AssessmentTopic.objects.filter(assessment=instance).values_list('id', 'name', 'description', 'icon')
+        topics_with_question_count = []
+
+        for topic in topics:
+            question_count = Question.objects.filter(assessment_topic=topic[0]).count()
+            topics_with_question_count.append(topic[:3] + (question_count,) + topic[3:])
+        
+        return topics_with_question_count
 
     def get_students_count(self, instance):
         return User.objects.filter(
