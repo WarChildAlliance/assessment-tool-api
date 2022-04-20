@@ -41,7 +41,7 @@ class CompleteStudentAnswersSerializer(serializers.ModelSerializer):
         return instance.topic_answer.topic_access.topic.name
     
     def get_question_id(self, instance):
-        return instance.question.identifier
+        return instance.question.value
     
     def get_attempt(self, instance):
         attempts = AssessmentTopicAnswer.objects.filter(topic_access=instance.topic_answer.topic_access).order_by('start_date')
@@ -64,7 +64,7 @@ class SelectOptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SelectOption
-        fields = ('identifier',)
+        fields = ('value',)
 
 class AnswerSelectSerializer(CompleteStudentAnswersSerializer):
     """

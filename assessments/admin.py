@@ -6,7 +6,7 @@ from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess, Attachm
 
 
 class AttachmentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'file', 'question_id', 'question_identifier', 'select_option_id', 'select_option_identifier',)
+    list_display = ('id', 'file', 'question_id', 'question_value', 'select_option_id', 'select_option_value',)
     search_fields = ('file',)
 
     def select_option_id(self, obj):
@@ -21,29 +21,29 @@ class AttachmentAdmin(admin.ModelAdmin):
         else:
             return None
 
-    def select_option_identifier(self, obj):
+    def select_option_value(self, obj):
         if (obj.select_option):
-            return obj.select_option.identifier
+            return obj.select_option.value
         else:
             return None
     
-    def question_identifier(self, obj):
+    def question_value(self, obj):
         if (obj.question):
-            return obj.question.identifier
+            return obj.question.value
         else:
             return None
 
 class QuestionSelectAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'identifier')
+    list_display = ('id', 'title', 'value')
     search_fields = ('title',)
 
 class SelectOptionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'value', 'identifier', 'question_select_identifier')
+    list_display = ('id', 'title', 'value', 'question_select_value')
     search_fields = ('value',)
 
-    def question_select_identifier(self, obj):
+    def question_select_value(self, obj):
         if (obj.question_select):
-            return obj.question_select.identifier
+            return obj.question_select.value
         else:
             return None
 
