@@ -54,6 +54,10 @@ class Assessment(models.Model):
         default=False
     )
 
+    archived = models.BooleanField(
+        default=False
+    )
+
     icon = models.FileField(
         upload_to='assessments_icons',
         null=True,
@@ -141,6 +145,11 @@ class AssessmentTopic(models.Model):
         upload_to='topics_icons',
         null=True,
         blank=True
+    )
+
+    # If an assessment or topic is deleted, we instead want to archive it.
+    archived = models.BooleanField(
+        default=False
     )
 
     def __str__(self):
