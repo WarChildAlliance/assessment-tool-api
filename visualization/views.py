@@ -383,8 +383,7 @@ class AssessmentListForDashboard(ModelViewSet):
         """
         Queryset to get allowed assessments for table.
         """
-
-        return Assessment.objects.filter(Q(created_by=self.request.user) | Q(private=False) | ~Q(subject='TUTORIAL'))
+        return Assessment.objects.filter((Q(created_by=self.request.user) | Q(private=False) | ~Q(subject='TUTORIAL')) & Q(archived=False))
 
     def list(self, request, *args, **kwargs):
 
@@ -406,7 +405,7 @@ class TopicListForDashboard(ModelViewSet):
 
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
 
-        return AssessmentTopic.objects.filter(assessment=assessment_pk)
+        return AssessmentTopic.objects.filter(assessment=assessment_pk, archived=False)
 
 
 class QuestionOverviewViewSet(ModelViewSet):

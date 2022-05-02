@@ -126,19 +126,20 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
         model = Assessment
         fields = ('id', 'title', 'language_name', 'language_code',
                   'country_name', 'country_code', 'topics_count', 'topics',
-                  'students_count', 'grade', 'subject', 'private', 'can_edit', 'icon')
+                  'students_count', 'grade', 'subject', 'private', 'can_edit', 'icon', 'archived')
 
     def get_topics_count(self, instance):
         return AssessmentTopic.objects.filter(assessment=instance).count()
     
     def get_topics(self, instance):
-        topics = AssessmentTopic.objects.filter(assessment=instance).values_list('id', 'name', 'description', 'icon')
+        topics = AssessmentTopic.objects.filter(assessment=instance).values_list('id', 'name', 'description', 'icon', 'archived')
+
         topics_with_question_count = []
 
         for topic in topics:
             question_count = Question.objects.filter(assessment_topic=topic[0]).count()
-            topics_with_question_count.append({"id": topic[0], "title": topic[1], "description": topic[2], "questionsCount": question_count,"icon": topic[3]})
-
+            topics_with_question_count.append({"id": topic[0], "title": topic[1], "description": topic[2], "questionsCount": question_count,"icon": topic[3], "archived": topic[4]})
+        
         return topics_with_question_count
 
     def get_students_count(self, instance):
@@ -191,7 +192,7 @@ class AssessmentTopicTableSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssessmentTopic
         fields = ('id', 'name', 'students_count', 'students_completed_count',
-                  'overall_students_completed_count', 'questions_count')
+                  'overall_students_completed_count', 'questions_count', 'archived')
 
     def get_students_count(self, instance):
         return User.objects.filter(
@@ -724,7 +725,7 @@ class ScoreByTopicSerializer(serializers.ModelSerializer):
         assessment_pk = self.context['assessment_pk']
         topic_score = []
 
-        for topic in AssessmentTopic.objects.filter(assessment=assessment_pk):
+        for topic in AssessmentTopic.objects.filter(assessment=assessment_pk, archived=False):
 
             if topic.evaluated:
                 total_answers = Question.objects.filter(assessment_topic=topic).count()
