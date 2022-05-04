@@ -1,0 +1,34 @@
+version: "3.7"
+
+services:
+  db:
+    image: postgres:12-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=main
+      - POSTGRES_USER=tester
+      - POSTGRES_PASSWORD=dD4567891
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8080
+    restart: always
+    volumes:
+      - .:/code
+    ports:
+      - 8002:8000
+      - 8080
+      - 80
+    environment:
+      - ENV=local
+      - POSTGRES_DB=main
+      - POSTGRES_USER=tester
+      - POSTGRES_PASSWORD=dD4567891
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

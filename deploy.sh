@@ -6,15 +6,16 @@ DOCKER_COMPOSE="docker-compose"
 set -e
 echo -e "Synchronizing files..."
 rsync -e "ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes" -avzr --delete --exclude-from '.gitignore' $OUT/* $CONNECTION:$REMOTE_PATH
-#CMD="'""cd $REMOTE_PATH && mv docker-compose.yml.dist docker-compose.yml""'" TODO add when we have dist
-#ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 
 if [ "$AZURE" = true ]
 then
-  echo -e "Copy local.py file..."
-  CMD="'""cd $REMOTE_PATH && mv admin/settings/local.py.dist admin/settings/local.py""'"
-  ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
   DOCKER_COMPOSE="docker compose"
+  echo -e "Copy local.py file..."
+  CMD="'""cd $REMOTE_PATH && mv admin/settings/local.dist.py admin/settings/local.py""'"
+  ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
+  echo -e "Copy docker-compose.yml file..."
+  CMD="'""cd $REMOTE_PATH && mv docker-compose.dist.yml docker-compose.yml""'"
+  ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 fi
 
 echo -e "Stopping docker containers..."
