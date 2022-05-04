@@ -35,10 +35,7 @@ deploy:
     - chmod 700 ~/.ssh
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - REMOTE_PATH=/var/www/html/assessment-tool/api
-    - OUT=.
-    - CONNECTION=reliefapps@92.243.25.191
-  script: ./deploy.sh
+  script: REMOTE_PATH=/var/www/html/assessment-tool/api CONNECTION=reliefapps@92.243.25.191 ./deploy.sh
   only:
     - master
 
@@ -56,7 +53,4 @@ deploy:
     - chmod 700 ~/.ssh
     - ssh-keyscan assessment-tool-api.westeurope.cloudapp.azure.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - REMOTE_PATH=/home/azureadmin/assessment-tool-api
-    - OUT=.
-    - CONNECTION=azureadmin@assessment-tool-api.westeurope.cloudapp.azure.com
-  script: ./deploy.sh
+  script: REMOTE_PATH=/home/azureadmin/assessment-tool-api CONNECTION=azureadmin@assessment-tool-api.westeurope.cloudapp.azure.com AZURE=true ./deploy.sh
