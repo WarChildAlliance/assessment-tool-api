@@ -1,14 +1,13 @@
 #!/bin/bash
-# Production environmnent
-REMOTE_PATH=/var/www/html/assessment-tool/api
-OUT=.
-CONNECTION=reliefapps@92.243.25.191
-
 set -e
 echo -e "Synchronizing files..."
 rsync -e "ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=yes" -avzr --delete --exclude-from '.gitignore' $OUT/* $CONNECTION:$REMOTE_PATH
 #CMD="'""cd $REMOTE_PATH && mv docker-compose.yml.dist docker-compose.yml""'" TODO add when we have dist
 #ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
+
+echo -e "Copy local.py file..."
+CMD="'""cd $REMOTE_PATH && mv admin/settings/local.py.dist admin/settings/local.py""'"
+ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 
 echo -e "Stopping docker containers..."
 CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S docker-compose down""'"

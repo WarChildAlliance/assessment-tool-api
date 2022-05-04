@@ -43,7 +43,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost',
-    'glmt-api.development.humanitarian.tech'
+    'glmt-api.development.humanitarian.tech',
+    'assessment-tool-api.westeurope.cloudapp.azure.com', # Azure API
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -56,6 +57,8 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:8080',
     'https://glmt-admin.development.humanitarian.tech',
     'https://glmt-main.development.humanitarian.tech',
+    'https://loassessmenttooladmin.z6.web.core.windows.net/', # Azure assessment tool
+    'https://loassessmenttool.z6.web.core.windows.net/' # Azure admin dashboard
 ]
 
 CORS_ALLOW_METHODS = [

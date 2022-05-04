@@ -1,3 +1,5 @@
-lsfrom .base import *
+from .base import *
 
-SECRET_KEY = 'secret_key_to_update'docker-
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = True
