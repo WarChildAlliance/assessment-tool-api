@@ -35,8 +35,10 @@ class AssessmentTopicAnswer(models.Model):
 
     topic_access = models.ForeignKey(
         'assessments.AssessmentTopicAccess',
-        on_delete=models.CASCADE,
-        related_name='assessment_topic_answers'
+        on_delete=models.SET_NULL,
+        related_name='assessment_topic_answers',
+        null=True,
+        blank=True
     )
 
     complete = models.BooleanField(

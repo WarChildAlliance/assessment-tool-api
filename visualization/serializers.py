@@ -78,7 +78,7 @@ class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assessment
-        fields = ('title', 'topic_access')
+        fields = ('id', 'title', 'topic_access')
 
     def get_topic_access(self, instance):
 
@@ -93,7 +93,9 @@ class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 
             if topic_access:
                 access_dict = {
-                    'topic': topic.name,
+                    'topic_id': topic.id,
+                    'topic_name': topic.name,
+                    'topic_access_id': topic_access[0]['id'],
                     'start_date': topic_access[0]['start_date'],
                     'end_date': topic_access[0]['end_date']
                 }
