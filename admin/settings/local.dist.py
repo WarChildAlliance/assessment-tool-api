@@ -1,5 +1,5 @@
 from .base import *
 
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_SSL_REDIRECT = True
+# TO DO
+# DEBUG = False
+# SECRET_KEY = <from-CI?>
