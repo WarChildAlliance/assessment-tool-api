@@ -31,7 +31,17 @@ class UserTableViewSet(ModelViewSet):
         """
         Queryset to get allowed users.
         """
-        return User.objects.filter(created_by=self.request.user, role=User.UserRole.STUDENT)
+        users = User.objects.filter(created_by=self.request.user, role=User.UserRole.STUDENT)
+
+        language = self.request.query_params.get('language')
+        if language:
+            users = users.filter(language__code=language)
+
+        country = self.request.query_params.get('country')
+        if country:
+            users = users.filter(country__code=country)
+        
+        return users
 
     def create(self, request):
         return Response('Unauthorized', status=403)
@@ -80,8 +90,17 @@ class AssessmentTableViewSet(ModelViewSet):
         """
         Queryset to get allowed assessments for table.
         """
+        assessments = Assessment.objects.filter(Q(created_by=self.request.user) | Q(private=False))
 
-        return Assessment.objects.filter(Q(created_by=self.request.user) | Q(private=False))
+        language = self.request.query_params.get('language')
+        if language:
+            assessments = assessments.filter(language__code=language)
+
+        country = self.request.query_params.get('country')
+        if country:
+            assessments = assessments.filter(country__code=country)
+
+        return assessments
     
     def list(self, request, *args, **kwargs):
 
