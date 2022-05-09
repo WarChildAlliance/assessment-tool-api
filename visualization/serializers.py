@@ -709,7 +709,7 @@ class ScoreByTopicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('full_name', 'topics', 'student_access')
+        fields = ('id', 'full_name', 'topics', 'student_access')
 
     def get_full_name(self, instance):
         return (instance.first_name + ' ' + instance.last_name)
