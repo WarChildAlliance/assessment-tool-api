@@ -29,14 +29,14 @@ class User(AbstractUser):
 
     language = models.ForeignKey(
         'Language',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True
     )
 
     country = models.ForeignKey(
         'Country',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True
     )
