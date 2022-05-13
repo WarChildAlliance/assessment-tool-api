@@ -1,6 +1,7 @@
 from datetime import date
 
 from django.db.models.query_utils import RegisterLookupMixin
+from answers.models import Answer
 from rest_framework import serializers
 from users.models import Country, Language, User
 from users.serializers import (CountrySerializer, LanguageSerializer,
@@ -261,6 +262,12 @@ class QuestionSerializer(PolymorphicSerializer):
 class AbstractQuestionSerializer(serializers.ModelSerializer):
     attachments = AttachmentSerializer(many=True, required=False)
     hint = HintSerializer(required=False, allow_null=True)
+
+    # Does the question have answers?
+    answered = serializers.SerializerMethodField()
+
+    def get_answered(self, instance):
+        return Answer.objects.filter(question=instance).exists()
 
     def create(self, validated_data):
         """
