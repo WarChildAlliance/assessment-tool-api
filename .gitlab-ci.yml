@@ -9,12 +9,13 @@ variables:
   POSTGRES_USER: tester
   POSTGRES_PASSWORD: dD4567891
 
-# Run tests
+# Run tests.
 test:
   image: "python:3.7"
   stage: test
   only:
     - master
+    - stage
   services:
     - postgres:latest
   before_script:
@@ -23,9 +24,11 @@ test:
   script: 
     - ENV=test POSTGRES_HOST=postgres python manage.py test
 
-# Deploy to Sandbox
+# Deploy to Sandbox.
 deploy:
   stage: deploy
+  only:
+    - stage
   before_script:
     - apt-get update -qq && apt-get install -y -qq sshpass rsync
     - 'which ssh-agent || (apt-get install -y -qq openssh-client)'
@@ -36,14 +39,12 @@ deploy:
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
   script: REMOTE_PATH=/var/www/html/assessment-tool/api CONNECTION=reliefapps@92.243.25.191 ./deploy.sh
-  only:
-    - master
 
-# Deploy to Azure
+# Deploy to Azure.
 deploy:
   stage: deploy
   only:
-    - stage
+    - master
   before_script:
     - apt-get update -qq && apt-get install -y -qq sshpass rsync
     - 'which ssh-agent || (apt-get install -y -qq openssh-client)'
