@@ -1,3 +1,0 @@
-lsfrom .base import *
-
-SECRET_KEY = 'secret_key_to_update'docker-
