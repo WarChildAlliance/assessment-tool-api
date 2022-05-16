@@ -34,12 +34,16 @@ class Assessment(models.Model):
 
     language = models.ForeignKey(
         'users.Language',
-        on_delete=models.CASCADE
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
 
     country = models.ForeignKey(
         'users.Country',
-        on_delete=models.CASCADE
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
 
     created_by = models.ForeignKey(
@@ -180,7 +184,6 @@ class AssessmentTopicAccess(models.Model):
         blank=True
     )
 
-    # TODO Matthis, i think this cascade is wrong, what do you think?
     student = models.ForeignKey(
         'users.User',
         limit_choices_to={'role': User.UserRole.STUDENT},
