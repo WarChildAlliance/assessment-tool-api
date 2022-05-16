@@ -25,7 +25,7 @@ test:
     - ENV=test POSTGRES_HOST=postgres python manage.py test
 
 # Deploy to Sandbox.
-deploy:
+deploy_sandbox:
   stage: deploy
   only:
     - stage
@@ -41,7 +41,7 @@ deploy:
   script: REMOTE_PATH=/var/www/html/assessment-tool/api CONNECTION=reliefapps@92.243.25.191 ./deploy.sh
 
 # Deploy to Azure.
-deploy:
+deploy_azure:
   stage: deploy
   only:
     - master
