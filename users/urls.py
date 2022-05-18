@@ -7,6 +7,12 @@ from . import views
 router = DefaultRouter()
 router.register(r'languages', views.LanguagesViewSet, basename='language')
 router.register(r'countries', views.CountriesViewSet, basename='countries')
+
+router.register(r'groups', views.GroupsViewSet, basename='groups')
+# generates:
+# users/groups/
+# users/groups/{group_pk}/
+
 router.register(r'', views.UsersViewSet, basename='user')
 
 

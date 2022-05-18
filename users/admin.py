@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
-from .models import User, Language, Country
+from .models import User, Language, Country, Group as UserGroup
 
 
 
@@ -40,11 +40,11 @@ class CustomUserCreationForm(UserCreationForm):
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('first_name', 'last_name', 'username', 'role',
-                    'country', 'language', 'is_staff',)
+                    'country', 'language', 'is_staff', 'group',)
     list_display_links = ('username',)
     list_filter = ('is_staff', 'role', 'language', 'country',)
     search_fields = ('username', 'first_name', 'last_name', 'email',)
-    ordering = ('username',)
+    ordering = ('group', 'username',)
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name',
@@ -66,8 +66,23 @@ class CustomUserAdmin(UserAdmin):
         ),
     )
 
+class UserGroupAdmin(admin.ModelAdmin):
+    list_display = ('name', 'id', 'supervisor', 'students',)
+    list_filter = ('supervisor',)
+
+    def students(self, obj):
+        students =  UserGroup.objects.filter(id=obj.id)
+        exists = User.objects.filter(group__id__in=students).exists()
+
+        if exists:
+            return [student['student_group__first_name'] + ' ' + student['student_group__last_name'] + ' (' + student['student_group__username'] + ')' 
+                for student in students.values('student_group__username', 'student_group__first_name', 'student_group__last_name')
+                ]
+        else :
+            return None
 
 admin.site.register(User, CustomUserAdmin)
 admin.site.unregister(Group)
+admin.site.register(UserGroup, UserGroupAdmin)
 admin.site.register(Language, admin.ModelAdmin)
 admin.site.register(Country, admin.ModelAdmin)

@@ -9,9 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from admin.lib.viewsets import ModelViewSet
-from users.models import User, Language,  Country
+from users.models import User, Language,  Country, Group
 from users.permissions import HasAccess, IsSupervisor
-from users.serializers import UserSerializer, LanguageSerializer, CountrySerializer
+from users.serializers import UserSerializer, LanguageSerializer, CountrySerializer, GroupSerializer
 
 
 def student_key_generator():
@@ -187,3 +187,15 @@ class CountriesViewSet(ModelViewSet):
 
     def destroy(self, request, pk=None):
         return Response('Cannot delete country', status=403)
+
+
+class GroupsViewSet(ModelViewSet):
+    """
+    Groups viewset.
+    """
+
+    serializer_class = GroupSerializer
+    filterset_fields = ['supervisor']
+
+    def get_queryset(self):
+        return Group.objects.filter(supervisor=self.request.user)
