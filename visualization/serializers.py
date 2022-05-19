@@ -76,9 +76,8 @@ class UserTableSerializer(serializers.ModelSerializer):
         return instance.country.code
 
     def get_group(self, instance):
-        group = Group.objects.filter(student_group=instance)
-        serializer = GroupSerializer(group, many = True)
-        return serializer.data
+        group = Group.objects.filter(student_group=instance).values_list('name', flat=True)
+        return group
 
 class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 

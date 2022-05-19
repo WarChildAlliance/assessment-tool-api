@@ -21,9 +21,15 @@ class GroupSerializer(serializers.ModelSerializer):
     Group serializer.
     """
 
+    students = serializers.SerializerMethodField()
+
     class Meta:
         model = Group
         fields = '__all__'
+    
+    def get_students(self, instance):
+        students = User.objects.filter(group=instance).values_list('id', flat=True)
+        return students
 
 class UserSerializer(serializers.ModelSerializer):
     """
