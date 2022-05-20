@@ -175,45 +175,45 @@
     },
     {
         "fields": {
-            "category": "Less than 10",
+            "title": "Less than 10",
             "question_sort": 3,
-            "value": "8"
+            "category": "8"
         },
         "model": "assessments.sortoption",
         "pk": 1
     },
     {
         "fields": {
-            "category": "More than 10",
+            "title": "More than 10",
             "question_sort": 3,
-            "value": "11"
+            "category": "11"
         },
         "model": "assessments.sortoption",
         "pk": 2
     },
     {
         "fields": {
-            "category": "Less than 10",
+            "title": "Less than 10",
             "question_sort": 3,
-            "value": "1"
+            "category": "1"
         },
         "model": "assessments.sortoption",
         "pk": 3
     },
     {
         "fields": {
-            "category": "More than 10",
+            "title": "More than 10",
             "question_sort": 3,
-            "value": "24"
+            "category": "24"
         },
         "model": "assessments.sortoption",
         "pk": 4
     },
     {
         "fields": {
-            "category": "More than 10",
+            "title": "More than 10",
             "question_sort": 3,
-            "value": "20"
+            "category": "20"
         },
         "model": "assessments.sortoption",
         "pk": 5

@@ -3387,7 +3387,7 @@
         "model": "assessments.selectoption",
         "pk": 133,
         "fields": {
-            "value": null,
+            "value": "Option 1",
             "valid": false,
             "question_select": 47
         }
@@ -3396,7 +3396,7 @@
         "model": "assessments.selectoption",
         "pk": 134,
         "fields": {
-            "value": null,
+            "value": "Option 1",
             "valid": false,
             "question_select": 47
         }
@@ -3405,7 +3405,7 @@
         "model": "assessments.selectoption",
         "pk": 135,
         "fields": {
-            "value": null,
+            "value": "Option 1",
             "valid": true,
             "question_select": 47
         }
@@ -3414,7 +3414,7 @@
         "model": "assessments.selectoption",
         "pk": 136,
         "fields": {
-            "value": null,
+            "value": "Option 1",
             "valid": false,
             "question_select": 47
         }
@@ -3495,7 +3495,7 @@
         "model": "assessments.selectoption",
         "pk": 145,
         "fields": {
-            "value": null,
+            "value": "Option 1",
             "valid": false,
             "question_select": 50
         }
@@ -3504,7 +3504,7 @@
         "model": "assessments.selectoption",
         "pk": 146,
         "fields": {
-            "value": null,
+            "value": "Option 1",
             "valid": false,
             "question_select": 50
         }
@@ -3513,7 +3513,7 @@
         "model": "assessments.selectoption",
         "pk": 147,
         "fields": {
-            "value": null,
+            "value": "Option 1",
             "valid": false,
             "question_select": 50
         }
@@ -3522,7 +3522,7 @@
         "model": "assessments.selectoption",
         "pk": 148,
         "fields": {
-            "value": null,
+            "value": "Option 1",
             "valid": true,
             "question_select": 50
         }
@@ -3531,7 +3531,7 @@
         "model": "assessments.selectoption",
         "pk": 149,
         "fields": {
-            "value": null,
+            "value": "Option 1",
             "valid": false,
             "question_select": 51
         }
@@ -3540,7 +3540,7 @@
         "model": "assessments.selectoption",
         "pk": 150,
         "fields": {
-            "value": null,
+            "value": "Option 1",
             "valid": false,
             "question_select": 51
         }
@@ -3549,7 +3549,7 @@
         "model": "assessments.selectoption",
         "pk": 151,
         "fields": {
-            "value": null,
+            "value": "Option 1",
             "valid": false,
             "question_select": 51
         }
@@ -3558,7 +3558,7 @@
         "model": "assessments.selectoption",
         "pk": 152,
         "fields": {
-            "value": null,
+            "value": "Option 1",
             "valid": true,
             "question_select": 51
         }

@@ -5,6 +5,8 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
 from .models import User, Language, Country, Group as UserGroup
+from django.http import HttpResponse
+import csv
 
 
 
@@ -45,6 +47,7 @@ class CustomUserAdmin(UserAdmin):
     list_filter = ('is_staff', 'role', 'language', 'country',)
     search_fields = ('username', 'first_name', 'last_name', 'email',)
     ordering = ('group', 'username',)
+    actions = ['export_as_csv']
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name',
@@ -80,6 +83,21 @@ class UserGroupAdmin(admin.ModelAdmin):
                 ]
         else :
             return None
+
+    def export_as_csv(self, request, queryset):
+        meta = self.model._meta
+        field_names = [field.name for field in meta.fields]
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+        writer = csv.writer(response)
+
+        writer.writerow(field_names)
+        for obj in queryset:
+            row = writer.writerow([getattr(obj, field) for field in field_names])
+
+        return response
+
 
 admin.site.register(User, CustomUserAdmin)
 admin.site.unregister(Group)
