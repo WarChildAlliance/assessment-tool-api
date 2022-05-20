@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from admin.lib.serializers import NestedRelatedField
 
-from .models import Language, Country, User
+from .models import Language, Country, User, Group
 
 class LanguageSerializer(serializers.ModelSerializer):
 
@@ -16,6 +16,20 @@ class CountrySerializer(serializers.ModelSerializer):
         model = Country
         fields = '__all__'
 
+class GroupSerializer(serializers.ModelSerializer):
+    """
+    Group serializer.
+    """
+
+    students = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Group
+        fields = '__all__'
+    
+    def get_students(self, instance):
+        students = User.objects.filter(group=instance).values_list('id', flat=True)
+        return students
 
 class UserSerializer(serializers.ModelSerializer):
     """
@@ -28,10 +42,12 @@ class UserSerializer(serializers.ModelSerializer):
         model=Language, serializer_class=LanguageSerializer)
     country = NestedRelatedField(
         model=Country, serializer_class=CountrySerializer)
+    group = NestedRelatedField(
+        model=Group, serializer_class=GroupSerializer)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email',
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'group',
                   'password', 'last_login', 'role', 'language', 'country', 'created_by']
         extra_kwargs = {'created_by': {
             'default': serializers.CurrentUserDefault(),
@@ -84,6 +100,9 @@ class UserSerializer(serializers.ModelSerializer):
         instance.language = validated_data.get('language', instance.language)
         instance.country = validated_data.get('country', instance.country)
         instance.role = validated_data.get('role', instance.role)
+
+        if instance.is_student():
+            instance.group = validated_data.get('group', instance.group)
 
         if instance.is_supervisor() and 'password' in validated_data:
             instance.set_password(validated_data.get('password'))
