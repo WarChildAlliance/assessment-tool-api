@@ -40,7 +40,11 @@ class UserTableViewSet(ModelViewSet):
         country = self.request.query_params.get('country')
         if country:
             users = users.filter(country__code=country)
-        
+
+        group = self.request.query_params.get('group')
+        if group:
+            users = users.filter(group=group)
+
         return users
 
     def create(self, request):
