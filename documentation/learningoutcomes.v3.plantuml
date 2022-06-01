@@ -4,13 +4,9 @@ skinparam linetype ortho
 skinparam BackgroundColor white
 
 /'
-Version 2 - 18/06/2021 (Author Matthis M) - changes:
-- Changed title
-- Deletion of outdated Groups with managers / members
-- Switched from camelCase to snake_case
-- Specialization of some links as aggregations / compositions
-- Redefined Student and Supervisor classes as simple UserRole enum
-- Other minors fixes
+Version 3 - 18/05/2022 (Author Estela S) - changes:
+- Added Group for students, supervised by 1 Supervisor
+- Correct aggregations that must be compositions
 '/
 
 enum LanguageDirection {
@@ -39,6 +35,12 @@ enum UserRole {
     SUPERVISOR
 }
 
+class Group {
+    id: Integer
+    name: String
+    supervisor: Supervisor
+}
+
 class User {
     id: Integer
     role: UserRole
@@ -46,6 +48,7 @@ class User {
     last_name: String
     language: Language
     country: Country
+    group: Group
     created_by: Supervisor
 }
 
@@ -236,6 +239,8 @@ User <|-[dashed]- Student
 
 Student "0..*" -- "1" Supervisor
 
+Group "0..*" -- "1" Supervisor
+Group "1" -- "0..*" Student
 
 Assessment "1" *-- "0..*" AssessmentTopic
 Assessment "0..*" -- "1" Supervisor
@@ -259,10 +264,10 @@ Question <|-- QuestionSort
 Question <|-- QuestionInput
 Question <|-- QuestionNumberLine
 
-QuestionSelect "1" o-- "1..*" SelectOption
+QuestionSelect "1" *-- "1..*" SelectOption
 SelectOption "0..1" -- "0..1" Attachment
 
-QuestionSort "1" o-- "1..*" SortOption
+QuestionSort "1" *-- "1..*" SortOption
 SortOption "0..1" -- "0..1" Attachment
 
 

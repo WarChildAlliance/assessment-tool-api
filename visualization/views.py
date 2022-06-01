@@ -40,7 +40,11 @@ class UserTableViewSet(ModelViewSet):
         country = self.request.query_params.get('country')
         if country:
             users = users.filter(country__code=country)
-        
+
+        group = self.request.query_params.get('group')
+        if group:
+            users = users.filter(group=group)
+
         return users
 
     def create(self, request):
@@ -372,7 +376,9 @@ class QuestionAnswersTableViewSet(ModelViewSet):
 
 
 class ScoreByTopicViewSet(ModelViewSet):
-
+    """
+    Score By Topic view set. Used on the dashboard (assessments multi-select and select filter)
+    """
     serializer_class = ScoreByTopicSerializer
 
     def get_queryset(self):
@@ -393,6 +399,29 @@ class ScoreByTopicViewSet(ModelViewSet):
 
         return Response(serializer.data)
 
+class GroupScoreByTopicViewSet(ModelViewSet):
+    """
+    Score By Topic filtering by group view set.
+    TODO evaluate if it is necessary to change the information obtained here or add more information for the dashboard (to do so: create GroupScoreByTopicViewSet own serializer?)
+    """
+    serializer_class = ScoreByTopicSerializer
+
+    def get_queryset(self):
+        group_pk = int(self.kwargs.get('group_pk', None))
+        user = self.request.user
+
+        return User.objects.filter(created_by=user, group=group_pk)
+
+    def list(self, request, *args, **kwargs):
+
+        serializer = ScoreByTopicSerializer(
+            self.get_queryset(), many=True,
+            context={
+                'assessment_pk': int(self.kwargs.get('assessment_pk', None))
+            }
+        )
+
+        return Response(serializer.data)
 
 class AssessmentListForDashboard(ModelViewSet):
 
