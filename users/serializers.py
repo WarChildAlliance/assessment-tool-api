@@ -43,7 +43,7 @@ class UserSerializer(serializers.ModelSerializer):
     country = NestedRelatedField(
         model=Country, serializer_class=CountrySerializer)
     group = NestedRelatedField(
-        model=Group, serializer_class=GroupSerializer)
+        model=Group, allow_null=True, serializer_class=GroupSerializer)
 
     class Meta:
         model = User
