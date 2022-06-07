@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 
-
 class User(AbstractUser):
     """
     User model.
@@ -53,6 +52,12 @@ class User(AbstractUser):
         'Group',
         on_delete=models.SET_NULL,
         related_name='student_group',
+        null=True,
+        blank=True
+    )
+
+    # Define the last time AbstractUser.is_active was updated.
+    active_status_updated_on = models.DateField(
         null=True,
         blank=True
     )
