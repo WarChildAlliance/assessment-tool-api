@@ -464,9 +464,16 @@ class QuestionOverviewViewSet(ModelViewSet):
 
         topic_pk = int(self.kwargs.get('topic_pk', None))
 
-        return Question.objects.filter(
-            assessment_topic=topic_pk
+        questions = Question.objects.filter(
+            assessment_topic=topic_pk,
         )
+
+        groups = self.request.query_params.getlist('groups[]')
+        if groups:
+            questions = questions.filter(
+                assessment_topic__assessmenttopicaccess__student__group__in=groups
+            )
+        return questions
 
     def list(self, request, *args, **kwargs):
 
@@ -490,6 +497,10 @@ class StudentsByTopicAccessViewSet(ModelViewSet):
 
         topic_pk = int(self.kwargs.get('topic_pk', None))
         students = User.objects.filter(created_by=self.request.user)
+
+        groups = self.request.query_params.getlist('groups[]')
+        if groups:
+            students = students.filter(group__in=groups)
 
         return AssessmentTopicAccess.objects.filter(topic=topic_pk, student__in=students)
 
