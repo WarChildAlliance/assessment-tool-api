@@ -80,7 +80,9 @@ class Answer(models.Model):
 
     question = models.ForeignKey(
         'assessments.Question',
-        on_delete=models.CASCADE
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
     )
 
     valid = models.BooleanField()
