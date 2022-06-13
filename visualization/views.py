@@ -117,6 +117,11 @@ class AssessmentTableViewSet(ModelViewSet):
 
         return Response(serializer.data)
 
+    def retrieve(self, request, *args, **kwargs):
+        assessment = self.get_object()
+        serializer = AssessmentTableSerializer(assessment)
+        return Response(serializer.data)
+
     def create(self, request):
         return Response('Unauthorized', status=403)
 
