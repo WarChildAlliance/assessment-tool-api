@@ -36,8 +36,8 @@ class UserTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_topics_count',
-                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group')
+        fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_topics_count', 'active_status_updated_on',
+                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active')
 
     def get_full_name(self, instance):
         return (instance.first_name + ' ' + instance.last_name)
