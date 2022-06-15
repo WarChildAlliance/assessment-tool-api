@@ -163,3 +163,31 @@ class AnswerNumberLine(Answer):
         null=True,
         blank=True
     )
+
+class AnswerFindHotspot(Answer):
+    """
+    Answer find hotspot model (inherits Answer).
+    """
+
+    selected_options = models.ManyToManyField(
+        'assessments.AreaOption',
+        blank=True
+    )
+
+class AnswerDragAndDrop(Answer):
+    """
+    Answer drag and drop model (inherits Answer).
+    One AnswerDragAndDrop object for each AreaOption of the QuestionDragAndDrop (it can be changed).
+    """
+
+    selected_draggable_options = models.ManyToManyField(
+        'assessments.DraggableOption',
+        blank=True
+    )
+
+    area = models.ForeignKey(
+        'assessments.AreaOption',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )

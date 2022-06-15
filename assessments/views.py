@@ -10,10 +10,10 @@ from datetime import date
 from admin.lib.viewsets import ModelViewSet
 
 from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess,
-                     Attachment, Question)
+                     Attachment, DraggableOption, Question)
 from .serializers import (AssessmentDeepSerializer, AssessmentSerializer,
                           AssessmentTopicAccessSerializer,
-                          AssessmentTopicSerializer, AttachmentSerializer,
+                          AssessmentTopicSerializer, AttachmentSerializer, DraggableOptionSerializer,
                           QuestionSerializer)
 
 
@@ -232,6 +232,20 @@ class AttachmentsViewSet(ModelViewSet, CreateView):
 
         return Attachment.objects.filter(question=question_pk)
 
+class DraggableOptionsViewSet(ModelViewSet, CreateView):
+    """
+    Draggable option viewset.
+    """
+    model = DraggableOption
+    serializer_class = DraggableOptionSerializer
+
+    def get_queryset(self):
+        """
+        Queryset to get draggable options.
+        """
+        question_pk = self.kwargs['question_pk']
+
+        return DraggableOption.objects.filter(question_drag_and_drop=question_pk)
 
 class AssessmentTopicAccessesViewSets(ModelViewSet):
     """

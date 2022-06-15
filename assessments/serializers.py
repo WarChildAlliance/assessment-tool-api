@@ -12,8 +12,8 @@ from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import Language, Country
 from users.serializers import LanguageSerializer, CountrySerializer
 
-from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess,
-                     Attachment, Hint, Question, QuestionInput,
+from .models import (AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess,
+                     Attachment, DraggableOption, Hint, Question, QuestionDragAndDrop, QuestionFindHotspot, QuestionInput,
                      QuestionNumberLine, QuestionSelect, QuestionSort,
                      SelectOption, SortOption)
 
@@ -214,6 +214,54 @@ class SortOptionSerializer(serializers.ModelSerializer):
 
         return sort_option
 
+class AreaOptionSerializer(serializers.ModelSerializer):
+    """
+    Area option serializer.
+    """
+    class Meta:
+        model = AreaOption
+        fields = '__all__'
+        extra_kwargs = {
+            'question_drag_and_drop': {
+                'required': False,
+                'write_only': True
+            },
+            'question_find_hotspot': {
+                'required': False,
+                'write_only': True
+            }
+        }
+
+    def create(self, validated_data):
+        """
+        Create area option with coordenates.
+        """
+        if validated_data['question_drag_and_drop'] is None:
+            raise serializers.ValidationError({'question_drag_and_drop': 'This field is required',})
+        
+        area_option = super().create(validated_data)
+
+        return area_option
+
+class DraggableOptionSerializer(serializers.ModelSerializer):
+    """
+    Draggable option serializer.
+    """
+    attachments = AttachmentSerializer(many=True, required=False)
+
+    class Meta:
+        model = DraggableOption
+        fields = '__all__'
+        extra_kwargs = {
+            'question_drag_and_drop': {
+                'required': False,
+                'write_only': True
+            }
+        }
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        return instance
 
 class QuestionSerializer(PolymorphicSerializer):
     """
@@ -229,7 +277,9 @@ class QuestionSerializer(PolymorphicSerializer):
             'QuestionInput': QuestionInputSerializer,
             'QuestionNumberLine': QuestionNumberLineSerializer,
             'QuestionSelect': QuestionSelectSerializer,
-            'QuestionSort': QuestionSortSerializer
+            'QuestionSort': QuestionSortSerializer,
+            'QuestionDragAndDrop': QuestionDragAndDropSerializer,
+            'QuestionFindHotspot': QuestionFindHotspotSerializer
         }
 
     def to_representation(self, obj):
@@ -242,7 +292,9 @@ class QuestionSerializer(PolymorphicSerializer):
             Question.QuestionType.INPUT: 'QuestionInput',
             Question.QuestionType.SELECT: 'QuestionSelect',
             Question.QuestionType.SORT: 'QuestionSort',
-            Question.QuestionType.NUMBER_LINE: 'QuestionNumberLine'
+            Question.QuestionType.NUMBER_LINE: 'QuestionNumberLine',
+            Question.QuestionType.FIND_HOTSPOT: 'QuestionFindHotspot',
+            Question.QuestionType.DRAG_AND_DROP: 'QuestionDragAndDrop'
         }
         if 'question_type' in data and data['question_type'] in type_dict:
             data['type'] = type_dict[data['question_type']]
@@ -308,6 +360,10 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
                 QuestionSort.objects.get(id=instance.id).delete()
             elif instance.question_type == Question.QuestionType.NUMBER_LINE:
                 QuestionNumberLine.objects.get(id=instance.id).delete()
+            elif instance.question_type == Question.QuestionType.DRAG_AND_DROP:
+                QuestionDragAndDrop.objects.get(id=instance.id).delete()
+            elif instance.question_type == Question.QuestionType.FIND_HOTSPOT:
+                QuestionFindHotspot.objects.get(id=instance.id).delete()
             instance.question_type = new_question_type
 
         if 'attachments' in validated_data:
@@ -339,6 +395,14 @@ class QuestionInputSerializer(AbstractQuestionSerializer):
         model = QuestionInput
         fields = '__all__'
 
+class QuestionFindHotspotSerializer(AbstractQuestionSerializer):
+    """
+    Question find hotspot serializer.
+    """
+
+    class Meta:
+        model = QuestionFindHotspot
+        fields = '__all__'
 
 class QuestionSelectSerializer(AbstractQuestionSerializer):
     """
@@ -386,6 +450,60 @@ class QuestionSelectSerializer(AbstractQuestionSerializer):
 
         return super().update(instance, validated_data)
 
+
+class QuestionDragAndDropSerializer(AbstractQuestionSerializer):
+    """
+    Question drag and drop serializer.
+    """
+    drop_areas = AreaOptionSerializer(many=True)
+
+    class Meta:
+        model = QuestionDragAndDrop
+        fields = '__all__'
+    
+    def create(self, validated_data):
+        """
+        Create question question drag and drop with area options.
+        """
+        options_data = validated_data.pop('drop_areas') if 'drop_areas' in validated_data else None
+
+        question = super().create(validated_data)
+
+        if options_data is not None:
+            for option_data in options_data:
+                area_option_serializer = AreaOptionSerializer(
+                    data={
+                        **option_data, 
+                        'question_drag_and_drop': question.id,
+                        })
+                area_option_serializer.is_valid(raise_exception=True)
+                area_option_serializer.save()
+
+        return question
+
+    def update(self, instance, validated_data):
+        """
+        Update question drag and drop with areas options.
+        """
+        instance_class = instance.__class__.__name__
+
+        if 'drop_areas' in validated_data:
+            if instance_class == 'QuestionDragAndDrop':
+                instance.drop_areas.all().delete()
+                instance.drag_options.all().delete()
+
+            for option_data in validated_data.get('drop_areas', []):
+                area_option_serializer = AreaOptionSerializer(
+                    data={
+                        **option_data, 
+                        'question_drag_and_drop': instance.id,
+                        })
+                area_option_serializer.is_valid(raise_exception=True)
+                area_option_serializer.save()
+
+            validated_data.pop('drop_areas')
+
+        return super().update(instance, validated_data)
 
 class QuestionSortSerializer(AbstractQuestionSerializer):
     """
