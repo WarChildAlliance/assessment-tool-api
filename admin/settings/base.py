@@ -55,10 +55,17 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:4200',
     'http://localhost:4300',
     'http://localhost:8080',
+    'http://127.0.0.1:8080',
     'https://glmt-admin.development.humanitarian.tech',
     'https://glmt-main.development.humanitarian.tech',
     'https://loassessmenttooladmin.z6.web.core.windows.net/', # Azure assessment tool
     'https://loassessmenttool.z6.web.core.windows.net/' # Azure admin dashboard
+]
+
+# Whitelisting private IP addresses
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r'^http://172\.(?:1[6-9]|2[0-9]|3[01]).(\d|\.)*:8080$',
+    r'^http://192\.168.(\d|\.)*:8080$'
 ]
 
 CORS_ALLOW_METHODS = [
