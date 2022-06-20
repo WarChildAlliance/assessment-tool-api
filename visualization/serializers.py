@@ -3,10 +3,10 @@ from django.db.models import Avg
 import datetime
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
-from assessments.models import Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
+from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
 from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 
-from assessments.serializers import (QuestionDragAndDropSerializer, QuestionFindHotspotSerializer, SelectOptionSerializer, SortOptionSerializer,
+from assessments.serializers import (AreaOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
                                      HintSerializer, AttachmentSerializer, AssessmentTopicSerializer)
 from users.serializers import GroupSerializer
 
@@ -335,8 +335,7 @@ class QuestionDetailsTableSerializer(PolymorphicSerializer):
             'QuestionNumberLine': QuestionNumberLineTableSerializer,
             'QuestionSelect': QuestionSelectTableSerializer,
             'QuestionSort': QuestionSortTableSerializer,
-            'QuestionDragAndDrop': QuestionDragAndDropSerializer,
-            'QuestionFindHotspot': QuestionFindHotspotSerializer
+            'QuestionDragAndDrop': QuestionDragAndDropTableSerializer
         }
 
 
@@ -389,6 +388,16 @@ class QuestionSortTableSerializer(AbstractQuestionDetailsTableSerializer):
         model = QuestionSort
         fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
             ('category_A', 'category_B', 'options',)
+
+class QuestionDragAndDropTableSerializer(AbstractQuestionDetailsTableSerializer):
+
+    drop_areas = NestedRelatedField(
+        model=AreaOption, serializer_class=AreaOptionSerializer, many=True)
+
+    class Meta(AbstractQuestionDetailsTableSerializer.Meta):
+        model = QuestionDragAndDrop
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
+            ('drop_areas',)
 
 class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     """
