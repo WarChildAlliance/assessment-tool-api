@@ -6,7 +6,7 @@ from users.models import User, Group
 from assessments.models import Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
 from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 
-from assessments.serializers import (SelectOptionSerializer, SortOptionSerializer,
+from assessments.serializers import (QuestionDragAndDropSerializer, QuestionFindHotspotSerializer, SelectOptionSerializer, SortOptionSerializer,
                                      HintSerializer, AttachmentSerializer, AssessmentTopicSerializer)
 from users.serializers import GroupSerializer
 
@@ -334,7 +334,9 @@ class QuestionDetailsTableSerializer(PolymorphicSerializer):
             'QuestionInput': QuestionInputTableSerializer,
             'QuestionNumberLine': QuestionNumberLineTableSerializer,
             'QuestionSelect': QuestionSelectTableSerializer,
-            'QuestionSort': QuestionSortTableSerializer
+            'QuestionSort': QuestionSortTableSerializer,
+            'QuestionDragAndDrop': QuestionDragAndDropSerializer,
+            'QuestionFindHotspot': QuestionFindHotspotSerializer
         }
 
 
