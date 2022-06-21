@@ -4,13 +4,9 @@ skinparam linetype ortho
 skinparam BackgroundColor white
 
 /'
-Version 2 - 18/06/2021 (Author Matthis M) - changes:
-- Changed title
-- Deletion of outdated Groups with managers / members
-- Switched from camelCase to snake_case
-- Specialization of some links as aggregations / compositions
-- Redefined Student and Supervisor classes as simple UserRole enum
-- Other minors fixes
+Version 4 - 15/06/2022 (Author Estela S) - changes:
+- Added QuestionDragAndDrop, QuestionFindHotspot, AreaOption, DraggableOption
+- Added AnswerDragAndDrop, AnswerFindHotspot
 '/
 
 enum LanguageDirection {
@@ -39,6 +35,12 @@ enum UserRole {
     SUPERVISOR
 }
 
+class Group {
+    id: Integer
+    name: String
+    supervisor: Supervisor
+}
+
 class User {
     id: Integer
     role: UserRole
@@ -46,6 +48,7 @@ class User {
     last_name: String
     language: Language
     country: Country
+    group: Group
     created_by: Supervisor
 }
 
@@ -98,6 +101,8 @@ enum QuestionType {
     SORT
     INPUT
     NUMBER_LINE
+    DRAG_AND_DROP
+    FIND_HOTSPOT
 }
 
 class Question {
@@ -156,6 +161,31 @@ class QuestionNumberLine {
     show_value: Boolean
 }
 
+class QuestionDragAndDrop {
+    id: Integer
+}
+
+class DraggableOption {
+    id: Integer
+    area_option: AreaOption[]
+    question_drag_and_drop: QuestionDragAndDrop 
+}
+
+class AreaOption {
+    id: Integer
+    name: String
+    x: Decimal
+    y: Decimal
+    width: Decimal
+    height: Decimal
+    question_drag_and_drop: QuestionDragAndDrop
+    question_find_hotspot: QuestionFindHotspot
+}
+
+class QuestionFindHotspot {
+    id: Integer
+}
+
 enum AttachmentType {
     AUDIO
     IMAGE
@@ -167,9 +197,11 @@ class Attachment {
     file: File
     topic: AssessmentTopic
     question: Question
+    background_image: Boolean
     hint: Hint
     select_option: SelectOption
     sort_option: SortOption
+    draggable_option: DraggableOption
 }
 
 class AnswerSession {
@@ -199,6 +231,17 @@ class Answer {
     valid: Boolean
     date: Date (@property)
     student: Student (@property)
+}
+
+class AnswerFindHotspot {
+    id: Integer
+    area_option: AreaOption[]
+}
+
+class AnswerDragAndDrop {
+    id: Integer
+    area_option: AreaOption
+    draggable_option: DraggableOption[]
 }
 
 class AnswerInput {
@@ -236,6 +279,8 @@ User <|-[dashed]- Student
 
 Student "0..*" -- "1" Supervisor
 
+Group "0..*" -- "1" Supervisor
+Group "1" -- "0..*" Student
 
 Assessment "1" *-- "0..*" AssessmentTopic
 Assessment "0..*" -- "1" Supervisor
@@ -258,13 +303,21 @@ Question <|-- QuestionSelect
 Question <|-- QuestionSort
 Question <|-- QuestionInput
 Question <|-- QuestionNumberLine
+Question <|-- QuestionDragAndDrop
+Question <|-- QuestionFindHotspot
 
-QuestionSelect "1" o-- "1..*" SelectOption
+QuestionSelect "1" *-- "1..*" SelectOption
 SelectOption "0..1" -- "0..1" Attachment
 
-QuestionSort "1" o-- "1..*" SortOption
+QuestionSort "1" *-- "1..*" SortOption
 SortOption "0..1" -- "0..1" Attachment
 
+AreaOption  "0..*" o-- "1..*" DraggableOption
+QuestionDragAndDrop "1" o-- "1..*" DraggableOption
+DraggableOption "1" o-- "1" Attachment
+
+QuestionFindHotspot "1" *-- "1..*" AreaOption
+QuestionDragAndDrop "1" *-- "1..*" AreaOption
 
 AssessmentTopicAnswer "0..*" -- "1" AssessmentTopicAccess
 AssessmentTopicAnswer "1" *-- "0..*" Answer
@@ -275,6 +328,13 @@ Answer <|-- AnswerSelect
 Answer <|-- AnswerSort
 Answer <|-- AnswerInput
 Answer <|-- AnswerNumberLine
+Answer <|-- AnswerDragAndDrop
+Answer <|-- AnswerFindHotspot
+
+AnswerDragAndDrop "0..*" o-- "0..*" DraggableOption
+AnswerDragAndDrop "1" o-- "1" AreaOption
+
+AnswerFindHotspot "1" o-- "1..*" AreaOption
 
 AnswerSelect "0..*" o-- "1..*" SelectOption
 AnswerSort "0..*" o-- "1..*" SortOption

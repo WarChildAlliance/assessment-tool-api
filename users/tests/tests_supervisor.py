@@ -58,7 +58,7 @@ class UsersSupervisorTests(APITestCase):
         """
         url = reverse('user-list')
         data = {'first_name': 'Neville', 'last_name': 'Longbottom', 'country': 'JOR',
-                'language': 'ENG', 'role': 'STUDENT'}
+                'language': 'ENG', 'role': 'STUDENT', 'group': ''}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertRegex(response.data['username'], r'\d{6,}')
@@ -72,7 +72,7 @@ class UsersSupervisorTests(APITestCase):
         """
         url = reverse('user-list')
         data = {'first_name': 'Albus', 'last_name': 'Dumbledore', 'country': 'JOR', 'language': 'ENG',
-                'role': 'SUPERVISOR', 'email': 'albus@yopmail.com', 'password': 'alohomora'}
+                'role': 'SUPERVISOR', 'email': 'albus@yopmail.com', 'password': 'alohomora', 'group': ''}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertRegex(response.data['username'], 'albus@yopmail.com')

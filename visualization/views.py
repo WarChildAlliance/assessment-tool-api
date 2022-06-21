@@ -40,7 +40,11 @@ class UserTableViewSet(ModelViewSet):
         country = self.request.query_params.get('country')
         if country:
             users = users.filter(country__code=country)
-        
+
+        group = self.request.query_params.get('group')
+        if group:
+            users = users.filter(group=group)
+
         return users
 
     def create(self, request):
@@ -111,6 +115,11 @@ class AssessmentTableViewSet(ModelViewSet):
             }
         )
 
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        assessment = self.get_object()
+        serializer = AssessmentTableSerializer(assessment)
         return Response(serializer.data)
 
     def create(self, request):
@@ -372,7 +381,9 @@ class QuestionAnswersTableViewSet(ModelViewSet):
 
 
 class ScoreByTopicViewSet(ModelViewSet):
-
+    """
+    Score By Topic view set. Used on the dashboard (assessments multi-select and select filter)
+    """
     serializer_class = ScoreByTopicSerializer
 
     def get_queryset(self):
@@ -393,6 +404,29 @@ class ScoreByTopicViewSet(ModelViewSet):
 
         return Response(serializer.data)
 
+class GroupScoreByTopicViewSet(ModelViewSet):
+    """
+    Score By Topic filtering by group view set.
+    TODO evaluate if it is necessary to change the information obtained here or add more information for the dashboard (to do so: create GroupScoreByTopicViewSet own serializer?)
+    """
+    serializer_class = ScoreByTopicSerializer
+
+    def get_queryset(self):
+        group_pk = int(self.kwargs.get('group_pk', None))
+        user = self.request.user
+
+        return User.objects.filter(created_by=user, group=group_pk)
+
+    def list(self, request, *args, **kwargs):
+
+        serializer = ScoreByTopicSerializer(
+            self.get_queryset(), many=True,
+            context={
+                'assessment_pk': int(self.kwargs.get('assessment_pk', None))
+            }
+        )
+
+        return Response(serializer.data)
 
 class AssessmentListForDashboard(ModelViewSet):
 
@@ -435,9 +469,16 @@ class QuestionOverviewViewSet(ModelViewSet):
 
         topic_pk = int(self.kwargs.get('topic_pk', None))
 
-        return Question.objects.filter(
-            assessment_topic=topic_pk
+        questions = Question.objects.filter(
+            assessment_topic=topic_pk,
         )
+
+        groups = self.request.query_params.getlist('groups[]')
+        if groups:
+            questions = questions.filter(
+                assessment_topic__assessmenttopicaccess__student__group__in=groups
+            )
+        return questions
 
     def list(self, request, *args, **kwargs):
 
@@ -461,6 +502,10 @@ class StudentsByTopicAccessViewSet(ModelViewSet):
 
         topic_pk = int(self.kwargs.get('topic_pk', None))
         students = User.objects.filter(created_by=self.request.user)
+
+        groups = self.request.query_params.getlist('groups[]')
+        if groups:
+            students = students.filter(group__in=groups)
 
         return AssessmentTopicAccess.objects.filter(topic=topic_pk, student__in=students)
 

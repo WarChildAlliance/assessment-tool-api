@@ -64,6 +64,8 @@ dashboard_assessments_router.register(
     r'topics', views.TopicListForDashboard, basename='dashboard-topic')
 
 router.register(r'charts/score_by_topic/(?P<assessment_pk>\d+)', views.ScoreByTopicViewSet, basename="score-by-topic")
+router.register(r'charts/score_by_topic/(?P<assessment_pk>\d+)/group/(?P<group_pk>\d+)', views.GroupScoreByTopicViewSet, basename="group-score-by-topic")
+
 router.register(r'charts/assessments/(?P<assessment_pk>\d+)/topics/(?P<topic_pk>\d+)/questions', views.QuestionOverviewViewSet, basename="question-overview")
 router.register(r'charts/topic/(?P<topic_pk>\d+)/students', views.StudentsByTopicAccessViewSet, basename="students-by-topics")
 router.register(r'charts/topic/(?P<topic_pk>\d+)/student/(?P<assessment_topic_answer_pk>\d+)/answers', views.StudentAnswersViewSet, basename="students_answers")

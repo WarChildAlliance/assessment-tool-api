@@ -2,12 +2,13 @@ from rest_framework import serializers
 from django.db.models import Avg
 import datetime
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
-from users.models import User
-from assessments.models import Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
+from users.models import User, Group
+from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
 from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 
-from assessments.serializers import (SelectOptionSerializer, SortOptionSerializer,
+from assessments.serializers import (AreaOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
                                      HintSerializer, AttachmentSerializer, AssessmentTopicSerializer)
+from users.serializers import GroupSerializer
 
 
 class UserTableSerializer(serializers.ModelSerializer):
@@ -30,10 +31,13 @@ class UserTableSerializer(serializers.ModelSerializer):
     country_name = serializers.SerializerMethodField()
     country_code = serializers.SerializerMethodField()
 
+    # Group that the student is linked to
+    group = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_topics_count',
-                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code')
+        fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_topics_count', 'active_status_updated_on',
+                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active')
 
     def get_full_name(self, instance):
         return (instance.first_name + ' ' + instance.last_name)
@@ -71,6 +75,9 @@ class UserTableSerializer(serializers.ModelSerializer):
     def get_country_code(self, instance):
         return instance.country.code
 
+    def get_group(self, instance):
+        group = Group.objects.filter(student_group=instance).values_list('name', flat=True)
+        return group
 
 class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 
@@ -327,7 +334,8 @@ class QuestionDetailsTableSerializer(PolymorphicSerializer):
             'QuestionInput': QuestionInputTableSerializer,
             'QuestionNumberLine': QuestionNumberLineTableSerializer,
             'QuestionSelect': QuestionSelectTableSerializer,
-            'QuestionSort': QuestionSortTableSerializer
+            'QuestionSort': QuestionSortTableSerializer,
+            'QuestionDragAndDrop': QuestionDragAndDropTableSerializer
         }
 
 
@@ -380,6 +388,16 @@ class QuestionSortTableSerializer(AbstractQuestionDetailsTableSerializer):
         model = QuestionSort
         fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
             ('category_A', 'category_B', 'options',)
+
+class QuestionDragAndDropTableSerializer(AbstractQuestionDetailsTableSerializer):
+
+    drop_areas = NestedRelatedField(
+        model=AreaOption, serializer_class=AreaOptionSerializer, many=True)
+
+    class Meta(AbstractQuestionDetailsTableSerializer.Meta):
+        model = QuestionDragAndDrop
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
+            ('drop_areas',)
 
 class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     """
@@ -706,10 +724,16 @@ class ScoreByTopicSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     topics = serializers.SerializerMethodField()
     student_access = serializers.SerializerMethodField()
+    group = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'full_name', 'topics', 'student_access')
+        fields = ('id', 'full_name', 'topics', 'student_access', 'group')
+
+    def get_group(self, instance):
+        group = Group.objects.filter(student_group=instance)
+        serializer = GroupSerializer(group, many = True)
+        return serializer.data
 
     def get_full_name(self, instance):
         return (instance.first_name + ' ' + instance.last_name)
