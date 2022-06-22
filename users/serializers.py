@@ -1,3 +1,5 @@
+from datetime import date
+
 from rest_framework import serializers
 
 from admin.lib.serializers import NestedRelatedField
@@ -43,12 +45,13 @@ class UserSerializer(serializers.ModelSerializer):
     country = NestedRelatedField(
         model=Country, serializer_class=CountrySerializer)
     group = NestedRelatedField(
-        model=Group, serializer_class=GroupSerializer)
+        model=Group, allow_null=True, serializer_class=GroupSerializer)
 
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'group',
-                  'password', 'last_login', 'role', 'language', 'country', 'created_by']
+                  'password', 'last_login', 'role', 'language', 'country', 'created_by',
+                  'is_active']
         extra_kwargs = {'created_by': {
             'default': serializers.CurrentUserDefault(),
             'write_only': True
@@ -56,8 +59,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """
-        Check that supervisors have a password, that student usernames cannot be changed
-        or have a set password.
+        Check that supervisors have a password, and that student usernames cannot
+        be changed or have a set password.
         """
         if self.instance and self.instance.is_student() and 'username' in data:
             raise serializers.ValidationError(
@@ -85,6 +88,7 @@ class UserSerializer(serializers.ModelSerializer):
         """
         if validated_data['role'] == User.UserRole.STUDENT:
             validated_data['password'] = None
+            validated_data['active_status_updated_on'] = date.today()
         return User.objects.create_user(**validated_data)
 
     def update(self, instance, validated_data, **kwargs):
@@ -103,6 +107,10 @@ class UserSerializer(serializers.ModelSerializer):
 
         if instance.is_student():
             instance.group = validated_data.get('group', instance.group)
+            is_active = validated_data.get('is_active', instance.is_active)
+            if is_active != instance.is_active:
+                instance.is_active = is_active
+                instance.active_status_updated_on = date.today()
 
         if instance.is_supervisor() and 'password' in validated_data:
             instance.set_password(validated_data.get('password'))

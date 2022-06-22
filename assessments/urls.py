@@ -47,9 +47,13 @@ questions_router = routers.NestedSimpleRouter(
     topics_router, r'questions', lookup='question')
 questions_router.register(
     r'attachments', views.AttachmentsViewSet, basename='question-attachments')
+questions_router.register(
+    r'draggable', views.DraggableOptionsViewSet, basename='draggable-options')
 # generates:
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/attachments/
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/attachments/{attachment_pk}/
+# /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/draggable/
+# /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/draggable/{draggable_option_pk}
 
 
 urlpatterns = [

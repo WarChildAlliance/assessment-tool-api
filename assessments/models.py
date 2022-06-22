@@ -223,6 +223,8 @@ class Question(models.Model):
         SELECT = 'SELECT', 'Select'
         SORT = 'SORT', 'Sort'
         NUMBER_LINE = 'NUMBER_LINE', 'Number line'
+        DRAG_AND_DROP = 'DRAG_AND_DROP', 'Drag and Drop'
+        FIND_HOTSPOT = 'FIND_HOTSPOT', 'Find hotspot'
 
     value = models.CharField(
         max_length=256,
@@ -370,6 +372,91 @@ class QuestionNumberLine(Question):
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
+class QuestionDragAndDrop(Question):
+    """
+    Question Drag And Drop (inherits from Question).
+    """
+
+    def __str__(self):
+        return f'{self.title} ({self.question_type})'
+    
+class QuestionFindHotspot(Question):
+    """
+    Question Find hotspot (inherits from Question).
+    """
+
+    def __str__(self):
+        return f'{self.title} ({self.question_type})'
+    
+class AreaOption(models.Model):
+    """
+    Area option model (used for QuestionFindHotspot and QuestionDragAndDrop).
+    The areas are rectangules. Saves the start point and the measurements of the rectangle.
+    """
+
+    name = models.CharField(
+        max_length=256
+    )
+
+    question_drag_and_drop = models.ForeignKey(
+        'QuestionDragAndDrop',
+        related_name='drop_areas',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+
+    question_find_hotspot = models.ForeignKey(
+        'QuestionFindHotspot',
+        related_name='hotspot_areas',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+
+    # Initial point: (x, y)
+    x = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2
+    )
+
+    y = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2
+    )
+
+    # Rectangle measurements (width and height)
+    width = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2
+    )
+
+    height = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2
+    )
+
+    def __str__(self):
+        return f'{self.name} ({self.id})'
+
+class DraggableOption(models.Model):
+    """
+    Draggable option model (used for QuestionDragAndDrop).
+    """
+    question_drag_and_drop = models.ForeignKey(
+        'QuestionDragAndDrop',
+        on_delete=models.CASCADE,
+        related_name='drag_options',
+    )
+
+    area_option = models.ManyToManyField(
+        'AreaOption',
+        related_name='areas',
+        blank=True
+    )
+
+    def __str__(self):
+        return f'{self.id} [question: {self.question_drag_and_drop.id}]'
 
 class SelectOption(models.Model):
     """
@@ -460,6 +547,13 @@ class Attachment(models.Model):
         blank=True
     )
 
+    # Use for QuestionDragAndDrop or QuestonFindHotspot: indicates whether the attachment is the
+    # question's background_image or just a normal attachment
+    background_image = models.BooleanField(
+        default=False,
+        blank=True
+    )
+
     hint = models.ForeignKey(
         'Hint',
         related_name='attachments',
@@ -478,6 +572,14 @@ class Attachment(models.Model):
 
     sort_option = models.ForeignKey(
         'SortOption',
+        related_name='attachments',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
+    draggable_option = models.ForeignKey(
+        'DraggableOption',
         related_name='attachments',
         on_delete=models.CASCADE,
         null=True,
