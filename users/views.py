@@ -48,6 +48,7 @@ class CustomAuthToken(ObtainAuthToken):
                 'user_id': user.id,
                 'user_first_name': user.first_name,
                 'user_last_name': user.last_name,
+                'user_active': user.is_active,
             })
 
         serializer = self.serializer_class(data=request.data,
