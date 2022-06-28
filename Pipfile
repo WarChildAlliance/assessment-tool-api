@@ -13,6 +13,8 @@ psycopg2 = "*"
 psycopg2-binary = "*"
 drf-nested-routers = "*"
 django-model-utils = "*"
+reportlab = "*"
+svglib = "*"
 
 [dev-packages]
 pylint = "*"
