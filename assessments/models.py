@@ -62,6 +62,10 @@ class Assessment(models.Model):
         default=False
     )
 
+    downloadable = models.BooleanField(
+        default=True
+    )
+
     icon = models.FileField(
         upload_to='assessments_icons',
         null=True,
