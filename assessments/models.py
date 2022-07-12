@@ -160,6 +160,16 @@ class AssessmentTopic(models.Model):
         default=False
     )
 
+    # Is nullable because the database needs something to populate existing rows.
+    order = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        ordering = ['order']
+
     def __str__(self):
         return f'{self.name} ({self.assessment.id})'
 
