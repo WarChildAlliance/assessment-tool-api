@@ -156,17 +156,22 @@ class AssessmentPDFReport(PDFBuilder):
             svg_icon = None
 
             if icon:
-                  icon_url = os.path.join(MEDIA_ROOT, icon['file'].replace(MEDIA_URL, ''))
-                  if icon_url.endswith('svg'):
-                        svg_icon = self._get_sized_image(icon_url, img_size)
-                        text_style = ParagraphStyle(
-                              text_style.fontName,
-                              fontSize=text_style.fontSize,
-                              textColor=text_style.textColor,
-                              alignment=TA_LEFT
-                        )
-                  else:
-                        atts_xml = '<img src="{}" valign="middle" width="{}" height="{}"/>'.format(icon_url, img_size, img_size)
+                  try:
+                        icon_url = os.path.join(MEDIA_ROOT, icon['file'].replace(MEDIA_URL, ''))
+                        if icon_url.endswith('svg'):
+                              svg_icon = self._get_sized_image(icon_url, img_size)
+                              text_style = ParagraphStyle(
+                                    text_style.fontName,
+                                    fontSize=text_style.fontSize,
+                                    textColor=text_style.textColor,
+                                    alignment=TA_LEFT
+                              )
+                        else:
+                              atts_xml = '<img src="{}" valign="middle" width="{}" height="{}"/>'.format(
+                                    icon_url, img_size, img_size
+                              )
+                  except:
+                        pass
 
             if audio:
                   audio_icon_url = os.path.join(MEDIA_ROOT, 'attachments/volume_up_FILL1_wght400_GRAD0_opsz48.png')
@@ -193,15 +198,18 @@ class AssessmentPDFReport(PDFBuilder):
             """
             Creates a Table object for a SELECT question answer
             """
+            answer_title = answer['title'] if answer['title'] else ''
+            answer_attachments = answer['attachments'] if answer['attachments'] else []
+
             text_style = self.text_styles['answer_valid'] if answer['valid'] else self.text_styles['answer']
             table_data = [[
-                  Paragraph(answer['title'], text_style)
+                  Paragraph(answer_title, text_style)
             ]]
             table_style = [('VALIGN', (0, 0), (-1, 0), 'CENTER')]
 
             if 'attachments' in answer.keys() and len(answer['attachments']):
                   table_data = [self.__get_paragraph_with_attachments(
-                        answer['title'], text_style, answer['attachments'], 14
+                        answer_title, text_style, answer_attachments, 14
                   )]
                   if len(table_data[0]) == 2:
                         table_style += [
@@ -317,12 +325,13 @@ class AssessmentPDFReport(PDFBuilder):
             """
             Writes an Assessment Topic icon & title onto the PDF document
             """
-            table_data = [[
-                  self._get_sized_image(os.path.join(MEDIA_ROOT, data['icon'].replace(MEDIA_URL, '')), .75 * cm),
-                  Paragraph(
-                        '{} · {} questions'.format(data['name'],  str(data['questions_nb'])),
-                        self.text_styles['heading2']
-                  )
+            try:
+                  table_icon = [self._get_sized_image(os.path.join(MEDIA_ROOT, data['icon'].replace(MEDIA_URL, '')), .75 * cm)]
+            except:
+                  table_icon = []
+            table_data = [table_icon + [Paragraph(
+                  '{} · {} questions'.format(data['name'],  str(data['questions_nb'])),
+                  self.text_styles['heading2'])
             ]]
             table = Table(table_data, colWidths=[1.5 * cm, None])
             table.setStyle(TableStyle([
@@ -336,10 +345,11 @@ class AssessmentPDFReport(PDFBuilder):
             """
             Writes an Assessment icon & title onto the PDF document
             """
-            table_data = [[
-                  self._get_sized_image(os.path.join(MEDIA_ROOT, data['icon'].replace(MEDIA_URL, ''))),
-                  Paragraph(data['title'], self.text_styles['heading1'])
-            ]]
+            try:
+                  table_icon = [self._get_sized_image(os.path.join(MEDIA_ROOT, data['icon'].replace(MEDIA_URL, '')))]
+            except:
+                  table_icon = []
+            table_data = [table_icon + [Paragraph(data['title'], self.text_styles['heading1'])]]
             table = Table(table_data, colWidths=[1.5 * cm, None])
             table.setStyle(TableStyle([
                   ('VALIGN', (0, 0), (-1, -1), 'CENTER'),
