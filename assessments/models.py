@@ -266,6 +266,11 @@ class Question(models.Model):
         choices=QuestionType.choices
     )
 
+    # For the teacher to choose if he wants the question in a modal on the student's platform
+    on_popup = models.BooleanField(
+        default=False
+    )
+
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
