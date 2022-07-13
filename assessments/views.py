@@ -199,7 +199,7 @@ class AssessmentTopicsViewSet(ModelViewSet):
         except:
             return Response('An error occurred while trying to update the order of assessments topics', status=500)
                 
-        return Response('Review topics successfully reordered.', status=200)
+        return Response('Topics successfully reordered.', status=200)
 
 class QuestionsViewSet(ModelViewSet):
     """
@@ -242,6 +242,29 @@ class QuestionsViewSet(ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
 
+    @action(detail=False, methods=['put'], url_path='reorder')
+    def reorder_all_questions(self, request, pk=None, **kwargs):
+        """
+        Updates the order of all questions.
+        """
+        # reauest_data = {
+        #   'questions': [array with questions ids, where its index in the array is your new order (+1)],
+        #   'assessment_topic': <assessment_topic'>
+        # }
+        request_data = request.data.copy()
+        questions = Question.objects.filter(assessment_topic=request_data['assessment_topic']).select_subclasses()
+
+        try:
+            for question in questions:
+                for index, element in enumerate(request_data['questions']):
+                    if (question.id == element) and (question.order != index + 1):
+                        question.order = index + 1
+                        question.save()
+                        break
+        except:
+            return Response('An error occurred while trying to update the order of the questions', status=500)
+
+        return Response('Questions successfully reordered.', status=200)
 
 class GeneralAttachmentsViewSet(ModelViewSet):
     """

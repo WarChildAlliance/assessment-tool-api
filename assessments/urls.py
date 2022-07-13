@@ -42,6 +42,7 @@ topics_router.register(r'questions', views.QuestionsViewSet,
                        basename='topic-questions')
 # generates:
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/
+# /assessments/{assessment_pk}/topics/{topic_pk}/questions/reorder/
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/
 
 questions_router = routers.NestedSimpleRouter(
