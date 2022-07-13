@@ -34,10 +34,13 @@ class UserTableSerializer(serializers.ModelSerializer):
     # Group that the student is linked to
     group = serializers.SerializerMethodField()
 
+    # Students can only be deleted after more than 1 year of inactivity
+    can_delete = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_topics_count', 'active_status_updated_on',
-                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active')
+                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active', 'can_delete')
 
     def get_full_name(self, instance):
         return (instance.first_name + ' ' + instance.last_name)
@@ -78,6 +81,16 @@ class UserTableSerializer(serializers.ModelSerializer):
     def get_group(self, instance):
         group = Group.objects.filter(student_group=instance).values_list('name', flat=True)
         return group
+
+    def get_can_delete(self, instance):
+        if instance.is_active == False and instance.active_status_updated_on:
+            today = datetime.date.today()
+            if (today - instance.active_status_updated_on).days > 365:
+                return True
+            else:
+                return False
+        else:
+            return False
 
 class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 
@@ -1001,7 +1014,15 @@ class StudentAnswersSerializer(serializers.ModelSerializer):
 
     question = NestedRelatedField(
         model=Question, serializer_class=QuestionDetailsSerializer, many=False)
+    color = serializers.SerializerMethodField()
 
     class Meta:
         model = Answer
-        fields = ('id', 'valid', 'question')
+        fields = ('id', 'valid', 'question', 'color')
+
+    # The color returned is according to the validity of the answer
+    def get_color(self, instance):
+        if instance.valid == True:
+            return '#7EBF9A'
+        else:
+            return '#F2836B'
