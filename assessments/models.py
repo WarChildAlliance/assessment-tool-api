@@ -275,14 +275,7 @@ class Question(models.Model):
         return f'{self.title} ({self.question_type})'
 
     class Meta:
-        constraints = [
-            models.constraints.UniqueConstraint(
-                fields=['order', 'assessment_topic'],
-                name='unique_order'
-            )
-        ]
         ordering = ['order']
-
 
 class Hint(models.Model):
     """
