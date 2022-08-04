@@ -144,6 +144,30 @@ class UsersViewSet(ModelViewSet):
         serializer = self.get_serializer(user)
         return Response(serializer.data, status=200)
 
+    @action(detail=False, methods=['delete'])
+    def bulk_delete_students(self, request):
+        """
+        Delete multiple students at once.
+        """
+        user = request.user
+        student_ids = request.data.get('students', None)
+
+        if not student_ids or len(student_ids) == 0:
+            return Response('No student specified', status=400)
+
+        try:
+            users_to_delete = User.objects.filter(
+                pk__in=student_ids, created_by=user, role=User.UserRole.STUDENT)
+        except:
+            return Response(
+                'Cannot delete unauthorized students', status=400)
+
+        try:
+            users_to_delete.delete()
+        except:
+            return Response('An error occured while trying to delete students', status=500)
+
+        return Response('Students successfully deleted', status=200)
 
 
 class LanguagesViewSet(ModelViewSet):
@@ -200,3 +224,27 @@ class GroupsViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Group.objects.filter(supervisor=self.request.user)
+
+    @action(detail=False, methods=['delete'])
+    def bulk_delete(self, request):
+        """
+        Delete multiple groups at once.
+        """
+        user = request.user
+        group_ids = request.data.get('groups', None)
+
+        if not group_ids:
+            return Response('No groups specified', status=400)
+
+        try:
+            groups_to_delete = Group.objects.filter(
+                pk__in=group_ids, supervisor=user)
+        except:
+            return Response('Cannot delete unauthorized groups', status=400)
+
+        try:
+            groups_to_delete.delete()
+        except:
+            return Response('An error occurecd while trying to delete groups', status=500)
+
+        return Response('Groups successfully deleted', status=200)
