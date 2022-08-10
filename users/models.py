@@ -57,7 +57,7 @@ class User(AbstractUser):
     )
 
     # Define the last time AbstractUser.is_active was updated.
-    active_status_updated_on = models.DateField(
+    active_status_updated_on = models.DateTimeField(
         null=True,
         blank=True
     )

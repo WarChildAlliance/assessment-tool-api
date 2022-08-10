@@ -1,4 +1,4 @@
-from datetime import date
+from django.utils import timezone
 
 from rest_framework import serializers
 
@@ -88,7 +88,7 @@ class UserSerializer(serializers.ModelSerializer):
         """
         if validated_data['role'] == User.UserRole.STUDENT:
             validated_data['password'] = None
-            validated_data['active_status_updated_on'] = date.today()
+            validated_data['active_status_updated_on'] = timezone.now()
         return User.objects.create_user(**validated_data)
 
     def update(self, instance, validated_data, **kwargs):
@@ -110,7 +110,7 @@ class UserSerializer(serializers.ModelSerializer):
             is_active = validated_data.get('is_active', instance.is_active)
             if is_active != instance.is_active:
                 instance.is_active = is_active
-                instance.active_status_updated_on = date.today()
+                instance.active_status_updated_on = timezone.now()
 
         if instance.is_supervisor() and 'password' in validated_data:
             instance.set_password(validated_data.get('password'))
