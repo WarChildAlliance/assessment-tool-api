@@ -5,7 +5,7 @@ from . import views
 router = routers.SimpleRouter()
 
 router.register(r'answers', views.CompleteStudentAnswersViewSet,
-                basename='answers')
+                basename='answers-export')
 #url: /export/answers
 
 router.register(r'(?P<supervisor_id>\d+)/answers',
@@ -13,7 +13,7 @@ router.register(r'(?P<supervisor_id>\d+)/answers',
 #url: /export/<supervisor_id>/answers
 #url: /export/<supervisor_id>/answers/<assessment_id>
 
-router.register(r'assessments', views.AssessmentReportViewSet, basename='assessments')
+router.register(r'assessments', views.AssessmentReportViewSet, basename='assessments-export')
 # url: /export/assessments/{assessment_pk}
 
 topics_router = routers.NestedSimpleRouter(
