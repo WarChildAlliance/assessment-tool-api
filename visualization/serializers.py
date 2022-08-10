@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.db.models import Avg
 import datetime
+from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
 from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
@@ -84,13 +85,13 @@ class UserTableSerializer(serializers.ModelSerializer):
 
     def get_can_delete(self, instance):
         if instance.is_active == False and instance.active_status_updated_on:
-            today = datetime.date.today()
-            if (today - instance.active_status_updated_on).days > 365:
+            if abs((instance.active_status_updated_on - instance.date_joined).total_seconds()) < 1:
                 return True
-            else:
-                return False
-        else:
-            return False
+
+            return (timezone.now() - instance.active_status_updated_on).days > 365
+
+        return False
+
 
 class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 
