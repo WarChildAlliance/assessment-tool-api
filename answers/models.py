@@ -176,10 +176,19 @@ class AnswerFindHotspot(Answer):
         blank=True
     )
 
+
 class AnswerDragAndDrop(Answer):
     """
     Answer drag and drop model (inherits Answer).
-    One AnswerDragAndDrop object for each AreaOption of the QuestionDragAndDrop (it can be changed).
+    The concrete answers for each area are stored in DragAndDropAreaEntry.
+    """
+    pass
+
+
+class DragAndDropAreaEntry(models.Model):
+    """
+    Drag and drop area entry model.
+    Designates an answer for one of the AreaOptions of the QuestionDragAndDrop.
     """
 
     selected_draggable_options = models.ManyToManyField(
@@ -190,6 +199,13 @@ class AnswerDragAndDrop(Answer):
     area = models.ForeignKey(
         'assessments.AreaOption',
         on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    answer = models.ForeignKey(
+        AnswerDragAndDrop,
+        on_delete=models.CASCADE,
         null=True,
         blank=True
     )
