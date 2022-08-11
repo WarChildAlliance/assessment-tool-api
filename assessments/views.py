@@ -145,7 +145,61 @@ class AssessmentTopicsViewSet(ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
+    
+    def update(self, request, pk=None, **kwargs):
+        """
+        Update assessment topic.
+        """
+        instance = self.get_object()
+        request_data = request.data.copy()
+        request_order = int(request.data.get('order')) if request.data.get('order') else None
 
+        # Check if topic order changed to reorder all others topics
+        # (do not enter here if instance.order = None (has not been set before))
+        if (instance.order and request_order) and instance.order != request_order:
+            topics = AssessmentTopic.objects.filter(assessment=instance.assessment)
+
+            # Create an array with the topics from the QuerySet
+            topics_list = [topic for topic in topics]
+
+            # Places the topic in the position of the array equivalent to its new order
+            topic = topics_list[instance.order - 1]
+            topics_list.remove(topic)
+            topics_list.insert((request_order - 1) if (request_order > 0) else 0, topic)
+
+            # Order of each topic is its position in the array + 1 (order can't be zero)
+            for index, topic in enumerate(topics_list):
+                topic.order = index + 1
+                topic.save()
+        
+        serializer = self.get_serializer(instance, data=request_data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['put'], url_path='reorder')
+    def reorder_all_topics(self, request, pk=None, **kwargs):
+        """
+        Updates the order of all assessment topics.
+        """
+        # reauest_data = {
+        #   'topics': [array with topics ids, where its index in the array is your new order (+1)], 
+        #   'assessment_id': <assessment_id>
+        # }
+        request_data = request.data.copy()
+        topics = AssessmentTopic.objects.filter(assessment=request_data['assessment_id'])
+
+        try:
+            for topic in topics:
+                for index, element in enumerate(request_data['topics']):
+                    if (topic.id == element) and (topic.order != index + 1):
+                        topic.order = index + 1
+                        topic.save()
+                        break
+        except:
+            return Response('An error occurred while trying to update the order of assessments topics', status=500)
+                
+        return Response('Topics successfully reordered.', status=200)
 
 class QuestionsViewSet(ModelViewSet):
     """
@@ -188,6 +242,29 @@ class QuestionsViewSet(ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
 
+    @action(detail=False, methods=['put'], url_path='reorder')
+    def reorder_all_questions(self, request, pk=None, **kwargs):
+        """
+        Updates the order of all questions.
+        """
+        # reauest_data = {
+        #   'questions': [array with questions ids, where its index in the array is your new order (+1)],
+        #   'assessment_topic': <assessment_topic'>
+        # }
+        request_data = request.data.copy()
+        questions = Question.objects.filter(assessment_topic=request_data['assessment_topic']).select_subclasses()
+
+        try:
+            for question in questions:
+                for index, element in enumerate(request_data['questions']):
+                    if (question.id == element) and (question.order != index + 1):
+                        question.order = index + 1
+                        question.save()
+                        break
+        except:
+            return Response('An error occurred while trying to update the order of the questions', status=500)
+
+        return Response('Questions successfully reordered.', status=200)
 
 class GeneralAttachmentsViewSet(ModelViewSet):
     """

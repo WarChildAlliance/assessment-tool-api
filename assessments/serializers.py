@@ -346,7 +346,7 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """
-        Update question with hint and attachments.
+        Update question with hint, attachments and order.
         """
         instance.title = validated_data.get('title', instance.title)
 
@@ -383,8 +383,24 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
                 hint_serializer.save()
             validated_data.pop('hint')
 
-        return super().update(instance, validated_data)
+        # Check if question order changed to reorder all others questions
+        if 'order' in validated_data and instance.order != validated_data['order']:
+            request_order = validated_data['order']
+            questions = Question.objects.filter(assessment_topic=validated_data['assessment_topic']).select_subclasses()
 
+            # Create an array with the topics from the InheritanceQuerySet
+            questions_list = list(questions)
+
+            # Places the question in the position of the array equivalent to its new order
+            questions_list.remove(instance)
+            questions_list.insert((request_order - 1) if (request_order > 0) else 0, instance)
+
+            # Order of each question is its position in the array + 1 (order can't be zero)
+            for index, question in enumerate(questions_list):
+                question.order = index + 1
+                question.save()
+
+        return super().update(instance, validated_data)
 
 class QuestionInputSerializer(AbstractQuestionSerializer):
     """
