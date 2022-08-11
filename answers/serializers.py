@@ -1,17 +1,19 @@
-from assessments.models import (AssessmentTopicAccess, Question, 
-                                SelectOption, SortOption)
+from assessments.models import (AssessmentTopicAccess, DraggableOption, Question,
+                                AreaOption, SelectOption, SortOption)
 from assessments.serializers import (AssessmentTopicAccessSerializer,
                                      SelectOptionSerializer,
-                                     SortOptionSerializer)
+                                     SortOptionSerializer,
+                                     DraggableOptionSerializer,
+                                     AreaOptionSerializer)
 from rest_framework import serializers
-from rest_framework.utils import model_meta
 from users.models import User
 from users.serializers import UserSerializer
 
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 
 from .models import (Answer, AnswerInput, AnswerNumberLine, AnswerSelect,
-                     AnswerSession, AnswerSort, AssessmentTopicAnswer)
+                     AnswerSession, AnswerSort, DragAndDropAreaEntry,
+                     AnswerDragAndDrop, AssessmentTopicAnswer)
 
 
 class AssessmentTopicAnswerSerializer(serializers.ModelSerializer):
@@ -48,7 +50,8 @@ class AnswerSerializer(PolymorphicSerializer):
             'AnswerInput': AnswerInputSerializer,
             'AnswerNumberLine': AnswerNumberLineSerializer,
             'AnswerSelect': AnswerSelectSerializer,
-            'AnswerSort': AnswerSortSerializer
+            'AnswerSort': AnswerSortSerializer,
+            'AnswerDragAndDrop': AnswerDragAndDropSerializer
         }
 
     def to_internal_value(self, data):
@@ -63,6 +66,8 @@ class AnswerSerializer(PolymorphicSerializer):
             data['type'] = 'AnswerSelect'
         elif question_type == 'QuestionSort':
             data['type'] = 'AnswerSort'
+        elif question_type == 'QuestionDragAndDrop':
+            data['type'] = 'AnswerDragAndDrop'
         return super().to_internal_value(data)
 
 
@@ -141,6 +146,57 @@ class AnswerNumberLineSerializer(AbstractAnswerSerializer):
     class Meta(AbstractAnswerSerializer.Meta):
         model = AnswerNumberLine
         fields = AbstractAnswerSerializer.Meta.fields + ('value',)
+
+
+class DragAndDropAreaEntrySerializer(serializers.ModelSerializer):
+    """
+    Drag and drop area entry serializer.
+    """
+    selected_draggable_options = NestedRelatedField(
+        model=DraggableOption, serializer_class=DraggableOptionSerializer, many=True, required=False)
+
+    area = NestedRelatedField(
+        model=AreaOption, serializer_class=AreaOptionSerializer, many=False)
+
+    class Meta:
+        model = DragAndDropAreaEntry
+        fields = '__all__'
+
+
+class AnswerDragAndDropSerializer(AbstractAnswerSerializer):
+    """
+    Answer drag and drop serializer.
+    """
+    answers_per_area = DragAndDropAreaEntrySerializer(
+        many=True, required=False)
+
+    class Meta(AbstractAnswerSerializer.Meta):
+        model = AnswerDragAndDrop
+        fields = AbstractAnswerSerializer.Meta.fields + \
+            ('answers_per_area',)
+
+    def create(self, validated_data):
+        if 'answers_per_area' in validated_data:
+            answers_per_area_data = validated_data.pop('answers_per_area')
+
+        instance = super().create(validated_data)
+
+        # Saving answers for each drop area
+        if instance is not None:
+            for area_entry in answers_per_area_data:
+                area_entry_serializer = DragAndDropAreaEntrySerializer(
+                    data={
+                        'area': area_entry['area'].id,
+                        'selected_draggable_options': list(map(
+                            lambda e: e.id, area_entry['selected_draggable_options'],
+                        )),
+                        'answer': instance
+                    }
+                )
+                area_entry_serializer.is_valid(raise_exception=True)
+                area_entry_serializer.save()
+
+        return instance
 
 
 class AssessmentTopicAnswerFullSerializer(serializers.ModelSerializer):

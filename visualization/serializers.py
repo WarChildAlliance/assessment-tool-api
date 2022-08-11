@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from django.db.models import Avg
 import datetime
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
 from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
-from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
+from answers.models import AnswerDragAndDrop, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry
 
+from answers.serializers import DragAndDropAreaEntrySerializer
 from assessments.serializers import (AreaOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
                                      HintSerializer, AttachmentSerializer, AssessmentTopicSerializer)
 from users.serializers import GroupSerializer
@@ -670,7 +670,8 @@ class AnswerTableSerializer(PolymorphicSerializer):
             'AnswerInput': AnswerInputTableSerializer,
             'AnswerNumberLine': AnswerNumberLineTableSerializer,
             'AnswerSelect': AnswerSelectTableSerializer,
-            'AnswerSort': AnswerSortTableSerializer
+            'AnswerSort': AnswerSortTableSerializer,
+            'AnswerDragAndDrop': AnswerDragAndDropTableSerializer
         }
 
 
@@ -732,6 +733,24 @@ class AnswerSortTableSerializer(AbstractAnswerTableSerializer):
         model = AnswerSort
         fields = AbstractAnswerTableSerializer.Meta.fields + \
             ('category_A', 'category_B', 'question',)
+
+
+class AnswerDragAndDropTableSerializer(AbstractAnswerTableSerializer):
+
+    answers_per_area = serializers.SerializerMethodField()
+
+    question = NestedRelatedField(
+        model=QuestionDragAndDrop, serializer_class=QuestionDragAndDropTableSerializer, many=False)
+
+    class Meta(AbstractAnswerTableSerializer):
+        model = AnswerDragAndDrop
+        fields = AbstractAnswerTableSerializer.Meta.fields + \
+            ('answers_per_area', 'question',)
+
+    def get_answers_per_area(self, instance):
+        answers_per_area = DragAndDropAreaEntry.objects.filter(answer=instance)
+        serializer = DragAndDropAreaEntrySerializer(answers_per_area, many=True)
+        return serializer.data
 
 
 class ScoreByTopicSerializer(serializers.ModelSerializer):
