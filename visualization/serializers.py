@@ -1,11 +1,12 @@
 from rest_framework import serializers
-from django.db.models import Avg
 import datetime
+from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
 from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
-from answers.models import AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
+from answers.models import AnswerDragAndDrop, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry
 
+from answers.serializers import DragAndDropAreaEntrySerializer
 from assessments.serializers import (AreaOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
                                      HintSerializer, AttachmentSerializer, AssessmentTopicSerializer)
 from users.serializers import GroupSerializer
@@ -34,10 +35,13 @@ class UserTableSerializer(serializers.ModelSerializer):
     # Group that the student is linked to
     group = serializers.SerializerMethodField()
 
+    # Students can only be deleted after more than 1 year of inactivity
+    can_delete = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_topics_count', 'active_status_updated_on',
-                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active')
+                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active', 'can_delete')
 
     def get_full_name(self, instance):
         return (instance.first_name + ' ' + instance.last_name)
@@ -78,6 +82,16 @@ class UserTableSerializer(serializers.ModelSerializer):
     def get_group(self, instance):
         group = Group.objects.filter(student_group=instance).values_list('name', flat=True)
         return group
+
+    def get_can_delete(self, instance):
+        if instance.is_active == False and instance.active_status_updated_on:
+            if abs((instance.active_status_updated_on - instance.date_joined).total_seconds()) < 1:
+                return True
+
+            return (timezone.now() - instance.active_status_updated_on).days > 365
+
+        return False
+
 
 class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 
@@ -135,19 +149,20 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
         model = Assessment
         fields = ('id', 'title', 'language_name', 'language_code',
                   'country_name', 'country_code', 'topics_count', 'topics',
-                  'students_count', 'grade', 'subject', 'private', 'can_edit', 'icon', 'archived')
+                  'students_count', 'grade', 'subject', 'private', 'can_edit',
+                  'icon', 'archived', 'downloadable')
 
     def get_topics_count(self, instance):
         return AssessmentTopic.objects.filter(assessment=instance).count()
     
     def get_topics(self, instance):
-        topics = AssessmentTopic.objects.filter(assessment=instance).values_list('id', 'name', 'description', 'icon', 'archived')
+        topics = AssessmentTopic.objects.filter(assessment=instance).values_list('id', 'name', 'description', 'icon', 'archived', 'order')
 
         topics_with_question_count = []
 
         for topic in topics:
             question_count = Question.objects.filter(assessment_topic=topic[0]).count()
-            topics_with_question_count.append({"id": topic[0], "title": topic[1], "description": topic[2], "questionsCount": question_count,"icon": topic[3], "archived": topic[4]})
+            topics_with_question_count.append({"id": topic[0], "title": topic[1], "description": topic[2], "questionsCount": question_count,"icon": topic[3], "archived": topic[4], "order": topic[5]})
         
         return topics_with_question_count
 
@@ -200,7 +215,7 @@ class AssessmentTopicTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AssessmentTopic
-        fields = ('id', 'name', 'students_count', 'students_completed_count',
+        fields = ('id', 'name', 'students_count', 'students_completed_count', 'order',
                   'overall_students_completed_count', 'questions_count', 'archived')
 
     def get_students_count(self, instance):
@@ -655,7 +670,8 @@ class AnswerTableSerializer(PolymorphicSerializer):
             'AnswerInput': AnswerInputTableSerializer,
             'AnswerNumberLine': AnswerNumberLineTableSerializer,
             'AnswerSelect': AnswerSelectTableSerializer,
-            'AnswerSort': AnswerSortTableSerializer
+            'AnswerSort': AnswerSortTableSerializer,
+            'AnswerDragAndDrop': AnswerDragAndDropTableSerializer
         }
 
 
@@ -717,6 +733,24 @@ class AnswerSortTableSerializer(AbstractAnswerTableSerializer):
         model = AnswerSort
         fields = AbstractAnswerTableSerializer.Meta.fields + \
             ('category_A', 'category_B', 'question',)
+
+
+class AnswerDragAndDropTableSerializer(AbstractAnswerTableSerializer):
+
+    answers_per_area = serializers.SerializerMethodField()
+
+    question = NestedRelatedField(
+        model=QuestionDragAndDrop, serializer_class=QuestionDragAndDropTableSerializer, many=False)
+
+    class Meta(AbstractAnswerTableSerializer):
+        model = AnswerDragAndDrop
+        fields = AbstractAnswerTableSerializer.Meta.fields + \
+            ('answers_per_area', 'question',)
+
+    def get_answers_per_area(self, instance):
+        answers_per_area = DragAndDropAreaEntry.objects.filter(answer=instance)
+        serializer = DragAndDropAreaEntrySerializer(answers_per_area, many=True)
+        return serializer.data
 
 
 class ScoreByTopicSerializer(serializers.ModelSerializer):
@@ -1000,7 +1034,15 @@ class StudentAnswersSerializer(serializers.ModelSerializer):
 
     question = NestedRelatedField(
         model=Question, serializer_class=QuestionDetailsSerializer, many=False)
+    color = serializers.SerializerMethodField()
 
     class Meta:
         model = Answer
-        fields = ('id', 'valid', 'question')
+        fields = ('id', 'valid', 'question', 'color')
+
+    # The color returned is according to the validity of the answer
+    def get_color(self, instance):
+        if instance.valid == True:
+            return '#7EBF9A'
+        else:
+            return '#F2836B'

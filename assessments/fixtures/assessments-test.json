@@ -1,320 +1,383 @@
 [
     {
+        "model": "assessments.assessment",
+        "pk": 1,
         "fields": {
+            "title": "Math assessment",
+            "grade": "4",
+            "subject": "MATH",
+            "language": "ARA",
             "country": "JOR",
             "created_by": 5,
-            "grade": "4",
-            "language": "ARA",
             "private": true,
-            "subject": "MATH",
-            "title": "Math assessment"
-        },
-        "model": "assessments.assessment",
-        "pk": 1
+            "archived": false,
+            "downloadable": true,
+            "icon": ""
+        }
     },
     {
+        "model": "assessments.assessment",
+        "pk": 2,
         "fields": {
+            "title": "Literacy Assessment",
+            "grade": "6",
+            "subject": "LITERACY",
+            "language": "ENG",
             "country": "USA",
             "created_by": 4,
-            "grade": "6",
-            "language": "ENG",
             "private": true,
-            "subject": "LITERACY",
-            "title": "Literacy Assessment"
-        },
-        "model": "assessments.assessment",
-        "pk": 2
+            "archived": false,
+            "downloadable": true,
+            "icon": ""
+        }
     },
     {
+        "model": "assessments.assessment",
+        "pk": 3,
         "fields": {
+            "title": "Empty assessment",
+            "grade": "4",
+            "subject": "MATH",
+            "language": "ARA",
             "country": "JOR",
             "created_by": 5,
-            "grade": "4",
-            "language": "ARA",
             "private": false,
-            "subject": "MATH",
-            "title": "Empty assessment"
-        },
-        "model": "assessments.assessment",
-        "pk": 3
+            "archived": false,
+            "downloadable": true,
+            "icon": ""
+        }
     },
     {
-        "fields": {
-            "assessment": 1,
-            "name": "Addition"
-        },
         "model": "assessments.assessmenttopic",
-        "pk": 1
+        "pk": 1,
+        "fields": {
+            "name": "Addition",
+            "description": null,
+            "assessment": 1,
+            "show_feedback": 2,
+            "allow_skip": false,
+            "evaluated": true,
+            "praise": 0,
+            "max_wrong_answers": 0,
+            "icon": "",
+            "archived": false,
+            "order": null
+        }
     },
     {
+        "model": "assessments.assessmenttopic",
+        "pk": 2,
         "fields": {
-            "assessment": 1,
+            "name": "Substraction",
             "description": "This is the topic description!",
-            "name": "Substraction"
-        },
-        "model": "assessments.assessmenttopic",
-        "pk": 2
+            "assessment": 1,
+            "show_feedback": 2,
+            "allow_skip": false,
+            "evaluated": true,
+            "praise": 0,
+            "max_wrong_answers": 0,
+            "icon": "",
+            "archived": false,
+            "order": null
+        }
     },
     {
+        "model": "assessments.assessmenttopic",
+        "pk": 3,
         "fields": {
+            "name": "Reading comprehension",
+            "description": null,
             "assessment": 2,
-            "name": "Reading comprehension"
-        },
-        "model": "assessments.assessmenttopic",
-        "pk": 3
+            "show_feedback": 2,
+            "allow_skip": false,
+            "evaluated": true,
+            "praise": 0,
+            "max_wrong_answers": 0,
+            "icon": "",
+            "archived": false,
+            "order": null
+        }
     },
     {
+        "model": "assessments.question",
+        "pk": 1,
         "fields": {
-            "assessment_topic": 3,
+            "value": "question-value-missing",
+            "title": "Mr and Mrs Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal, thank you very much.\nWhat is the subject of this sentence?",
             "order": 1,
+            "assessment_topic": 3,
             "question_type": "INPUT",
-            "title": "Mr and Mrs Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal, thank you very much.\nWhat is the subject of this sentence?"
-        },
-        "model": "assessments.question",
-        "pk": 1
+            "on_popup": false
+        }
     },
     {
+        "model": "assessments.question",
+        "pk": 2,
         "fields": {
-            "assessment_topic": 3,
+            "value": "question-value-missing",
+            "title": "Harry – yer a ________.\n Fill in the missing word.",
             "order": 2,
+            "assessment_topic": 3,
             "question_type": "SELECT",
-            "title": "Harry – yer a ________.\n Fill in the missing word."
-        },
-        "model": "assessments.question",
-        "pk": 2
+            "on_popup": false
+        }
     },
     {
+        "model": "assessments.question",
+        "pk": 3,
         "fields": {
+            "value": "question-value-missing",
+            "title": "Sort the numbers that are less than 10 and more than 10.",
+            "order": 1,
             "assessment_topic": 2,
-            "order": 1,
             "question_type": "SORT",
-            "title": "Sort the numbers that are less than 10 and more than 10."
-        },
-        "model": "assessments.question",
-        "pk": 3
+            "on_popup": false
+        }
     },
     {
+        "model": "assessments.question",
+        "pk": 4,
         "fields": {
-            "assessment_topic": 1,
+            "value": "question-value-missing",
+            "title": "Identify the following number on the line: 8",
             "order": 1,
+            "assessment_topic": 1,
             "question_type": "NUMBER_LINE",
-            "title": "Identify the following number on the line: 8"
-        },
-        "model": "assessments.question",
-        "pk": 4
+            "on_popup": false
+        }
     },
     {
+        "model": "assessments.hint",
+        "pk": 1,
+        "fields": {
+            "text": "Hint description!",
+            "question": 1
+        }
+    },
+    {
+        "model": "assessments.questioninput",
+        "pk": 1,
         "fields": {
             "valid_answer": "Mr and Mrs Dursley"
-        },
-        "model": "assessments.questioninput",
-        "pk": 1
+        }
     },
     {
-        "fields": {
-            "multiple": false
-        },
         "model": "assessments.questionselect",
-        "pk": 2
+        "pk": 2,
+        "fields": {
+            "display_type": "GRID",
+            "multiple": false
+        }
     },
     {
+        "model": "assessments.questionsort",
+        "pk": 3,
         "fields": {
             "category_A": "Less than 10",
             "category_B": "More than 10"
-        },
-        "model": "assessments.questionsort",
-        "pk": 3
+        }
     },
     {
-        "fields": {
-            "end": 10,
-            "expected_value": 8,
-            "show_ticks": false,
-            "show_value": false,
-            "start": 0,
-            "step": 1
-        },
         "model": "assessments.questionnumberline",
-        "pk": 4
+        "pk": 4,
+        "fields": {
+            "expected_value": 8,
+            "start": 0,
+            "end": 10,
+            "step": 1,
+            "tick_step": 1,
+            "show_ticks": false,
+            "show_value": false
+        }
     },
     {
+        "model": "assessments.selectoption",
+        "pk": 1,
         "fields": {
-            "question_select": 2,
+            "value": "wizard",
+            "title": null,
             "valid": true,
-            "value": "wizard"
-        },
-        "model": "assessments.selectoption",
-        "pk": 1
+            "question_select": 2
+        }
     },
     {
+        "model": "assessments.selectoption",
+        "pk": 2,
         "fields": {
-            "question_select": 2,
+            "value": "witch",
+            "title": null,
             "valid": false,
-            "value": "witch"
-        },
-        "model": "assessments.selectoption",
-        "pk": 2
+            "question_select": 2
+        }
     },
     {
+        "model": "assessments.selectoption",
+        "pk": 3,
         "fields": {
-            "question_select": 2,
+            "value": "bird",
+            "title": null,
             "valid": false,
-            "value": "bird"
-        },
-        "model": "assessments.selectoption",
-        "pk": 3
+            "question_select": 2
+        }
     },
     {
+        "model": "assessments.selectoption",
+        "pk": 4,
         "fields": {
-            "question_select": 2,
+            "value": "plane",
+            "title": null,
             "valid": false,
-            "value": "plane"
-        },
-        "model": "assessments.selectoption",
-        "pk": 4
+            "question_select": 2
+        }
     },
     {
+        "model": "assessments.sortoption",
+        "pk": 1,
         "fields": {
             "title": "Less than 10",
-            "question_sort": 3,
-            "category": "8"
-        },
-        "model": "assessments.sortoption",
-        "pk": 1
+            "category": "8",
+            "question_sort": 3
+        }
     },
     {
+        "model": "assessments.sortoption",
+        "pk": 2,
         "fields": {
             "title": "More than 10",
-            "question_sort": 3,
-            "category": "11"
-        },
-        "model": "assessments.sortoption",
-        "pk": 2
+            "category": "11",
+            "question_sort": 3
+        }
     },
     {
+        "model": "assessments.sortoption",
+        "pk": 3,
         "fields": {
             "title": "Less than 10",
-            "question_sort": 3,
-            "category": "1"
-        },
-        "model": "assessments.sortoption",
-        "pk": 3
+            "category": "1",
+            "question_sort": 3
+        }
     },
     {
+        "model": "assessments.sortoption",
+        "pk": 4,
         "fields": {
             "title": "More than 10",
-            "question_sort": 3,
-            "category": "24"
-        },
-        "model": "assessments.sortoption",
-        "pk": 4
+            "category": "24",
+            "question_sort": 3
+        }
     },
     {
+        "model": "assessments.sortoption",
+        "pk": 5,
         "fields": {
             "title": "More than 10",
-            "question_sort": 3,
-            "category": "20"
-        },
-        "model": "assessments.sortoption",
-        "pk": 5
+            "category": "20",
+            "question_sort": 3
+        }
     },
     {
-        "fields": {
-            "question_id": 1,
-            "text": "Hint description!"
-        },
-        "model": "assessments.hint",
-        "pk": 1
-    },
-    {
+        "model": "assessments.attachment",
+        "pk": 1,
         "fields": {
             "attachment_type": "AUDIO",
-            "hint_id": null,
             "file": "",
-            "question_id": 1,
-            "select_option_id": null,
-            "sort_option_id": null,
-            "topic_id": null
-        },
-        "model": "assessments.attachment",
-        "pk": 1
+            "topic": null,
+            "question": 1,
+            "background_image": false,
+            "hint": null,
+            "select_option": null,
+            "sort_option": null,
+            "draggable_option": null
+        }
     },
     {
+        "model": "assessments.attachment",
+        "pk": 2,
         "fields": {
             "attachment_type": "IMAGE",
-            "hint_id": null,
             "file": "",
-            "question_id": null,
-            "select_option_id": 1,
-            "sort_option_id": null,
-            "topic_id": null
-        },
-        "model": "assessments.attachment",
-        "pk": 2
+            "topic": null,
+            "question": null,
+            "background_image": false,
+            "hint": null,
+            "select_option": 1,
+            "sort_option": null,
+            "draggable_option": null
+        }
     },
     {
+        "model": "assessments.attachment",
+        "pk": 3,
         "fields": {
             "attachment_type": "IMAGE",
-            "hint_id": null,
             "file": "",
-            "question_id": null,
-            "select_option_id": 2,
-            "sort_option_id": null,
-            "topic_id": null
-        },
-        "model": "assessments.attachment",
-        "pk": 3
+            "topic": null,
+            "question": null,
+            "background_image": false,
+            "hint": null,
+            "select_option": 2,
+            "sort_option": null,
+            "draggable_option": null
+        }
     },
     {
+        "model": "assessments.attachment",
+        "pk": 4,
         "fields": {
             "attachment_type": "IMAGE",
-            "hint_id": null,
             "file": "",
-            "question_id": null,
-            "select_option_id": 3,
-            "sort_option_id": null,
-            "topic_id": null
-        },
-        "model": "assessments.attachment",
-        "pk": 4
+            "topic": null,
+            "question": null,
+            "background_image": false,
+            "hint": null,
+            "select_option": 3,
+            "sort_option": null,
+            "draggable_option": null
+        }
     },
     {
+        "model": "assessments.attachment",
+        "pk": 5,
         "fields": {
             "attachment_type": "IMAGE",
-            "hint_id": null,
             "file": "",
-            "question_id": null,
-            "select_option_id": 4,
-            "sort_option_id": null,
-            "topic_id": null
-        },
-        "model": "assessments.attachment",
-        "pk": 5
+            "topic": null,
+            "question": null,
+            "background_image": false,
+            "hint": null,
+            "select_option": 4,
+            "sort_option": null,
+            "draggable_option": null
+        }
     },
     {
+        "model": "assessments.attachment",
+        "pk": 6,
         "fields": {
             "attachment_type": "IMAGE",
-            "hint_id": null,
             "file": "",
-            "question_id": null,
-            "select_option_id": null,
-            "sort_option_id": null,
-            "topic_id": 1
-        },
-        "model": "assessments.attachment",
-        "pk": 6
+            "topic": 1,
+            "question": null,
+            "background_image": false,
+            "hint": null,
+            "select_option": null,
+            "sort_option": null,
+            "draggable_option": null
+        }
     },
     {
+        "model": "assessments.attachment",
+        "pk": 7,
         "fields": {
             "attachment_type": "AUDIO",
-            "hint_id": 1,
             "file": "",
-            "question_id": null,
-            "select_option_id": null,
-            "sort_option_id": null,
-            "topic_id": null
-        },
-        "model": "assessments.attachment",
-        "pk": 7
+            "topic": null,
+            "question": null,
+            "background_image": false,
+            "hint": 1,
+            "select_option": null,
+            "sort_option": null,
+            "draggable_option": null
+        }
     }
 ]

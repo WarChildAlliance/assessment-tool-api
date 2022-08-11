@@ -62,6 +62,10 @@ class Assessment(models.Model):
         default=False
     )
 
+    downloadable = models.BooleanField(
+        default=True
+    )
+
     icon = models.FileField(
         upload_to='assessments_icons',
         null=True,
@@ -155,6 +159,16 @@ class AssessmentTopic(models.Model):
     archived = models.BooleanField(
         default=False
     )
+
+    # Is nullable because the database needs something to populate existing rows.
+    order = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        ordering = ['order']
 
     def __str__(self):
         return f'{self.name} ({self.assessment.id})'
@@ -252,18 +266,16 @@ class Question(models.Model):
         choices=QuestionType.choices
     )
 
+    # For the teacher to choose if he wants the question in a modal on the student's platform
+    on_popup = models.BooleanField(
+        default=False
+    )
+
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
     class Meta:
-        constraints = [
-            models.constraints.UniqueConstraint(
-                fields=['order', 'assessment_topic'],
-                name='unique_order'
-            )
-        ]
         ordering = ['order']
-
 
 class Hint(models.Model):
     """
