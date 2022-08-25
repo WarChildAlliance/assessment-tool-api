@@ -11,6 +11,10 @@ router.register(r'', views.AssessmentsViewSet, basename='assessments')
 # /assessments/
 # /assessments/{assessment_pk}/
 
+router.register(r'questions', views.QuestionsViewSet, basename='all-questions-type')
+# generates:
+# /assessments/questions/all/
+
 """ router.register(r'attachments', views.AttachmentsViewSet, basename='attachments') """
 # We would like a single route for attachments but this doesn't work because Django thinks that
 #  in the route "assessments/attachments/", "attachments" is the primary key of an assessment...

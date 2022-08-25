@@ -266,6 +266,16 @@ class QuestionsViewSet(ModelViewSet):
 
         return Response('Questions successfully reordered.', status=200)
 
+    @action(detail=False, methods=['get'], url_path='all')
+    def get_all_questions_type(self, request):
+        accessible_assessments = AssessmentsViewSet.get_queryset(self)
+        request_question_type = self.request.query_params.get('type')
+
+        questions = Question.objects.filter(assessment_topic__assessment__in=accessible_assessments, question_type=request_question_type).select_subclasses()
+        serializer = QuestionSerializer(questions, many=True)
+
+        return Response(serializer.data, status=200)
+
 class GeneralAttachmentsViewSet(ModelViewSet):
     """
     Attachments viewset.
