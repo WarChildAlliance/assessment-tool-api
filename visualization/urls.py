@@ -11,13 +11,17 @@ router.register(r'assessments', views.AssessmentTableViewSet,
 # generates
 # /visualization/assessments/
 
+router.register(r'topics', views.AssessmentTopicsTableViewset,
+                basename='all-topics-visualization')
+# generates
+# /visualization/topics/all/
+
 assessments_router = routers.NestedSimpleRouter(
     router, r'assessments', lookup='assessment')
 assessments_router.register(
     r'topics', views.AssessmentTopicsTableViewset, basename='topic-visualization')
 # generates :
 # /visualization/assessments/{assessment_pk}/topics/
-
 
 questions_router = routers.NestedSimpleRouter(
     assessments_router, r'topics', lookup='topic')
