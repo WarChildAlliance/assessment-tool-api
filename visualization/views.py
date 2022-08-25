@@ -1,6 +1,7 @@
 
 from rest_framework.response import Response
 from rest_framework.filters import OrderingFilter
+from rest_framework.decorators import action
 
 from django.shortcuts import get_object_or_404
 
@@ -166,6 +167,14 @@ class AssessmentTopicsTableViewset(ModelViewSet):
     def destroy(self, request, pk=None):
         return Response('Unauthorized', status=403)
 
+    @action(detail=False, methods=['get'], url_path='all')
+    def get_all(self, request):
+        accessible_assessments = AssessmentTableViewSet.get_queryset(self)
+        topics = AssessmentTopic.objects.filter(assessment__in=accessible_assessments)
+
+        serializer = AssessmentTopicTableSerializer(topics, many=True)
+
+        return Response(serializer.data, status=200)
 
 class QuestionsTableViewset(ModelViewSet):
     """
