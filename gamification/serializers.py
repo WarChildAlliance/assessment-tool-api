@@ -46,10 +46,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     """
     Profile serializer.
     """
-
-    # Total of all competency for all topics
-    total_competency = serializers.SerializerMethodField()
-
     topics_competencies = NestedRelatedField(
         model=TopicCompetency, serializer_class=TopicCompetencySerializer, many=True, required=False, source='topiccompetency_set')
 
@@ -58,13 +54,4 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('id', 'student', 'effort', 'total_competency', 'current_avatar', 'unlocked_avatars', 'topics_competencies')
-
-    def get_total_competency(self, instance):
-        
-        total_competency = TopicCompetency.objects.filter(profile=instance).aggregate(Sum('competency'))['competency__sum']
-
-        if not (total_competency):
-            total_competency = 0
-
-        return total_competency
+        fields = ('id', 'student', 'effort', 'current_avatar', 'unlocked_avatars', 'topics_competencies')
