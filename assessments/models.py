@@ -99,6 +99,14 @@ class AssessmentTopic(models.Model):
         ALWAYS = 1, 'Always'
         SECOND = 2, 'Second attempt on'
 
+    class Subtopic(models.TextChoices):
+        """
+        Subtopic options enumeration. TEMPORARY: waiting for the real list!
+        """
+        SUBTOPIC1 = 'Subtopic 1', 'Subtopic 1'
+        SUBTOPIC2 = 'Subtopic 2', 'Subtopic 2'
+        SUBTOPIC3 = 'Subtopic 3', 'Subtopic 3'
+
     name = models.CharField(
         max_length=256
     )
@@ -165,6 +173,12 @@ class AssessmentTopic(models.Model):
         validators=[MinValueValidator(1)],
         null=True,
         blank=True
+    )
+
+    subtopic = models.CharField(
+        max_length=64,
+        choices=Subtopic.choices,
+        null=True
     )
 
     class Meta:
@@ -240,6 +254,14 @@ class Question(models.Model):
         DRAG_AND_DROP = 'DRAG_AND_DROP', 'Drag and Drop'
         FIND_HOTSPOT = 'FIND_HOTSPOT', 'Find hotspot'
 
+    class QuestionDifficulty(models.IntegerChoices):
+        """
+        Question difficulty options enumeration.
+        """
+        DIFFICULTY1 = 1, 'Difficulty 1'
+        DIFFICULTY2 = 2, 'Difficulty 2'
+        DIFFICULTY3 = 3, 'Difficulty 3'
+
     value = models.CharField(
         max_length=256,
         default='question-value-missing',
@@ -269,6 +291,11 @@ class Question(models.Model):
     # For the teacher to choose if he wants the question in a modal on the student's platform
     on_popup = models.BooleanField(
         default=False
+    )
+
+    difficulty = models.IntegerField(
+        choices=QuestionDifficulty.choices,
+        null=True,
     )
 
     def __str__(self):
