@@ -218,7 +218,7 @@ class AssessmentTopicTableSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssessmentTopic
         fields = ('id', 'assessment_id', 'name', 'students_count', 'students_completed_count', 'order',
-                  'overall_students_completed_count', 'questions_count', 'archived')
+                  'overall_students_completed_count', 'questions_count', 'archived', 'subtopic')
 
     def get_students_count(self, instance):
         return User.objects.filter(
@@ -260,7 +260,7 @@ class QuestionTableSerializer(serializers.ModelSerializer):
         model = Question
         fields = ('id', 'title', 'order', 'question_type',
                   'has_attachment', 'correct_answers_percentage_first',
-                  'correct_answers_percentage_last')
+                  'correct_answers_percentage_last', 'difficulty')
 
     def get_has_attachment(self, instance):
         if(Attachment.objects.filter(question=instance)):
