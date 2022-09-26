@@ -215,3 +215,18 @@ class DragAndDropAreaEntry(models.Model):
         null=True,
         blank=True
     )
+
+class AnswerSEL(Answer):
+    """
+    Answer SEL model (inherits Answer).
+    """
+
+    class SELStatements(models.TextChoices):
+        NOT_REALLY = 'NOT_REALLY', 'Not really like me'
+        A_LITTLE = 'A_LITTLE', 'A little like me'
+        A_LOT = 'A_LOT', 'A lot like me'
+
+    statement = models.CharField(
+        max_length=32,
+        choices=SELStatements.choices
+    )

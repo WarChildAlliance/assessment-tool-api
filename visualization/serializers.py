@@ -3,8 +3,8 @@ import datetime
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
-from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
-from answers.models import AnswerDragAndDrop, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry
+from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
+from answers.models import AnswerDragAndDrop, AnswerSEL, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry
 
 from answers.serializers import DragAndDropAreaEntrySerializer
 from assessments.serializers import (AreaOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
@@ -354,7 +354,8 @@ class QuestionDetailsTableSerializer(PolymorphicSerializer):
             'QuestionNumberLine': QuestionNumberLineTableSerializer,
             'QuestionSelect': QuestionSelectTableSerializer,
             'QuestionSort': QuestionSortTableSerializer,
-            'QuestionDragAndDrop': QuestionDragAndDropTableSerializer
+            'QuestionDragAndDrop': QuestionDragAndDropTableSerializer,
+            'QuestionSEL': QuestionSELTableSerializer
         }
 
 
@@ -397,6 +398,11 @@ class QuestionSelectTableSerializer(AbstractQuestionDetailsTableSerializer):
         fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
             ('options', )
 
+class QuestionSELTableSerializer(AbstractQuestionDetailsTableSerializer):
+
+    class Meta(AbstractQuestionDetailsTableSerializer.Meta):
+        model = QuestionSEL
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields
 
 class QuestionSortTableSerializer(AbstractQuestionDetailsTableSerializer):
 
@@ -675,7 +681,8 @@ class AnswerTableSerializer(PolymorphicSerializer):
             'AnswerNumberLine': AnswerNumberLineTableSerializer,
             'AnswerSelect': AnswerSelectTableSerializer,
             'AnswerSort': AnswerSortTableSerializer,
-            'AnswerDragAndDrop': AnswerDragAndDropTableSerializer
+            'AnswerDragAndDrop': AnswerDragAndDropTableSerializer,
+            'AnswerSEL': AnswerSELTableSerializer
         }
 
 
@@ -756,6 +763,15 @@ class AnswerDragAndDropTableSerializer(AbstractAnswerTableSerializer):
         serializer = DragAndDropAreaEntrySerializer(answers_per_area, many=True)
         return list(serializer.data)
 
+class AnswerSELTableSerializer(AbstractAnswerTableSerializer):
+
+    question = NestedRelatedField(
+        model=QuestionSEL, serializer_class=QuestionSELTableSerializer, many=False)
+
+    class Meta(AbstractAnswerTableSerializer.Meta):
+        model = AnswerSEL
+        fields = AbstractAnswerTableSerializer.Meta.fields + \
+            ('statement', 'question',)
 
 class ScoreByTopicSerializer(serializers.ModelSerializer):
 
@@ -792,7 +808,7 @@ class ScoreByTopicSerializer(serializers.ModelSerializer):
         for topic in AssessmentTopic.objects.filter(assessment=assessment_pk, archived=False):
 
             if topic.evaluated:
-                total_answers = Question.objects.filter(assessment_topic=topic).count()
+                total_answers = Question.objects.filter(assessment_topic=topic).exclude(question_type='SEL').count()
                 access = AssessmentTopicAccess.objects.filter(topic=topic, student=instance)
 
                 if access:
@@ -873,7 +889,7 @@ class AssessmentListForDashboardSerializer(serializers.ModelSerializer):
         #Iterate through topics
         for topic in AssessmentTopic.objects.filter(assessment=instance, evaluated=True):
             accesses = AssessmentTopicAccess.objects.filter(topic=topic, student__in=students)
-            total_answers = Question.objects.filter(assessment_topic=topic).count()
+            total_answers = Question.objects.filter(assessment_topic=topic).exclude(question_type='SEL').count()
             students_average = []
 
             #Iterate through the supervisors student to get topic accesses
