@@ -150,7 +150,7 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'language_name', 'language_code',
                   'country_name', 'country_code', 'topics_count', 'topics',
                   'students_count', 'grade', 'subject', 'private', 'can_edit',
-                  'icon', 'archived', 'downloadable')
+                  'icon', 'archived', 'downloadable', 'sel_question')
 
     def get_topics_count(self, instance):
         return AssessmentTopic.objects.filter(assessment=instance).count()

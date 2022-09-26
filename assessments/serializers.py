@@ -14,7 +14,7 @@ from users.serializers import LanguageSerializer, CountrySerializer
 
 from .models import (AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess,
                      Attachment, DraggableOption, Hint, Question, QuestionDragAndDrop, QuestionFindHotspot, QuestionInput,
-                     QuestionNumberLine, QuestionSelect, QuestionSort,
+                     QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort,
                      SelectOption, SortOption)
 
 
@@ -274,6 +274,7 @@ class QuestionSerializer(PolymorphicSerializer):
 
     def get_serializer_map(self):
         return {
+            'QuestionSEL': QuestionSELSerializer,
             'QuestionInput': QuestionInputSerializer,
             'QuestionNumberLine': QuestionNumberLineSerializer,
             'QuestionSelect': QuestionSelectSerializer,
@@ -289,6 +290,7 @@ class QuestionSerializer(PolymorphicSerializer):
     def to_internal_value(self, data):
         data = data.copy()
         type_dict = {
+            Question.QuestionType.SEL: 'QuestionSEL',
             Question.QuestionType.INPUT: 'QuestionInput',
             Question.QuestionType.SELECT: 'QuestionSelect',
             Question.QuestionType.SORT: 'QuestionSort',
@@ -352,7 +354,9 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
 
         new_question_type = validated_data.get('question_type', None)
         if new_question_type is not None and new_question_type != instance.question_type:
-            if instance.question_type == Question.QuestionType.INPUT:
+            if instance.question_type == Question.QuestionType.SEL:
+                QuestionSEL.objects.get(id=instance.id).delete()
+            elif instance.question_type == Question.QuestionType.INPUT:
                 QuestionInput.objects.get(id=instance.id).delete()
             elif instance.question_type == Question.QuestionType.SELECT:
                 QuestionSelect.objects.get(id=instance.id).delete()
@@ -401,6 +405,15 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
                 question.save()
 
         return super().update(instance, validated_data)
+
+class QuestionSELSerializer(AbstractQuestionSerializer):
+    """
+    Question SEL serializer.
+    """
+
+    class Meta:
+        model = QuestionSEL
+        fields = '__all__'
 
 class QuestionInputSerializer(AbstractQuestionSerializer):
     """
