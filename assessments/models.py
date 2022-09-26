@@ -351,10 +351,6 @@ class QuestionSelect(Question):
         default=displayTypes.GRID
     )
 
-    multiple = models.BooleanField(
-        default=False
-    )
-
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
@@ -488,10 +484,11 @@ class DraggableOption(models.Model):
         related_name='drag_options',
     )
 
-    area_option = models.ManyToManyField(
+    area_option = models.ForeignKey(
         'AreaOption',
-        related_name='areas',
-        blank=True
+        on_delete=models.CASCADE,
+        related_name='_areas',
+        null=True
     )
 
     def __str__(self):

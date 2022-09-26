@@ -26,7 +26,7 @@ class AnswerSelectAnswerAdmin(admin.ModelAdmin):
         return response
 
     def question_value(self, obj):
-        return obj.question.value
+        return obj.question.value if obj.question else None
 
 class AnswerNumberlineAnswerAdmin(admin.ModelAdmin):
     list_display = ('id', 'topic_answer', 'question_value', 'valid')
@@ -48,7 +48,7 @@ class AnswerNumberlineAnswerAdmin(admin.ModelAdmin):
         return response
 
     def question_value(self, obj):
-        return obj.question.value
+        return obj.question.value if obj.question else None
 
 
 class AssessmentTopicAnswerAdmin(admin.ModelAdmin):
