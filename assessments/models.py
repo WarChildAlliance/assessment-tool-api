@@ -333,6 +333,16 @@ class QuestionSEL(Question):
     Question SEL (Social and Emotional Learning) model (inherits Question).
     """
 
+    class SELType(models.TextChoices):
+        MATH = 'MATH', 'Math Self-Efficacy'
+        READ = 'READ', 'Read Self-Efficacy'
+        GROWTH_MINDSET = 'GROWTH_MINDSET', 'Growth Mindset'
+
+    sel_type = models.CharField(
+        max_length=32,
+        choices=SELType.choices
+    )
+
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 

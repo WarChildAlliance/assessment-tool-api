@@ -1,5 +1,6 @@
 from rest_framework import serializers
 import datetime
+from django.db.models import Q
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
@@ -161,7 +162,9 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
         topics_with_question_count = []
 
         for topic in topics:
-            question_count = Question.objects.filter(assessment_topic=topic[0]).count()
+            question_count = Question.objects.filter(assessment_topic=topic[0]).exclude(
+                Q(question_type='SEL') & (~Q(assessment_topic__order=1) | Q(assessment_topic__assessment__sel_question=False))
+            ).count()
             topics_with_question_count.append({"id": topic[0], "title": topic[1], "description": topic[2], "questionsCount": question_count,"icon": topic[3], "archived": topic[4], "order": topic[5]})
         
         return topics_with_question_count
@@ -402,7 +405,8 @@ class QuestionSELTableSerializer(AbstractQuestionDetailsTableSerializer):
 
     class Meta(AbstractQuestionDetailsTableSerializer.Meta):
         model = QuestionSEL
-        fields = AbstractQuestionDetailsTableSerializer.Meta.fields
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
+            ('sel_type', )
 
 class QuestionSortTableSerializer(AbstractQuestionDetailsTableSerializer):
 
@@ -527,12 +531,12 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
 
         total_answers = Answer.objects.filter(
             topic_answer=first_topic_answer
-        ).distinct().count()
+        ).exclude(question__question_type='SEL').distinct().count()
 
         total_valid_answers = Answer.objects.filter(
             topic_answer=first_topic_answer,
             valid=True
-        ).distinct().count()
+        ).exclude(question__question_type='SEL').distinct().count()
 
         correct_answers_percentage = None
 
@@ -562,12 +566,12 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
 
         total_answers = Answer.objects.filter(
             topic_answer=last_topic_answer
-        ).distinct().count()
+        ).exclude(question__question_type='SEL').distinct().count()
 
         total_valid_answers = Answer.objects.filter(
             topic_answer=last_topic_answer,
             valid=True
-        ).distinct().count()
+        ).exclude(question__question_type='SEL').distinct().count()
 
         correct_answers_percentage = None
 
@@ -821,7 +825,7 @@ class ScoreByTopicSerializer(serializers.ModelSerializer):
                         total_correct_answers = Answer.objects.filter(
                             topic_answer=earliest_topic_answer,
                             valid=True
-                        ).count()
+                        ).exclude(question__question_type='SEL').count()
 
                         correct_answers_percentage = 0
 
@@ -906,7 +910,7 @@ class AssessmentListForDashboardSerializer(serializers.ModelSerializer):
                     total_correct_answers = Answer.objects.filter(
                         topic_answer=earliest_topic_answer,
                         valid=True
-                    ).count()
+                    ).exclude(question__question_type='SEL').count()
 
                     percentage = 0
 
