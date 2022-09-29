@@ -115,12 +115,12 @@ class AnswerSelectSerializer(AbstractAnswerSerializer):
     """
     Answer select serializer.
     """
-    selected_options = NestedRelatedField(
-        model=SelectOption, serializer_class=SelectOptionSerializer, many=True, required=False)
+    selected_option = NestedRelatedField(
+        model=SelectOption, serializer_class=SelectOptionSerializer, many=False, required=False)
 
     class Meta(AbstractAnswerSerializer.Meta):
         model = AnswerSelect
-        fields = AbstractAnswerSerializer.Meta.fields + ('selected_options',)
+        fields = AbstractAnswerSerializer.Meta.fields + ('selected_option',)
 
 
 class AnswerSortSerializer(AbstractAnswerSerializer):
@@ -152,8 +152,8 @@ class DragAndDropAreaEntrySerializer(serializers.ModelSerializer):
     """
     Drag and drop area entry serializer.
     """
-    selected_draggable_options = NestedRelatedField(
-        model=DraggableOption, serializer_class=DraggableOptionSerializer, many=True, required=False)
+    selected_draggable_option = NestedRelatedField(
+        model=DraggableOption, serializer_class=DraggableOptionSerializer, many=False, required=False)
 
     area = NestedRelatedField(
         model=AreaOption, serializer_class=AreaOptionSerializer, many=False)
@@ -187,9 +187,7 @@ class AnswerDragAndDropSerializer(AbstractAnswerSerializer):
                 area_entry_serializer = DragAndDropAreaEntrySerializer(
                     data={
                         'area': area_entry['area'].id,
-                        'selected_draggable_options': list(map(
-                            lambda e: e.id, area_entry['selected_draggable_options'],
-                        )),
+                        'selected_draggable_option': area_entry['selected_draggable_option'].id,
                         'answer': instance
                     }
                 )

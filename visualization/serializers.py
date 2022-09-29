@@ -395,7 +395,7 @@ class QuestionSelectTableSerializer(AbstractQuestionDetailsTableSerializer):
     class Meta(AbstractQuestionDetailsTableSerializer.Meta):
         model = QuestionSelect
         fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
-            ('options', 'multiple', )
+            ('options', )
 
 
 class QuestionSortTableSerializer(AbstractQuestionDetailsTableSerializer):
@@ -720,7 +720,7 @@ class AnswerSelectTableSerializer(AbstractAnswerTableSerializer):
     class Meta(AbstractAnswerTableSerializer.Meta):
         model = AnswerSelect
         fields = AbstractAnswerTableSerializer.Meta.fields + \
-            ('selected_options', 'question',)
+            ('selected_option', 'question',)
 
 
 class AnswerSortTableSerializer(AbstractAnswerTableSerializer):
@@ -754,7 +754,7 @@ class AnswerDragAndDropTableSerializer(AbstractAnswerTableSerializer):
     def get_answers_per_area(self, instance):
         answers_per_area = DragAndDropAreaEntry.objects.filter(answer=instance)
         serializer = DragAndDropAreaEntrySerializer(answers_per_area, many=True)
-        return serializer.data
+        return list(serializer.data)
 
 
 class ScoreByTopicSerializer(serializers.ModelSerializer):

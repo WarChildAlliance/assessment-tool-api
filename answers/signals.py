@@ -31,22 +31,6 @@ def check_answer_number_line_validity(sender, instance=None, **kwargs):
     else:
         instance.valid = False """
 
-
-@receiver(m2m_changed, sender=AnswerSelect.selected_options.through)
-def check_answer_select_validity(sender, instance=None, action=None, pk_set=None, **kwargs):
-    """
-    Check answer validity for question input.
-    Triggered when many-to-many relationship on selected_options is changed.
-    """
-    if action == 'post_add':
-        invalid_answer = SelectOption.objects.filter(id__in=pk_set, valid=False).exists()
-        if invalid_answer:
-            instance.valid = False
-        else:
-            instance.valid = True
-        instance.save()
-
-
 @receiver(m2m_changed, sender=AnswerSort.category_A.through)
 @receiver(m2m_changed, sender=AnswerSort.category_B.through)
 def check_answer_sort_validity(sender, instance=None, action=None, pk_set=None, **kwargs):
