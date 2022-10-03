@@ -141,6 +141,19 @@ class AnswerSelect(Answer):
     )
 
 
+class AnswerDomino(Answer):
+    """
+    Answer domino model (inherits Answer).
+    """
+
+    selected_domino = models.ForeignKey(
+        'assessments.DominoOption',
+        related_name='selected_domino',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
 class AnswerSort(Answer):
     """
     Answer sort model (inherits Answer).
