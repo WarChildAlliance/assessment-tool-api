@@ -87,7 +87,7 @@ class AssessmentsViewSet(ModelViewSet):
     # END OF TEMPORARY
 
     @action(detail=False, methods=['get'], serializer_class=AssessmentDeepSerializer)
-    def get_all(self, request):
+    def get_assessment(self, request):
 
         serializer = AssessmentDeepSerializer(
             self.get_queryset(), many=True,

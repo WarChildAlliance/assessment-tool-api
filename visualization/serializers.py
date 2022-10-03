@@ -4,11 +4,11 @@ from django.db.models import Q
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
-from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionDomino, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
+from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, DominoOption, Question, QuestionDomino, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
 from answers.models import AnswerDomino, AnswerDragAndDrop, AnswerSEL, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry
 
 from answers.serializers import DragAndDropAreaEntrySerializer
-from assessments.serializers import (AreaOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
+from assessments.serializers import (AreaOptionSerializer, DominoOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
                                      HintSerializer, AttachmentSerializer, AssessmentTopicSerializer)
 from users.serializers import GroupSerializer
 
@@ -410,11 +410,13 @@ class QuestionSELTableSerializer(AbstractQuestionDetailsTableSerializer):
             ('sel_type', )
 
 class QuestionDominoTableSerializer(AbstractQuestionDetailsTableSerializer):
+    options = NestedRelatedField(
+        model=DominoOption, serializer_class=DominoOptionSerializer, many=True)
 
     class Meta(AbstractQuestionDetailsTableSerializer.Meta):
         model = QuestionDomino
         fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
-            ('expected_value', )
+            ('expected_value', 'options',)
 
 class QuestionSortTableSerializer(AbstractQuestionDetailsTableSerializer):
 
@@ -695,7 +697,7 @@ class AnswerTableSerializer(PolymorphicSerializer):
             'AnswerSort': AnswerSortTableSerializer,
             'AnswerDragAndDrop': AnswerDragAndDropTableSerializer,
             'AnswerSEL': AnswerSELTableSerializer,
-            'AnswerDomino': AnswerSELTableSerializer
+            'AnswerDomino': AnswerDominoTableSerializer
         }
 
 
