@@ -1,7 +1,7 @@
 from datetime import date
 
 from django.db.models.query_utils import RegisterLookupMixin
-from answers.models import Answer
+from answers.models import Answer, AssessmentTopicAnswer
 from rest_framework import serializers
 from users.models import Country, Language, User
 from users.serializers import (CountrySerializer, LanguageSerializer,
@@ -662,11 +662,14 @@ class AssessmentTopicDeepSerializer(serializers.ModelSerializer):
 
     questions = QuestionSerializer(
         many=True, read_only=True, source='question_set')
+    has_sel_question = serializers.SerializerMethodField()
 
     class Meta:
         model = AssessmentTopic
         fields = '__all__'
 
+    def get_has_sel_question(self, instance):
+        return instance.order == 1 and instance.assessment.sel_question and Question.objects.filter(question_type='SEL', assessment_topic=instance).exists()
 
 class AssessmentDeepSerializer(serializers.ModelSerializer):
 
