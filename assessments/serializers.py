@@ -14,7 +14,7 @@ from users.serializers import LanguageSerializer, CountrySerializer
 
 from .models import (AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess,
                      Attachment, DraggableOption, Hint, Question, QuestionDragAndDrop, QuestionFindHotspot, QuestionInput,
-                     QuestionNumberLine, QuestionSelect, QuestionSort,
+                     QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort,
                      SelectOption, SortOption)
 
 
@@ -84,6 +84,7 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
     """
     attachments = AttachmentSerializer(many=True, required=False)
     can_edit = serializers.SerializerMethodField()
+    sel_question = serializers.SerializerMethodField()
 
     class Meta:
         model = AssessmentTopic
@@ -106,6 +107,8 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
         else:
             return False
 
+    def get_sel_question(self, instance):
+        return instance.order == 1 and instance.assessment.sel_question
 
 class HintSerializer(serializers.ModelSerializer):
     """
@@ -274,6 +277,7 @@ class QuestionSerializer(PolymorphicSerializer):
 
     def get_serializer_map(self):
         return {
+            'QuestionSEL': QuestionSELSerializer,
             'QuestionInput': QuestionInputSerializer,
             'QuestionNumberLine': QuestionNumberLineSerializer,
             'QuestionSelect': QuestionSelectSerializer,
@@ -289,6 +293,7 @@ class QuestionSerializer(PolymorphicSerializer):
     def to_internal_value(self, data):
         data = data.copy()
         type_dict = {
+            Question.QuestionType.SEL: 'QuestionSEL',
             Question.QuestionType.INPUT: 'QuestionInput',
             Question.QuestionType.SELECT: 'QuestionSelect',
             Question.QuestionType.SORT: 'QuestionSort',
@@ -325,12 +330,37 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
         """
         Create question with hint and attachments.
         """
+        # Validated conditions to create SEL questions
+        question_assessment = Assessment.objects.get(id=validated_data['assessment_topic'].assessment.id)
+        if validated_data['question_type'] == 'SEL':
+            if (not question_assessment.sel_question) or validated_data['assessment_topic'].order != 1:
+                raise serializers.ValidationError({
+                    'question_type': 'Question of the type SEL can only be created in Assessments with “Contains SEL questions” set as true and in the first topic only',
+                })
+            if Question.objects.filter(assessment_topic=validated_data['assessment_topic'], question_type='SEL').count() == 5:
+                raise serializers.ValidationError({
+                    'question_type': 'Only up to 5 Questions of the type SEL can be created by assessment.',
+                })
+        
         hint_data = validated_data.pop(
             'hint') if 'hint' in validated_data else None
         attachments_data = validated_data.pop(
             'attachments') if 'attachments' in validated_data else None
 
         question = super().create(validated_data)
+
+        # Reorder all other questions to maintain consistent order
+        request_order = validated_data['order']
+        questions = Question.objects.filter(assessment_topic=validated_data['assessment_topic']).select_subclasses()
+        # Create an array with the topics from the InheritanceQuerySet
+        questions_list = list(questions)
+        # Places the question in the position of the array equivalent to its new order
+        questions_list.remove(question)
+        questions_list.insert((request_order - 1) if (request_order > 0) else 0, question)
+        # Order of each question is its position in the array + 1 (order can't be zero)
+        for index, question in enumerate(questions_list):
+            question.order = index + 1
+            question.save()
 
         if hint_data is not None:
             hint_serializer = HintSerializer(
@@ -352,7 +382,9 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
 
         new_question_type = validated_data.get('question_type', None)
         if new_question_type is not None and new_question_type != instance.question_type:
-            if instance.question_type == Question.QuestionType.INPUT:
+            if instance.question_type == Question.QuestionType.SEL:
+                QuestionSEL.objects.get(id=instance.id).delete()
+            elif instance.question_type == Question.QuestionType.INPUT:
                 QuestionInput.objects.get(id=instance.id).delete()
             elif instance.question_type == Question.QuestionType.SELECT:
                 QuestionSelect.objects.get(id=instance.id).delete()
@@ -401,6 +433,15 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
                 question.save()
 
         return super().update(instance, validated_data)
+
+class QuestionSELSerializer(AbstractQuestionSerializer):
+    """
+    Question SEL serializer.
+    """
+
+    class Meta:
+        model = QuestionSEL
+        fields = '__all__'
 
 class QuestionInputSerializer(AbstractQuestionSerializer):
     """

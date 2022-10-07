@@ -72,6 +72,10 @@ class Assessment(models.Model):
         blank=True
     )
 
+    sel_question = models.BooleanField(
+        default=True
+    )
+
     def __str__(self):
         return f'{self.title}' \
             f' ({self.subject} grade {self.grade}, {self.country} - {self.language})'
@@ -247,6 +251,7 @@ class Question(models.Model):
         """
         Question type enumeration.
         """
+        SEL = 'SEL', 'Social and Emotional Learning'
         INPUT = 'INPUT', 'Input'
         SELECT = 'SELECT', 'Select'
         SORT = 'SORT', 'Sort'
@@ -296,6 +301,7 @@ class Question(models.Model):
     difficulty = models.IntegerField(
         choices=QuestionDifficulty.choices,
         null=True,
+        blank=True
     )
 
     def __str__(self):
@@ -321,6 +327,24 @@ class Hint(models.Model):
         related_name='hint'
     )
 
+
+class QuestionSEL(Question):
+    """
+    Question SEL (Social and Emotional Learning) model (inherits Question).
+    """
+
+    class SELType(models.TextChoices):
+        MATH = 'MATH', 'Math Self-Efficacy'
+        READ = 'READ', 'Read Self-Efficacy'
+        GROWTH_MINDSET = 'GROWTH_MINDSET', 'Growth Mindset'
+
+    sel_type = models.CharField(
+        max_length=32,
+        choices=SELType.choices
+    )
+
+    def __str__(self):
+        return f'{self.title} ({self.question_type})'
 
 class QuestionInput(Question):
     """

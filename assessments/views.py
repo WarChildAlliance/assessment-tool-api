@@ -1,5 +1,5 @@
 from users.models import User
-from django.db.models import Q
+from django.db.models import Q, Case, When
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -173,7 +173,20 @@ class AssessmentTopicsViewSet(ModelViewSet):
             for index, topic in enumerate(topics_list):
                 topic.order = index + 1
                 topic.save()
-        
+
+            # If assessment has the “Contains SEL questions” set as true, and if there were SEL questions in the first topic
+            # make sure the questions are in the first topic after reordering the topics
+            sel_questions = Question.objects.filter(question_type='SEL', assessment_topic__assessment=instance.assessment)
+            if instance.assessment.sel_question and sel_questions:
+                first_topic = topics_list[0]
+                sel_questions.update(assessment_topic=first_topic)
+                # order topic's QuerySet all_questions so SEL questions are at the beginning
+                all_questions = Question.objects.filter(assessment_topic=first_topic).order_by(Case(When(question_type='SEL', then=0), default=1))
+                # Order of each question is its position in the array + 1 (order can't be zero)
+                for index, question in enumerate(all_questions):
+                    question.order = index + 1
+                    question.save()
+
         serializer = self.get_serializer(instance, data=request_data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
@@ -198,6 +211,19 @@ class AssessmentTopicsViewSet(ModelViewSet):
                         topic.order = index + 1
                         topic.save()
                         break
+
+            # If assessment has the “Contains SEL questions” set as true, and if there were SEL questions in the first topic
+            # make sure the questions are in the first topic after reordering the topics
+            sel_questions = Question.objects.filter(question_type='SEL', assessment_topic__assessment__id=request_data['assessment_id'])
+            first_topic = request_data['topics'][0]
+            if topics[0].assessment.sel_question and sel_questions:
+                sel_questions.update(assessment_topic_id=first_topic)
+                # order topic's QuerySet all_questions so SEL questions are at the beginning
+                all_questions = Question.objects.filter(assessment_topic_id=first_topic).order_by(Case(When(question_type='SEL', then=0), default=1))
+                # Order of each question is its position in the array + 1 (order can't be zero)
+                for index, question in enumerate(all_questions):
+                    question.order = index + 1
+                    question.save()
         except:
             return Response('An error occurred while trying to update the order of assessments topics', status=500)
                 
@@ -230,6 +256,8 @@ class QuestionsViewSet(ModelViewSet):
         return Question.objects.filter(
             assessment_topic=topic_pk,
             assessment_topic__assessment=assessment_pk
+        ).exclude(
+            Q(question_type='SEL') & (~Q(assessment_topic__order=1) | Q(assessment_topic__assessment__sel_question=False))
         ).select_subclasses()
     
     def create(self, request, *args, **kwargs):

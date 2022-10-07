@@ -1,10 +1,11 @@
 from rest_framework import serializers
 import datetime
+from django.db.models import Q
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
-from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
-from answers.models import AnswerDragAndDrop, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry
+from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
+from answers.models import AnswerDragAndDrop, AnswerSEL, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry
 
 from answers.serializers import DragAndDropAreaEntrySerializer
 from assessments.serializers import (AreaOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
@@ -150,7 +151,7 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'language_name', 'language_code',
                   'country_name', 'country_code', 'topics_count', 'topics',
                   'students_count', 'grade', 'subject', 'private', 'can_edit',
-                  'icon', 'archived', 'downloadable')
+                  'icon', 'archived', 'downloadable', 'sel_question')
 
     def get_topics_count(self, instance):
         return AssessmentTopic.objects.filter(assessment=instance).count()
@@ -161,7 +162,9 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
         topics_with_question_count = []
 
         for topic in topics:
-            question_count = Question.objects.filter(assessment_topic=topic[0]).count()
+            question_count = Question.objects.filter(assessment_topic=topic[0]).exclude(
+                Q(question_type='SEL') & (~Q(assessment_topic__order=1) | Q(assessment_topic__assessment__sel_question=False))
+            ).count()
             topics_with_question_count.append({"id": topic[0], "title": topic[1], "description": topic[2], "questionsCount": question_count,"icon": topic[3], "archived": topic[4], "order": topic[5]})
         
         return topics_with_question_count
@@ -354,7 +357,8 @@ class QuestionDetailsTableSerializer(PolymorphicSerializer):
             'QuestionNumberLine': QuestionNumberLineTableSerializer,
             'QuestionSelect': QuestionSelectTableSerializer,
             'QuestionSort': QuestionSortTableSerializer,
-            'QuestionDragAndDrop': QuestionDragAndDropTableSerializer
+            'QuestionDragAndDrop': QuestionDragAndDropTableSerializer,
+            'QuestionSEL': QuestionSELTableSerializer
         }
 
 
@@ -397,6 +401,12 @@ class QuestionSelectTableSerializer(AbstractQuestionDetailsTableSerializer):
         fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
             ('options', )
 
+class QuestionSELTableSerializer(AbstractQuestionDetailsTableSerializer):
+
+    class Meta(AbstractQuestionDetailsTableSerializer.Meta):
+        model = QuestionSEL
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
+            ('sel_type', )
 
 class QuestionSortTableSerializer(AbstractQuestionDetailsTableSerializer):
 
@@ -521,12 +531,12 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
 
         total_answers = Answer.objects.filter(
             topic_answer=first_topic_answer
-        ).distinct().count()
+        ).exclude(question__question_type='SEL').distinct().count()
 
         total_valid_answers = Answer.objects.filter(
             topic_answer=first_topic_answer,
             valid=True
-        ).distinct().count()
+        ).exclude(question__question_type='SEL').distinct().count()
 
         correct_answers_percentage = None
 
@@ -556,12 +566,12 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
 
         total_answers = Answer.objects.filter(
             topic_answer=last_topic_answer
-        ).distinct().count()
+        ).exclude(question__question_type='SEL').distinct().count()
 
         total_valid_answers = Answer.objects.filter(
             topic_answer=last_topic_answer,
             valid=True
-        ).distinct().count()
+        ).exclude(question__question_type='SEL').distinct().count()
 
         correct_answers_percentage = None
 
@@ -675,7 +685,8 @@ class AnswerTableSerializer(PolymorphicSerializer):
             'AnswerNumberLine': AnswerNumberLineTableSerializer,
             'AnswerSelect': AnswerSelectTableSerializer,
             'AnswerSort': AnswerSortTableSerializer,
-            'AnswerDragAndDrop': AnswerDragAndDropTableSerializer
+            'AnswerDragAndDrop': AnswerDragAndDropTableSerializer,
+            'AnswerSEL': AnswerSELTableSerializer
         }
 
 
@@ -756,6 +767,15 @@ class AnswerDragAndDropTableSerializer(AbstractAnswerTableSerializer):
         serializer = DragAndDropAreaEntrySerializer(answers_per_area, many=True)
         return list(serializer.data)
 
+class AnswerSELTableSerializer(AbstractAnswerTableSerializer):
+
+    question = NestedRelatedField(
+        model=QuestionSEL, serializer_class=QuestionSELTableSerializer, many=False)
+
+    class Meta(AbstractAnswerTableSerializer.Meta):
+        model = AnswerSEL
+        fields = AbstractAnswerTableSerializer.Meta.fields + \
+            ('statement', 'question',)
 
 class ScoreByTopicSerializer(serializers.ModelSerializer):
 
@@ -792,7 +812,7 @@ class ScoreByTopicSerializer(serializers.ModelSerializer):
         for topic in AssessmentTopic.objects.filter(assessment=assessment_pk, archived=False):
 
             if topic.evaluated:
-                total_answers = Question.objects.filter(assessment_topic=topic).count()
+                total_answers = Question.objects.filter(assessment_topic=topic).exclude(question_type='SEL').count()
                 access = AssessmentTopicAccess.objects.filter(topic=topic, student=instance)
 
                 if access:
@@ -805,7 +825,7 @@ class ScoreByTopicSerializer(serializers.ModelSerializer):
                         total_correct_answers = Answer.objects.filter(
                             topic_answer=earliest_topic_answer,
                             valid=True
-                        ).count()
+                        ).exclude(question__question_type='SEL').count()
 
                         correct_answers_percentage = 0
 
@@ -873,7 +893,7 @@ class AssessmentListForDashboardSerializer(serializers.ModelSerializer):
         #Iterate through topics
         for topic in AssessmentTopic.objects.filter(assessment=instance, evaluated=True):
             accesses = AssessmentTopicAccess.objects.filter(topic=topic, student__in=students)
-            total_answers = Question.objects.filter(assessment_topic=topic).count()
+            total_answers = Question.objects.filter(assessment_topic=topic).exclude(question_type='SEL').count()
             students_average = []
 
             #Iterate through the supervisors student to get topic accesses
@@ -890,7 +910,7 @@ class AssessmentListForDashboardSerializer(serializers.ModelSerializer):
                     total_correct_answers = Answer.objects.filter(
                         topic_answer=earliest_topic_answer,
                         valid=True
-                    ).count()
+                    ).exclude(question__question_type='SEL').count()
 
                     percentage = 0
 
