@@ -407,6 +407,9 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
                     return Response('Cannot create access for unauthorized topics \
                         or topics in another assessment', status=400)
 
+                if Question.objects.filter(assessment_topic=access.get('topic')).count() == 0:
+                    return Response('Cannot create access for topics without questions', status=400)
+
                 formatted_data.append({
                     'student': student,
                     'topic': access.get('topic'),
