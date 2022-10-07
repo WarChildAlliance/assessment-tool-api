@@ -624,6 +624,10 @@ class AssessmentTopicAccessListSerializer(serializers.ListSerializer):
         to_create = []
         to_update = []
         for item in validated_data:
+            # Prevent student to have multiple assessment assigned
+            AssessmentTopicAccess.objects.filter(
+                student=item['student']).exclude(topic__assessment=item['topic'].assessment
+            ).delete()
             try:
                 obj = AssessmentTopicAccess.objects.get(
                     student=item['student'], topic=item['topic'])

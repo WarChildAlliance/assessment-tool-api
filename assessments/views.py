@@ -52,11 +52,12 @@ class AssessmentsViewSet(ModelViewSet):
 
 
         # Students can access assessments if they're linked to at least one of its topic
+        # A student should only have one and one assessment: if there is more than one, return only the first one
         return Assessment.objects.filter(
             assessmenttopic__assessmenttopicaccess__student=user,
             assessmenttopic__assessmenttopicaccess__start_date__lte=date.today(),
             assessmenttopic__assessmenttopicaccess__end_date__gte=date.today()
-        ).distinct()
+        ).first()
 
 
     def create(self, request):
@@ -86,17 +87,18 @@ class AssessmentsViewSet(ModelViewSet):
         return Response(serializer.data)
     # END OF TEMPORARY
 
+    # Students can have access to one assessment 
     @action(detail=False, methods=['get'], serializer_class=AssessmentDeepSerializer)
-    def get_all(self, request):
+    def get_assessment(self, request):
 
         serializer = AssessmentDeepSerializer(
-            self.get_queryset(), many=True,
+            self.get_queryset(),
             context={
                 'student_pk': int(self.request.user.id)
             }
         )
 
-        return Response(serializer.data, status=201)
+        return Response([serializer.data], status=201)
 
 
 class AssessmentTopicsViewSet(ModelViewSet):

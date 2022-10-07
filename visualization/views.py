@@ -97,6 +97,25 @@ class AssessmentTableViewSet(ModelViewSet):
         """
         assessments = Assessment.objects.filter(Q(created_by=self.request.user) | Q(private=False))
 
+        difficulty = self.request.query_params.get('difficulty')
+        if difficulty:
+            topics = AssessmentTopic.objects.filter(assessment__in=assessments, question__difficulty=difficulty)
+            assessments = assessments.filter(assessmenttopic__in=topics).distinct()
+           
+        topic = self.request.query_params.get('topic')
+        if topic:
+            topics = AssessmentTopic.objects.filter(id=topic)
+            assessments = assessments.filter(assessmenttopic__in=topics).distinct()
+
+        subtopic = self.request.query_params.get('subtopic')
+        if subtopic:
+            topics = AssessmentTopic.objects.filter(subtopic=subtopic, assessment__in=assessments)
+            assessments = assessments.filter(assessmenttopic__in=topics).distinct()
+
+        subject = self.request.query_params.get('subject')
+        if subject:
+            assessments = assessments.filter(subject=subject)
+
         language = self.request.query_params.get('language')
         if language:
             assessments = assessments.filter(language__code=language)
