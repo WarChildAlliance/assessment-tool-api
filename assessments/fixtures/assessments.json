@@ -2090,10 +2090,7 @@
             "expected_value": 3,
             "start": 0,
             "end": 10,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2103,10 +2100,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2116,10 +2110,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2129,10 +2120,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2142,10 +2130,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2155,10 +2140,7 @@
             "expected_value": 5,
             "start": 0,
             "end": 10,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2168,10 +2150,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2181,10 +2160,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2194,10 +2170,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2207,10 +2180,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2220,10 +2190,7 @@
             "expected_value": 6,
             "start": 0,
             "end": 10,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2233,10 +2200,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2246,10 +2210,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2259,10 +2220,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2272,10 +2230,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2285,10 +2240,7 @@
             "expected_value": 8,
             "start": 0,
             "end": 10,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2298,10 +2250,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2311,10 +2260,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2324,10 +2270,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2337,10 +2280,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2350,10 +2290,7 @@
             "expected_value": 9,
             "start": 0,
             "end": 10,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2363,10 +2300,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2376,10 +2310,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2389,10 +2320,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2402,10 +2330,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2415,10 +2340,7 @@
             "expected_value": 10,
             "start": 0,
             "end": 20,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2428,10 +2350,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2441,10 +2360,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2454,10 +2370,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2467,10 +2380,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2480,10 +2390,7 @@
             "expected_value": 13,
             "start": 0,
             "end": 20,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2493,10 +2400,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2506,10 +2410,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2519,10 +2420,7 @@
             "expected_value": 11,
             "start": 0,
             "end": 20,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2532,10 +2430,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2545,10 +2440,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2558,10 +2450,7 @@
             "expected_value": 16,
             "start": 0,
             "end": 20,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2571,10 +2460,7 @@
             "expected_value": 19,
             "start": 0,
             "end": 20,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2584,10 +2470,7 @@
             "expected_value": 50,
             "start": 0,
             "end": 100,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2597,10 +2480,7 @@
             "expected_value": 61,
             "start": 0,
             "end": 100,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2610,10 +2490,7 @@
             "expected_value": 99,
             "start": 0,
             "end": 100,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2623,10 +2500,7 @@
             "expected_value": 86,
             "start": 0,
             "end": 100,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2636,10 +2510,7 @@
             "expected_value": 78,
             "start": 0,
             "end": 100,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {

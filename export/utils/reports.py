@@ -3,7 +3,7 @@ from typing import Union
 from io import BytesIO
 from admin.settings.base import MEDIA_ROOT, MEDIA_URL
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
-from reportlab.graphics.shapes import Drawing, Line, Circle, String
+from reportlab.graphics.shapes import Drawing
 from reportlab.platypus.doctemplate import Indenter
 from reportlab.lib.units import cm, mm
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -193,7 +193,6 @@ class AssessmentPDFReport(PDFBuilder):
             return [svg_icon, paragraph] if svg_icon else [paragraph]
 
 
-
       def __create_select_answer_table(self, answer: dict) -> Table:
             """
             Creates a Table object for a SELECT question answer
@@ -228,36 +227,46 @@ class AssessmentPDFReport(PDFBuilder):
             return table
 
 
-      def __create_numberline_slider(self, question: dict, slider_width: int) -> Drawing:
+      def __get_numberline_text_style(self, value: int, step: int) -> str:
+            NB_COLORS = ['#8D6B91', '#00A3DA', '#47BBBA', '#33AC7D', '#73B932', '#25983C',
+                  '#F89F04', '#EC6F1B', '#CC0E2F', '#B9358B']
+
+            return ParagraphStyle(
+                  styles['Normal'],
+                  fontSize=9,
+                  textColor=HexColor(NB_COLORS[abs(int(value / step)) % len(NB_COLORS)]),
+                  alignment=TA_CENTER)
+
+
+      def __create_numberline_answer_table(self, question: dict) -> Drawing:
             """
-            Creates a Drawing object containing the numberline slider and
-            its text value
+            Creates a Table object for a NUMBERLINE question answer
             """
-            cursor_pos = question['expected_value'] / question['end'] * slider_width
-            drawing_height = .15 * slider_width
-            value_height = drawing_height / 4
-            slider_height = .8 * drawing_height
+            row_data = []
+            for i in range(question['start'], question['end'] + question['step'], question['step']):
+                  if i == question['expected_value']:
+                        answer_table = Table([
+                              [Paragraph(str(i), self.__get_numberline_text_style(i, question['step']))]
+                        ])
+                        answer_table.setStyle(TableStyle([
+                              ('BOX', (0, 0), (-1, -1), .5, HexColor('#63c7a9')),
+                              ('ROUNDEDCORNERS', [2] * 4),
+                        ]))
+                        row_data.append(answer_table)
+                        continue
+                  row_data.append([
+                        Paragraph(str(i), self.__get_numberline_text_style(i, question['step']))
+                  ])
 
-            d = Drawing(slider_width, drawing_height)
+            table_style = [
+                  ('TOPPADDING', (0, 0), (-1, -1), 6),
+                  ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                  ('VALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ]
 
-            # slider fill area
-            d.add(Line(0, slider_height, cursor_pos, slider_height,
-                  strokeColor=HexColor('#3d8dd2'), strokeWidth=1
-            ))
-
-            # slider background
-            d.add(Line(cursor_pos, slider_height, d.width, slider_height,
-                  strokeColor=HexColor('#afafaf'), strokeWidth=1
-            ))
-
-            # cursor
-            d.add(Circle(cursor_pos, slider_height, 2, fillColor=HexColor('#174c81')))
-
-            # expected value
-            d.add(String(cursor_pos - 2.5, value_height, str(question['expected_value']),
-                  fontSize=10, fonFamily='sans-serif', fillColor=HexColor('#6a6a6a')
-            ))
-            return d
+            table = Table([row_data])
+            table.setStyle(TableStyle(table_style))
+            return table
 
 
       def __write_question(self, data: dict) -> None:
@@ -300,7 +309,7 @@ class AssessmentPDFReport(PDFBuilder):
 
             if data['question_type'] == 'NUMBER_LINE':
                   answers_table_data.append(
-                        [self.__create_numberline_slider(data, 10*cm)]
+                        [self.__create_numberline_answer_table(data)]
                   )
                   answers_table_style = []
 
