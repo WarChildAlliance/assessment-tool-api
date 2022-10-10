@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from model_utils.managers import InheritanceManager
 from users.models import User
 
@@ -424,18 +425,6 @@ class QuestionNumberLine(Question):
 
     step = models.IntegerField(
         default=1
-    )
-
-    tick_step = models.IntegerField(
-        default=1
-    )
-
-    show_ticks = models.BooleanField(
-        default=False
-    )
-
-    show_value = models.BooleanField(
-        default=False
     )
 
     def __str__(self):

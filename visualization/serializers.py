@@ -389,7 +389,7 @@ class QuestionNumberLineTableSerializer(AbstractQuestionDetailsTableSerializer):
     class Meta(AbstractQuestionDetailsTableSerializer.Meta):
         model = QuestionNumberLine
         fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
-            ('expected_value', 'start', 'end', 'step', 'show_ticks', 'show_value',)
+            ('expected_value', 'start', 'end', 'step',)
 
 
 class QuestionSelectTableSerializer(AbstractQuestionDetailsTableSerializer):
