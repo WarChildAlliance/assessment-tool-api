@@ -11,8 +11,8 @@ from users.serializers import UserSerializer
 
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 
-from .models import (Answer, AnswerInput, AnswerNumberLine, AnswerSEL, AnswerSelect,
-                     AnswerSession, AnswerSort, DragAndDropAreaEntry,
+from .models import (Answer, AnswerDomino, AnswerInput, AnswerNumberLine, AnswerSEL,
+                     AnswerSelect, AnswerSession, AnswerSort, DragAndDropAreaEntry,
                      AnswerDragAndDrop, AssessmentTopicAnswer)
 
 
@@ -52,7 +52,8 @@ class AnswerSerializer(PolymorphicSerializer):
             'AnswerSelect': AnswerSelectSerializer,
             'AnswerSort': AnswerSortSerializer,
             'AnswerDragAndDrop': AnswerDragAndDropSerializer,
-            'AnswerSEL': AnswerSELSerializer
+            'AnswerSEL': AnswerSELSerializer,
+            'AnswerDomino': AnswerDominoSerializer
         }
 
     def to_internal_value(self, data):
@@ -71,6 +72,8 @@ class AnswerSerializer(PolymorphicSerializer):
             data['type'] = 'AnswerDragAndDrop'
         elif question_type == 'QuestionSEL':
             data['type'] = 'AnswerSEL'
+        elif question_type == 'QuestionDomino':
+            data['type'] = 'AnswerDomino'
         return super().to_internal_value(data)
 
 
@@ -207,6 +210,15 @@ class AnswerSELSerializer(AbstractAnswerSerializer):
     class Meta(AbstractAnswerSerializer.Meta):
         model = AnswerSEL
         fields = AbstractAnswerSerializer.Meta.fields + ('statement',)
+
+class AnswerDominoSerializer(AbstractAnswerSerializer):
+    """
+    Answer Domino serializer.
+    """
+
+    class Meta(AbstractAnswerSerializer.Meta):
+        model = AnswerDomino
+        fields = AbstractAnswerSerializer.Meta.fields + ('selected_domino',)
 
 class AssessmentTopicAnswerFullSerializer(serializers.ModelSerializer):
     """

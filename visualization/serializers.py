@@ -4,11 +4,11 @@ from django.db.models import Q
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
-from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
-from answers.models import AnswerDragAndDrop, AnswerSEL, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry
+from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, DominoOption, Question, QuestionDomino, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
+from answers.models import AnswerDomino, AnswerDragAndDrop, AnswerSEL, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry
 
 from answers.serializers import DragAndDropAreaEntrySerializer
-from assessments.serializers import (AreaOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
+from assessments.serializers import (AreaOptionSerializer, DominoOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
                                      HintSerializer, AttachmentSerializer, AssessmentTopicSerializer)
 from users.serializers import GroupSerializer
 
@@ -358,7 +358,8 @@ class QuestionDetailsTableSerializer(PolymorphicSerializer):
             'QuestionSelect': QuestionSelectTableSerializer,
             'QuestionSort': QuestionSortTableSerializer,
             'QuestionDragAndDrop': QuestionDragAndDropTableSerializer,
-            'QuestionSEL': QuestionSELTableSerializer
+            'QuestionSEL': QuestionSELTableSerializer,
+            'QuestionDomino': QuestionDominoTableSerializer,
         }
 
 
@@ -407,6 +408,15 @@ class QuestionSELTableSerializer(AbstractQuestionDetailsTableSerializer):
         model = QuestionSEL
         fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
             ('sel_type', )
+
+class QuestionDominoTableSerializer(AbstractQuestionDetailsTableSerializer):
+    options = NestedRelatedField(
+        model=DominoOption, serializer_class=DominoOptionSerializer, many=True)
+
+    class Meta(AbstractQuestionDetailsTableSerializer.Meta):
+        model = QuestionDomino
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
+            ('expected_value', 'options',)
 
 class QuestionSortTableSerializer(AbstractQuestionDetailsTableSerializer):
 
@@ -686,7 +696,8 @@ class AnswerTableSerializer(PolymorphicSerializer):
             'AnswerSelect': AnswerSelectTableSerializer,
             'AnswerSort': AnswerSortTableSerializer,
             'AnswerDragAndDrop': AnswerDragAndDropTableSerializer,
-            'AnswerSEL': AnswerSELTableSerializer
+            'AnswerSEL': AnswerSELTableSerializer,
+            'AnswerDomino': AnswerDominoTableSerializer
         }
 
 
@@ -776,6 +787,16 @@ class AnswerSELTableSerializer(AbstractAnswerTableSerializer):
         model = AnswerSEL
         fields = AbstractAnswerTableSerializer.Meta.fields + \
             ('statement', 'question',)
+
+class AnswerDominoTableSerializer(AbstractAnswerTableSerializer):
+
+    question = NestedRelatedField(
+        model=QuestionDomino, serializer_class=QuestionDominoTableSerializer, many=False)
+
+    class Meta(AbstractAnswerTableSerializer.Meta):
+        model = AnswerDomino
+        fields = AbstractAnswerTableSerializer.Meta.fields + \
+            ('selected_domino', 'question',)
 
 class ScoreByTopicSerializer(serializers.ModelSerializer):
 

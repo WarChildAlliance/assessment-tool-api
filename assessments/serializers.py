@@ -13,7 +13,7 @@ from users.models import Language, Country
 from users.serializers import LanguageSerializer, CountrySerializer
 
 from .models import (AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess,
-                     Attachment, DraggableOption, Hint, Question, QuestionDragAndDrop, QuestionFindHotspot, QuestionInput,
+                     Attachment, DominoOption, DraggableOption, Hint, Question, QuestionDomino, QuestionDragAndDrop, QuestionFindHotspot, QuestionInput,
                      QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort,
                      SelectOption, SortOption)
 
@@ -182,6 +182,32 @@ class SelectOptionSerializer(serializers.ModelSerializer):
         return select_option
 
 
+class DominoOptionSerializer(serializers.ModelSerializer):
+    """
+    Domino option serializer.
+    """
+    class Meta:
+        model = DominoOption
+        fields = '__all__'
+        extra_kwargs = {'question_domino': {
+            'required': False,
+            'write_only': True
+            }
+        }
+
+    def create(self, validated_data):
+        """
+        Create domino option.
+        """
+
+        if validated_data['question_domino'] is None:
+            raise serializers.ValidationError({
+                'question_domino': 'This field is required',
+            })
+
+        domino_option = super().create(validated_data)
+        return domino_option
+
 class SortOptionSerializer(serializers.ModelSerializer):
     """
     Sort option serializer.
@@ -281,6 +307,7 @@ class QuestionSerializer(PolymorphicSerializer):
             'QuestionInput': QuestionInputSerializer,
             'QuestionNumberLine': QuestionNumberLineSerializer,
             'QuestionSelect': QuestionSelectSerializer,
+            'QuestionDomino': QuestionDominoSerializer,
             'QuestionSort': QuestionSortSerializer,
             'QuestionDragAndDrop': QuestionDragAndDropSerializer,
             'QuestionFindHotspot': QuestionFindHotspotSerializer
@@ -297,6 +324,7 @@ class QuestionSerializer(PolymorphicSerializer):
             Question.QuestionType.INPUT: 'QuestionInput',
             Question.QuestionType.SELECT: 'QuestionSelect',
             Question.QuestionType.SORT: 'QuestionSort',
+            Question.QuestionType.DOMINO: 'QuestionDomino',
             Question.QuestionType.NUMBER_LINE: 'QuestionNumberLine',
             Question.QuestionType.FIND_HOTSPOT: 'QuestionFindHotspot',
             Question.QuestionType.DRAG_AND_DROP: 'QuestionDragAndDrop'
@@ -390,6 +418,8 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
                 QuestionSelect.objects.get(id=instance.id).delete()
             elif instance.question_type == Question.QuestionType.SORT:
                 QuestionSort.objects.get(id=instance.id).delete()
+            elif instance.question_type == Question.QuestionType.DOMINO:
+                QuestionDomino.objects.get(id=instance.id).delete()
             elif instance.question_type == Question.QuestionType.NUMBER_LINE:
                 QuestionNumberLine.objects.get(id=instance.id).delete()
             elif instance.question_type == Question.QuestionType.DRAG_AND_DROP:
@@ -431,6 +461,51 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
             for index, question in enumerate(questions_list):
                 question.order = index + 1
                 question.save()
+
+        return super().update(instance, validated_data)
+
+class QuestionDominoSerializer(AbstractQuestionSerializer):
+    """
+    Question Domino serializer.
+    """
+    options = DominoOptionSerializer(many=True)
+
+    class Meta:
+        model = QuestionDomino
+        fields = '__all__'
+    
+    def create(self, validated_data):
+        """
+        Create question domino with options.
+        """
+        options_data = validated_data.pop(
+            'options') if 'options' in validated_data else None
+
+        question = super().create(validated_data)
+
+        if options_data is not None:
+            for option_data in options_data:
+                domino_option_serializer = DominoOptionSerializer(
+                    data={**option_data, 'question_domino': question.id})
+                domino_option_serializer.is_valid(raise_exception=True)
+                domino_option_serializer.save()
+
+        return question
+
+    def update(self, instance, validated_data):
+        """
+        Update question domino with options.
+        """
+        if 'options' in validated_data:
+            all_options = DominoOption.objects.filter(question_domino=instance)
+            for index, option_data in enumerate(validated_data.get('options', [])):
+                domino_option = all_options[index]
+                domino_option.left_side_value = option_data['left_side_value']
+                domino_option.right_side_value = option_data['right_side_value']
+                domino_option.valid = option_data['valid']
+                domino_option.save()
+
+            validated_data.pop('options')
 
         return super().update(instance, validated_data)
 

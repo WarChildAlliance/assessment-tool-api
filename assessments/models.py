@@ -256,6 +256,7 @@ class Question(models.Model):
         INPUT = 'INPUT', 'Input'
         SELECT = 'SELECT', 'Select'
         SORT = 'SORT', 'Sort'
+        DOMINO = 'DOMINO', 'Domino'
         NUMBER_LINE = 'NUMBER_LINE', 'Number line'
         DRAG_AND_DROP = 'DRAG_AND_DROP', 'Drag and Drop'
         FIND_HOTSPOT = 'FIND_HOTSPOT', 'Find hotspot'
@@ -379,6 +380,15 @@ class QuestionSelect(Question):
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
+class QuestionDomino(Question):
+    """
+    Question domino model (inherits Question).
+    """
+
+    expected_value = models.IntegerField()
+
+    def __str__(self):
+        return f'{self.title} ({self.question_type})'
 
 class QuestionSort(Question):
     """
@@ -535,6 +545,25 @@ class SelectOption(models.Model):
     def __str__(self):
         return f'[{self.question_select.id}] {self.title} ({self.valid})'
 
+class DominoOption(models.Model):
+    """
+    Domino option model.
+    """
+
+    left_side_value = models.IntegerField()
+
+    right_side_value = models.IntegerField()
+
+    valid = models.BooleanField()
+
+    question_domino = models.ForeignKey(
+        'QuestionDomino',
+        on_delete=models.CASCADE,
+        related_name='options'
+    )
+
+    def __str__(self):
+        return f'[{self.question_domino.id}] {self.left_side_value} | {self.right_side_value} ({self.valid})'
 
 class SortOption(models.Model):
     """
