@@ -6,17 +6,20 @@ from admin.lib.serializers import NestedRelatedField
 
 from .models import Language, Country, User, Group
 
+
 class LanguageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Language
         fields = '__all__'
 
+
 class CountrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Country
         fields = '__all__'
+
 
 class GroupSerializer(serializers.ModelSerializer):
     """
@@ -28,10 +31,12 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = '__all__'
-    
+
     def get_students(self, instance):
-        students = User.objects.filter(group=instance).values_list('id', flat=True)
+        students = User.objects.filter(
+            group=instance).values_list('id', flat=True)
         return students
+
 
 class UserSerializer(serializers.ModelSerializer):
     """
@@ -51,7 +56,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'group',
                   'password', 'last_login', 'role', 'language', 'country', 'created_by',
-                  'is_active']
+                  'is_active', 'see_intro']
         extra_kwargs = {'created_by': {
             'default': serializers.CurrentUserDefault(),
             'write_only': True
@@ -104,7 +109,8 @@ class UserSerializer(serializers.ModelSerializer):
         instance.language = validated_data.get('language', instance.language)
         instance.country = validated_data.get('country', instance.country)
         instance.role = validated_data.get('role', instance.role)
-
+        instance.see_intro = validated_data.get('see_intro', instance.see_intro)
+        
         if instance.is_student():
             instance.group = validated_data.get('group', instance.group)
             is_active = validated_data.get('is_active', instance.is_active)
