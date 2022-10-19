@@ -66,6 +66,12 @@ class User(AbstractUser):
     see_intro = models.BooleanField(
         default=True
     )
+    
+    student_grade = models.CharField(
+        max_length=32,
+        null=True,
+        blank=True
+    )
 
     def is_student(self):
         """
