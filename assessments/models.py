@@ -427,6 +427,10 @@ class QuestionNumberLine(Question):
         default=1
     )
 
+    shuffle = models.BooleanField(
+        default=False
+    )
+
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
