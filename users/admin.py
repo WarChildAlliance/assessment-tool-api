@@ -42,7 +42,7 @@ class CustomUserCreationForm(UserCreationForm):
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('first_name', 'last_name', 'username', 'role',
-                    'country', 'language', 'is_staff', 'group', 'student_grade')
+                    'country', 'language', 'is_staff', 'group', 'grade')
     list_display_links = ('username',)
     list_filter = ('is_staff', 'role', 'language', 'country',)
     search_fields = ('username', 'first_name', 'last_name', 'email',)
@@ -51,7 +51,7 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name',
-                                      'email', 'country', 'language', 'see_intro','student_grade')}),
+                                      'email', 'country', 'language', 'see_intro','grade')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser',
                                     'role',)}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),

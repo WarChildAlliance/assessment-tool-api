@@ -56,7 +56,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'group',
                   'password', 'last_login', 'role', 'language', 'country', 'created_by',
-                  'is_active', 'see_intro','student_grade']
+                  'is_active', 'see_intro','grade']
         extra_kwargs = {'created_by': {
             'default': serializers.CurrentUserDefault(),
             'write_only': True
@@ -113,7 +113,7 @@ class UserSerializer(serializers.ModelSerializer):
         
         if instance.is_student():
             instance.group = validated_data.get('group', instance.group)
-            instance.student_grade = validated_data.get('student_grade', instance.student_grade)
+            instance.grade = validated_data.get('grade', instance.grade)
             is_active = validated_data.get('is_active', instance.is_active)
             if is_active != instance.is_active:
                 instance.is_active = is_active

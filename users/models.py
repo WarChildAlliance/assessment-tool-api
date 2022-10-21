@@ -67,7 +67,7 @@ class User(AbstractUser):
         default=True
     )
     
-    student_grade = models.CharField(
+    grade = models.CharField(
         max_length=32,
         null=True,
         blank=True
