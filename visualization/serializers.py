@@ -36,13 +36,15 @@ class UserTableSerializer(serializers.ModelSerializer):
     # Group that the student is linked to
     group = serializers.SerializerMethodField()
 
+    grade = serializers.SerializerMethodField()
+
     # Students can only be deleted after more than 1 year of inactivity
     can_delete = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_topics_count', 'active_status_updated_on',
-                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active', 'can_delete')
+                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active', 'can_delete', 'grade')
 
     def get_full_name(self, instance):
         return (instance.first_name + ' ' + instance.last_name)
@@ -79,6 +81,9 @@ class UserTableSerializer(serializers.ModelSerializer):
 
     def get_country_code(self, instance):
         return instance.country.code
+
+    def get_grade(self, instance):
+        return instance.grade
 
     def get_group(self, instance):
         group = Group.objects.filter(student_group=instance).values_list('name', flat=True)
