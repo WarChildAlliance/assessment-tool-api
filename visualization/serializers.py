@@ -4,12 +4,12 @@ from django.db.models import Q
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
-from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, DominoOption, Question, QuestionDomino, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint
+from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, DominoOption, Question, QuestionDomino, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint, Subtopic, LearningObjective
 from answers.models import AnswerDomino, AnswerDragAndDrop, AnswerSEL, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry
 
 from answers.serializers import DragAndDropAreaEntrySerializer
 from assessments.serializers import (AreaOptionSerializer, DominoOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
-                                     HintSerializer, AttachmentSerializer, AssessmentTopicSerializer)
+                                     HintSerializer, AttachmentSerializer, LearningObjectiveSerializer, SubtopicSerializer)
 from users.serializers import GroupSerializer
 
 
@@ -263,12 +263,21 @@ class QuestionTableSerializer(serializers.ModelSerializer):
     correct_answers_percentage_first = serializers.SerializerMethodField()
     # Overall percentage of correct answers on this question on last students' try
     correct_answers_percentage_last = serializers.SerializerMethodField()
+    # Parent assessment grade
+    grade = serializers.SerializerMethodField()
+    # Parent assessment subject
+    subject = serializers.SerializerMethodField()
+    # Parent topic subtopic
+    subtopic = serializers.SerializerMethodField()
+    learning_objective = NestedRelatedField(
+        model=LearningObjective, serializer_class=LearningObjectiveSerializer, allow_null=True)
 
     class Meta:
         model = Question
         fields = ('id', 'title', 'order', 'question_type',
                   'has_attachment', 'correct_answers_percentage_first',
-                  'correct_answers_percentage_last', 'difficulty')
+                  'correct_answers_percentage_last', 'grade', 'subject',
+                  'subtopic', 'learning_objective')
 
     def get_has_attachment(self, instance):
         if(Attachment.objects.filter(question=instance)):
@@ -348,6 +357,17 @@ class QuestionTableSerializer(serializers.ModelSerializer):
                 (100 * total_correct_answers / total_answers), 2)
 
         return correct_answers_percentage
+
+    def get_grade(self, instance):
+        return Assessment.objects.get(id=instance.assessment_topic.assessment.id).grade
+
+    def get_subject(self, instance):
+        return Assessment.objects.get(id=instance.assessment_topic.assessment.id).subject
+
+    def get_subtopic(self, instance):
+        subtopic = AssessmentTopic.objects.get(id=instance.assessment_topic.id).subtopic
+        serializer = SubtopicSerializer(subtopic)
+        return serializer.data
 
 
 class QuestionDetailsTableSerializer(PolymorphicSerializer):
