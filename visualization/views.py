@@ -96,11 +96,6 @@ class AssessmentTableViewSet(ModelViewSet):
         Queryset to get allowed assessments for table.
         """
         assessments = Assessment.objects.filter(Q(created_by=self.request.user) | Q(private=False))
-
-        difficulty = self.request.query_params.get('difficulty')
-        if difficulty:
-            topics = AssessmentTopic.objects.filter(assessment__in=assessments, question__difficulty=difficulty)
-            assessments = assessments.filter(assessmenttopic__in=topics).distinct()
            
         topic = self.request.query_params.get('topic')
         if topic:
