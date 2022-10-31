@@ -55,8 +55,6 @@ class User {
 enum AssessmentSubject {
     MATH
     LITERACY
-    PRESEL
-    POSTSEL
 }
 
 class Assessment {

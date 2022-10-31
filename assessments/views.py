@@ -3,6 +3,8 @@ from django.db.models import Q, Case, When
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.viewsets import GenericViewSet
 from users.permissions import HasAccess, IsSupervisor
 from django.views.generic import CreateView
 from datetime import date
@@ -10,11 +12,11 @@ from datetime import date
 from admin.lib.viewsets import ModelViewSet
 
 from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess,
-                     Attachment, DraggableOption, Question)
+                     Attachment, DraggableOption, LearningObjective, Question, Subtopic)
 from .serializers import (AssessmentDeepSerializer, AssessmentSerializer,
                           AssessmentTopicAccessSerializer,
                           AssessmentTopicSerializer, AttachmentSerializer, DraggableOptionSerializer,
-                          QuestionSerializer)
+                          QuestionSerializer, SubtopicSerializer, LearningObjectiveSerializer)
 
 
 class AssessmentsViewSet(ModelViewSet):
@@ -227,6 +229,7 @@ class AssessmentTopicsViewSet(ModelViewSet):
                 
         return Response('Topics successfully reordered.', status=200)
 
+
 class QuestionsViewSet(ModelViewSet):
     """
     Questions viewset.
@@ -304,6 +307,7 @@ class QuestionsViewSet(ModelViewSet):
 
         return Response(serializer.data, status=200)
 
+
 class GeneralAttachmentsViewSet(ModelViewSet):
     """
     Attachments viewset.
@@ -347,6 +351,7 @@ class AttachmentsViewSet(ModelViewSet, CreateView):
 
         return Attachment.objects.filter(question=question_pk)
 
+
 class DraggableOptionsViewSet(ModelViewSet, CreateView):
     """
     Draggable option viewset.
@@ -361,6 +366,7 @@ class DraggableOptionsViewSet(ModelViewSet, CreateView):
         question_pk = self.kwargs['question_pk']
 
         return DraggableOption.objects.filter(question_drag_and_drop=question_pk)
+
 
 class AssessmentTopicAccessesViewSets(ModelViewSet):
     """
@@ -423,3 +429,46 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
+
+
+class SubtopicsViewSet(GenericViewSet, ListModelMixin):
+    """
+    Subtopic viewset
+    """
+    serializer_class = SubtopicSerializer
+    permission_classes = [IsAuthenticated, IsSupervisor]
+
+    def get_queryset(self):
+        """
+        Queryset to get subtopics.
+        """
+        subject = self.request.query_params.get('subject', None)
+        if subject:
+            return Subtopic.objects.filter(subject=subject)
+
+        return Subtopic.objects.all()
+
+
+class LearningObjectivesViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
+    """
+    Learning objectives viewset.
+    """
+    serializer_class = LearningObjectiveSerializer
+    permission_classes = [IsAuthenticated, IsSupervisor]
+
+    def get_queryset(self):
+        learning_objectives = LearningObjective.objects.all()
+
+        grade = self.request.query_params.get('grade', None)
+        if grade:
+            learning_objectives = learning_objectives.filter(grade=grade)
+
+        subject = self.request.query_params.get('subject', None)
+        if subject:
+            learning_objectives = learning_objectives.filter(subtopic__subject=subject)
+
+        subtopic = self.request.query_params.get('subtopic', None)
+        if subtopic:
+            learning_objectives = learning_objectives.filter(subtopic=subtopic)
+
+        return learning_objectives
