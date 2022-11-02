@@ -26,6 +26,8 @@ class UserTableSerializer(serializers.ModelSerializer):
     completed_topics_count = serializers.SerializerMethodField()
     # Number of assessments that the student is linked to
     assessments_count = serializers.SerializerMethodField()
+    # If the student has an assessment that is not done yet
+    assessment_complete = serializers.SerializerMethodField()
 
     # Languages and countries formatted information
     language_name = serializers.SerializerMethodField()
@@ -44,7 +46,7 @@ class UserTableSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_topics_count', 'active_status_updated_on',
-                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active', 'can_delete', 'grade')
+                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active', 'can_delete', 'grade', 'assessment_complete')
 
     def get_full_name(self, instance):
         return (instance.first_name + ' ' + instance.last_name)
@@ -69,6 +71,27 @@ class UserTableSerializer(serializers.ModelSerializer):
             assessmenttopic__assessmenttopicaccess__start_date__lte=datetime.date.today(),
             assessmenttopic__assessmenttopicaccess__end_date__gte=datetime.date.today()
         ).distinct().count()
+    
+    def get_assessment_complete(self, instance):
+        assessment_instance = Assessment.objects.filter(
+            assessmenttopic__assessmenttopicaccess__student=instance,
+            assessmenttopic__assessmenttopicaccess__start_date__lte=datetime.date.today(),
+            assessmenttopic__assessmenttopicaccess__end_date__gte=datetime.date.today()
+        ).distinct().first()
+
+        completed_assessment_topics = AssessmentTopic.objects.filter(
+            assessment=assessment_instance,
+            assessmenttopicaccess__student=instance,
+            assessmenttopicaccess__assessment_topic_answers__complete=True,
+            assessmenttopicaccess__assessment_topic_answers__session__student=instance
+        ).distinct().count()
+
+        total_assessment_topics = AssessmentTopic.objects.filter(
+            assessment=assessment_instance,
+            assessmenttopicaccess__student=instance,
+        ).distinct().count()
+
+        return (completed_assessment_topics == total_assessment_topics)
 
     def get_language_name(self, instance):
         return instance.language.name_en
