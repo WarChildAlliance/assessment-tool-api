@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, Question, QuestionFindHotspot,
-                     QuestionInput, QuestionSelect, QuestionSort, QuestionNumberLine, QuestionDragAndDrop,
-                     SelectOption, SortOption, Hint, AreaOption, DraggableOption)
+from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, DominoOption, LearningObjective, Question, QuestionDomino, QuestionFindHotspot,
+                     QuestionInput, QuestionSEL, QuestionSelect, QuestionSort, QuestionNumberLine, QuestionDragAndDrop,
+                     SelectOption, SortOption, Hint, AreaOption, DraggableOption, Subtopic)
 
 
 class AttachmentAdmin(admin.ModelAdmin):
@@ -82,6 +82,7 @@ admin.site.register(Assessment, admin.ModelAdmin)
 admin.site.register(AssessmentTopic, admin.ModelAdmin)
 admin.site.register(AssessmentTopicAccess, AssessmentTopicAccessAdmin)
 admin.site.register(Attachment, AttachmentAdmin)
+admin.site.register(QuestionSEL, admin.ModelAdmin)
 admin.site.register(QuestionInput, admin.ModelAdmin)
 admin.site.register(QuestionSelect, QuestionSelectAdmin)
 admin.site.register(QuestionSort, admin.ModelAdmin)
@@ -93,3 +94,7 @@ admin.site.register(SortOption, admin.ModelAdmin)
 admin.site.register(Hint, admin.ModelAdmin)
 admin.site.register(AreaOption, AreaOptionAdmin)
 admin.site.register(DraggableOption, admin.ModelAdmin)
+admin.site.register(Subtopic, admin.ModelAdmin)
+admin.site.register(LearningObjective, admin.ModelAdmin)
+admin.site.register(QuestionDomino, admin.ModelAdmin)
+admin.site.register(DominoOption, admin.ModelAdmin)

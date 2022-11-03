@@ -165,8 +165,7 @@
         "model": "assessments.questionselect",
         "pk": 2,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
@@ -184,10 +183,7 @@
             "expected_value": 8,
             "start": 0,
             "end": 10,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {

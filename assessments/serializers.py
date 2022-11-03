@@ -1,7 +1,7 @@
 from datetime import date
 
 from django.db.models.query_utils import RegisterLookupMixin
-from answers.models import Answer
+from answers.models import Answer, AssessmentTopicAnswer
 from rest_framework import serializers
 from users.models import Country, Language, User
 from users.serializers import (CountrySerializer, LanguageSerializer,
@@ -13,9 +13,9 @@ from users.models import Language, Country
 from users.serializers import LanguageSerializer, CountrySerializer
 
 from .models import (AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess,
-                     Attachment, DraggableOption, Hint, Question, QuestionDragAndDrop, QuestionFindHotspot, QuestionInput,
-                     QuestionNumberLine, QuestionSelect, QuestionSort,
-                     SelectOption, SortOption)
+                     Attachment, DominoOption, DraggableOption, Hint, Question, QuestionDomino, QuestionDragAndDrop, QuestionFindHotspot, QuestionInput,
+                     QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort,
+                     SelectOption, SortOption, Subtopic, LearningObjective)
 
 
 class AttachmentSerializer(serializers.ModelSerializer):
@@ -78,12 +78,25 @@ class AssessmentSerializer(serializers.ModelSerializer):
     # END OF TEMPORARY
 
 
+class SubtopicSerializer(serializers.ModelSerializer):
+    """
+    Subtopic serializer.
+    """
+    class Meta:
+        model = Subtopic
+        fields = ('id', 'name',)
+
+
 class AssessmentTopicSerializer(serializers.ModelSerializer):
     """
     Assessment topic serializer.
     """
     attachments = AttachmentSerializer(many=True, required=False)
     can_edit = serializers.SerializerMethodField()
+    subtopic = NestedRelatedField(
+        model=Subtopic, serializer_class=SubtopicSerializer, allow_null=True)
+    sel_question = serializers.SerializerMethodField()
+    questions_count = serializers.SerializerMethodField(required=False, read_only=True)
 
     class Meta:
         model = AssessmentTopic
@@ -106,6 +119,11 @@ class AssessmentTopicSerializer(serializers.ModelSerializer):
         else:
             return False
 
+    def get_sel_question(self, instance):
+        return instance.order == 1 and instance.assessment.sel_question
+
+    def get_questions_count(self, instance):
+        return Question.objects.filter(assessment_topic=instance).count()
 
 class HintSerializer(serializers.ModelSerializer):
     """
@@ -178,6 +196,32 @@ class SelectOptionSerializer(serializers.ModelSerializer):
 
         return select_option
 
+
+class DominoOptionSerializer(serializers.ModelSerializer):
+    """
+    Domino option serializer.
+    """
+    class Meta:
+        model = DominoOption
+        fields = '__all__'
+        extra_kwargs = {'question_domino': {
+            'required': False,
+            'write_only': True
+            }
+        }
+
+    def create(self, validated_data):
+        """
+        Create domino option.
+        """
+
+        if validated_data['question_domino'] is None:
+            raise serializers.ValidationError({
+                'question_domino': 'This field is required',
+            })
+
+        domino_option = super().create(validated_data)
+        return domino_option
 
 class SortOptionSerializer(serializers.ModelSerializer):
     """
@@ -263,20 +307,33 @@ class DraggableOptionSerializer(serializers.ModelSerializer):
         instance = super().save(*args, **kwargs)
         return instance
 
+class LearningObjectiveSerializer(serializers.ModelSerializer):
+    """
+    Learning objective serializer.
+    """
+    subtopic = NestedRelatedField(
+        model=Subtopic, serializer_class=SubtopicSerializer)
+
+    class Meta:
+        model = LearningObjective
+        fields = ('code', 'grade', 'name_eng', 'name_ara', 'subtopic')
+
+
 class QuestionSerializer(PolymorphicSerializer):
     """
     Question serializer.
     """
-
     class Meta:
         model = Question
         fields = '__all__'
 
     def get_serializer_map(self):
         return {
+            'QuestionSEL': QuestionSELSerializer,
             'QuestionInput': QuestionInputSerializer,
             'QuestionNumberLine': QuestionNumberLineSerializer,
             'QuestionSelect': QuestionSelectSerializer,
+            'QuestionDomino': QuestionDominoSerializer,
             'QuestionSort': QuestionSortSerializer,
             'QuestionDragAndDrop': QuestionDragAndDropSerializer,
             'QuestionFindHotspot': QuestionFindHotspotSerializer
@@ -289,9 +346,11 @@ class QuestionSerializer(PolymorphicSerializer):
     def to_internal_value(self, data):
         data = data.copy()
         type_dict = {
+            Question.QuestionType.SEL: 'QuestionSEL',
             Question.QuestionType.INPUT: 'QuestionInput',
             Question.QuestionType.SELECT: 'QuestionSelect',
             Question.QuestionType.SORT: 'QuestionSort',
+            Question.QuestionType.DOMINO: 'QuestionDomino',
             Question.QuestionType.NUMBER_LINE: 'QuestionNumberLine',
             Question.QuestionType.FIND_HOTSPOT: 'QuestionFindHotspot',
             Question.QuestionType.DRAG_AND_DROP: 'QuestionDragAndDrop'
@@ -318,6 +377,9 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
     # Does the question have answers?
     answered = serializers.SerializerMethodField()
 
+    learning_objective = NestedRelatedField(
+        model=LearningObjective, serializer_class=LearningObjectiveSerializer, allow_null=True)
+
     def get_answered(self, instance):
         return Answer.objects.filter(question=instance).exists()
 
@@ -325,12 +387,37 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
         """
         Create question with hint and attachments.
         """
+        # Validated conditions to create SEL questions
+        question_assessment = Assessment.objects.get(id=validated_data['assessment_topic'].assessment.id)
+        if validated_data['question_type'] == 'SEL':
+            if (not question_assessment.sel_question) or validated_data['assessment_topic'].order != 1:
+                raise serializers.ValidationError({
+                    'question_type': 'Question of the type SEL can only be created in Assessments with “Contains SEL questions” set as true and in the first topic only',
+                })
+            if Question.objects.filter(assessment_topic=validated_data['assessment_topic'], question_type='SEL').count() == 5:
+                raise serializers.ValidationError({
+                    'question_type': 'Only up to 5 Questions of the type SEL can be created by assessment.',
+                })
+        
         hint_data = validated_data.pop(
             'hint') if 'hint' in validated_data else None
         attachments_data = validated_data.pop(
             'attachments') if 'attachments' in validated_data else None
 
         question = super().create(validated_data)
+
+        # Reorder all other questions to maintain consistent order
+        request_order = validated_data['order']
+        questions = Question.objects.filter(assessment_topic=validated_data['assessment_topic']).select_subclasses()
+        # Create an array with the topics from the InheritanceQuerySet
+        questions_list = list(questions)
+        # Places the question in the position of the array equivalent to its new order
+        questions_list.remove(question)
+        questions_list.insert((request_order - 1) if (request_order > 0) else 0, question)
+        # Order of each question is its position in the array + 1 (order can't be zero)
+        for index, question in enumerate(questions_list):
+            question.order = index + 1
+            question.save()
 
         if hint_data is not None:
             hint_serializer = HintSerializer(
@@ -352,12 +439,16 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
 
         new_question_type = validated_data.get('question_type', None)
         if new_question_type is not None and new_question_type != instance.question_type:
-            if instance.question_type == Question.QuestionType.INPUT:
+            if instance.question_type == Question.QuestionType.SEL:
+                QuestionSEL.objects.get(id=instance.id).delete()
+            elif instance.question_type == Question.QuestionType.INPUT:
                 QuestionInput.objects.get(id=instance.id).delete()
             elif instance.question_type == Question.QuestionType.SELECT:
                 QuestionSelect.objects.get(id=instance.id).delete()
             elif instance.question_type == Question.QuestionType.SORT:
                 QuestionSort.objects.get(id=instance.id).delete()
+            elif instance.question_type == Question.QuestionType.DOMINO:
+                QuestionDomino.objects.get(id=instance.id).delete()
             elif instance.question_type == Question.QuestionType.NUMBER_LINE:
                 QuestionNumberLine.objects.get(id=instance.id).delete()
             elif instance.question_type == Question.QuestionType.DRAG_AND_DROP:
@@ -401,6 +492,60 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
                 question.save()
 
         return super().update(instance, validated_data)
+
+class QuestionDominoSerializer(AbstractQuestionSerializer):
+    """
+    Question Domino serializer.
+    """
+    options = DominoOptionSerializer(many=True)
+
+    class Meta:
+        model = QuestionDomino
+        fields = '__all__'
+    
+    def create(self, validated_data):
+        """
+        Create question domino with options.
+        """
+        options_data = validated_data.pop(
+            'options') if 'options' in validated_data else None
+
+        question = super().create(validated_data)
+
+        if options_data is not None:
+            for option_data in options_data:
+                domino_option_serializer = DominoOptionSerializer(
+                    data={**option_data, 'question_domino': question.id})
+                domino_option_serializer.is_valid(raise_exception=True)
+                domino_option_serializer.save()
+
+        return question
+
+    def update(self, instance, validated_data):
+        """
+        Update question domino with options.
+        """
+        if 'options' in validated_data:
+            all_options = DominoOption.objects.filter(question_domino=instance)
+            for index, option_data in enumerate(validated_data.get('options', [])):
+                domino_option = all_options[index]
+                domino_option.left_side_value = option_data['left_side_value']
+                domino_option.right_side_value = option_data['right_side_value']
+                domino_option.valid = option_data['valid']
+                domino_option.save()
+
+            validated_data.pop('options')
+
+        return super().update(instance, validated_data)
+
+class QuestionSELSerializer(AbstractQuestionSerializer):
+    """
+    Question SEL serializer.
+    """
+
+    class Meta:
+        model = QuestionSEL
+        fields = '__all__'
 
 class QuestionInputSerializer(AbstractQuestionSerializer):
     """
@@ -583,6 +728,10 @@ class AssessmentTopicAccessListSerializer(serializers.ListSerializer):
         to_create = []
         to_update = []
         for item in validated_data:
+            # Prevent student to have multiple assessment assigned
+            AssessmentTopicAccess.objects.filter(
+                student=item['student']).exclude(topic__assessment=item['topic'].assessment
+            ).delete()
             try:
                 obj = AssessmentTopicAccess.objects.get(
                     student=item['student'], topic=item['topic'])
@@ -617,11 +766,14 @@ class AssessmentTopicDeepSerializer(serializers.ModelSerializer):
 
     questions = QuestionSerializer(
         many=True, read_only=True, source='question_set')
+    has_sel_question = serializers.SerializerMethodField()
 
     class Meta:
         model = AssessmentTopic
         fields = '__all__'
 
+    def get_has_sel_question(self, instance):
+        return instance.order == 1 and instance.assessment.sel_question and Question.objects.filter(question_type='SEL', assessment_topic=instance).exists()
 
 class AssessmentDeepSerializer(serializers.ModelSerializer):
 
@@ -668,5 +820,3 @@ class AssessmentDeepSerializer(serializers.ModelSerializer):
         ).distinct().count()
 
         return (completed_assessment_topics == total_assessment_accessible_topics)
-
-

@@ -71,12 +71,12 @@ class AnswerSelectSerializer(CompleteStudentAnswersSerializer):
     Answer select serializer.
     """
 
-    selected_options = NestedRelatedField(
-        model=SelectOption, serializer_class=SelectOptionSerializer, many=True, required=False)
+    selected_option = NestedRelatedField(
+        model=SelectOption, serializer_class=SelectOptionSerializer, many=False, required=False)
 
     class Meta(CompleteStudentAnswersSerializer.Meta):
         model = AnswerSelect
-        fields = CompleteStudentAnswersSerializer.Meta.fields + ('selected_options',)
+        fields = CompleteStudentAnswersSerializer.Meta.fields + ('selected_option',)
 
 
 class AnswerNumberLineSerializer(CompleteStudentAnswersSerializer):

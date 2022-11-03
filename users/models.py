@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 
+
 class User(AbstractUser):
     """
     User model.
@@ -62,6 +63,16 @@ class User(AbstractUser):
         blank=True
     )
 
+    see_intro = models.BooleanField(
+        default=True
+    )
+    
+    grade = models.CharField(
+        max_length=32,
+        null=True,
+        blank=True
+    )
+
     def is_student(self):
         """
         Checks user type
@@ -76,6 +87,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'{self.get_full_name()} ({self.username})'
+
 
 class Group(models.Model):
     name = models.CharField(
@@ -94,6 +106,7 @@ class Group(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
 
 class Language(models.Model):
     """
