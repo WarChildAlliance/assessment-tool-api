@@ -165,8 +165,7 @@
         "model": "assessments.questionselect",
         "pk": 2,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
