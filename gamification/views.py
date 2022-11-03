@@ -21,13 +21,11 @@ class ProfileViewSet(ModelViewSet):
     def create(self, request):
         return Response('Cannot create profile', status=403)
 
-
     def put(self, request, **kwargs):
         user = self.request.user
         student_profile = Profile.objects.get(student=user)
         profile = request.data.get("profile")
-        request_data = request.data.copy()
-        serializer = self.get_serializer(student_profile, data = profile)
+        serializer = self.get_serializer(student_profile, data=profile)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)

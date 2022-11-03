@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.http import HttpResponse
 import csv
 
-from .models import (Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerFindHotspot,
+from .models import (Answer, AnswerDomino, AnswerInput, AnswerNumberLine, AnswerSEL, AnswerSelect, AnswerFindHotspot,
                     AnswerDragAndDrop, DragAndDropAreaEntry, AnswerSession, AnswerSort, AssessmentTopicAnswer)
 
 
@@ -26,7 +26,7 @@ class AnswerSelectAnswerAdmin(admin.ModelAdmin):
         return response
 
     def question_value(self, obj):
-        return obj.question.value
+        return obj.question.value if obj.question else None
 
 class AnswerNumberlineAnswerAdmin(admin.ModelAdmin):
     list_display = ('id', 'topic_answer', 'question_value', 'valid')
@@ -48,7 +48,7 @@ class AnswerNumberlineAnswerAdmin(admin.ModelAdmin):
         return response
 
     def question_value(self, obj):
-        return obj.question.value
+        return obj.question.value if obj.question else None
 
 
 class AssessmentTopicAnswerAdmin(admin.ModelAdmin):
@@ -82,3 +82,5 @@ admin.site.register(AssessmentTopicAnswer, AssessmentTopicAnswerAdmin)
 admin.site.register(AnswerDragAndDrop, admin.ModelAdmin)
 admin.site.register(DragAndDropAreaEntry, admin.ModelAdmin)
 admin.site.register(AnswerFindHotspot, admin.ModelAdmin)
+admin.site.register(AnswerSEL, admin.ModelAdmin)
+admin.site.register(AnswerDomino, admin.ModelAdmin)

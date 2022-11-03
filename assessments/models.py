@@ -1,23 +1,22 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from model_utils.managers import InheritanceManager
 from users.models import User
+
+class AssessmentSubject(models.TextChoices):
+    """
+    Subject enumeration.
+    """
+    MATH = 'MATH', 'Math'
+    LITERACY = 'LITERACY', 'Literacy'
+    TUTORIAL = 'TUTORIAL', 'Tutorial'
 
 
 class Assessment(models.Model):
     """
     Assessment model.
     """
-
-    class AssessmentSubject(models.TextChoices):
-        """
-        Subject enumeration.
-        """
-        MATH = 'MATH', 'Math'
-        LITERACY = 'LITERACY', 'Literacy'
-        PRESEL = 'PRESEL', 'PreSel'
-        POSTSEL = 'POSTSEL', 'PostSel'
-        TUTORIAL = 'TUTORIAL', 'Tutorial'
 
     title = models.CharField(
         max_length=256
@@ -70,6 +69,10 @@ class Assessment(models.Model):
         upload_to='assessments_icons',
         null=True,
         blank=True
+    )
+
+    sel_question = models.BooleanField(
+        default=True
     )
 
     def __str__(self):
@@ -167,6 +170,13 @@ class AssessmentTopic(models.Model):
         blank=True
     )
 
+    subtopic = models.ForeignKey(
+        'Subtopic',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+
     class Meta:
         ordering = ['order']
 
@@ -233,9 +243,11 @@ class Question(models.Model):
         """
         Question type enumeration.
         """
+        SEL = 'SEL', 'Social and Emotional Learning'
         INPUT = 'INPUT', 'Input'
         SELECT = 'SELECT', 'Select'
         SORT = 'SORT', 'Sort'
+        DOMINO = 'DOMINO', 'Domino'
         NUMBER_LINE = 'NUMBER_LINE', 'Number line'
         DRAG_AND_DROP = 'DRAG_AND_DROP', 'Drag and Drop'
         FIND_HOTSPOT = 'FIND_HOTSPOT', 'Find hotspot'
@@ -271,11 +283,19 @@ class Question(models.Model):
         default=False
     )
 
+    learning_objective = models.ForeignKey(
+        'LearningObjective',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
     class Meta:
         ordering = ['order']
+
 
 class Hint(models.Model):
     """
@@ -294,6 +314,24 @@ class Hint(models.Model):
         related_name='hint'
     )
 
+
+class QuestionSEL(Question):
+    """
+    Question SEL (Social and Emotional Learning) model (inherits Question).
+    """
+
+    class SELType(models.TextChoices):
+        MATH = 'MATH', 'Math Self-Efficacy'
+        READ = 'READ', 'Read Self-Efficacy'
+        GROWTH_MINDSET = 'GROWTH_MINDSET', 'Growth Mindset'
+
+    sel_type = models.CharField(
+        max_length=32,
+        choices=SELType.choices
+    )
+
+    def __str__(self):
+        return f'{self.title} ({self.question_type})'
 
 class QuestionInput(Question):
     """
@@ -324,13 +362,18 @@ class QuestionSelect(Question):
         default=displayTypes.GRID
     )
 
-    multiple = models.BooleanField(
-        default=False
-    )
-
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
+class QuestionDomino(Question):
+    """
+    Question domino model (inherits Question).
+    """
+
+    expected_value = models.IntegerField()
+
+    def __str__(self):
+        return f'{self.title} ({self.question_type})'
 
 class QuestionSort(Question):
     """
@@ -369,15 +412,7 @@ class QuestionNumberLine(Question):
         default=1
     )
 
-    tick_step = models.IntegerField(
-        default=1
-    )
-
-    show_ticks = models.BooleanField(
-        default=False
-    )
-
-    show_value = models.BooleanField(
+    shuffle = models.BooleanField(
         default=False
     )
 
@@ -461,10 +496,11 @@ class DraggableOption(models.Model):
         related_name='drag_options',
     )
 
-    area_option = models.ManyToManyField(
+    area_option = models.ForeignKey(
         'AreaOption',
-        related_name='areas',
-        blank=True
+        on_delete=models.CASCADE,
+        related_name='_areas',
+        null=True
     )
 
     def __str__(self):
@@ -498,6 +534,25 @@ class SelectOption(models.Model):
     def __str__(self):
         return f'[{self.question_select.id}] {self.title} ({self.valid})'
 
+class DominoOption(models.Model):
+    """
+    Domino option model.
+    """
+
+    left_side_value = models.IntegerField()
+
+    right_side_value = models.IntegerField()
+
+    valid = models.BooleanField()
+
+    question_domino = models.ForeignKey(
+        'QuestionDomino',
+        on_delete=models.CASCADE,
+        related_name='options'
+    )
+
+    def __str__(self):
+        return f'[{self.question_domino.id}] {self.left_side_value} | {self.right_side_value} ({self.valid})'
 
 class SortOption(models.Model):
     """
@@ -609,3 +664,49 @@ class Attachment(models.Model):
     def delete(self, *args, **kwargs):
         self.file.delete()
         super().delete(*args, **kwargs)
+
+
+class Subtopic(models.Model):
+    """
+    Subtopic model.
+    """
+    subject = models.CharField(
+        max_length=32,
+        choices=AssessmentSubject.choices
+    )
+
+    name = models.CharField(
+        max_length=62,
+    )
+
+    def __str__(self):
+        return f'{self.name}'
+
+
+class LearningObjective(models.Model):
+    """
+    Learning objective model.
+    """
+    code = models.CharField(
+        max_length=8,
+        primary_key=True
+    )
+
+    grade = models.CharField(
+        max_length=32
+    )
+
+    subtopic = models.ForeignKey(
+        'Subtopic',
+        on_delete=models.CASCADE,
+    )
+
+    name_eng = models.CharField(
+        max_length=255,
+        default=''
+    )
+
+    name_ara = models.CharField(
+        max_length=255,
+        default=''
+    )

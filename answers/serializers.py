@@ -11,8 +11,8 @@ from users.serializers import UserSerializer
 
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 
-from .models import (Answer, AnswerInput, AnswerNumberLine, AnswerSelect,
-                     AnswerSession, AnswerSort, DragAndDropAreaEntry,
+from .models import (Answer, AnswerDomino, AnswerInput, AnswerNumberLine, AnswerSEL,
+                     AnswerSelect, AnswerSession, AnswerSort, DragAndDropAreaEntry,
                      AnswerDragAndDrop, AssessmentTopicAnswer)
 
 
@@ -51,7 +51,9 @@ class AnswerSerializer(PolymorphicSerializer):
             'AnswerNumberLine': AnswerNumberLineSerializer,
             'AnswerSelect': AnswerSelectSerializer,
             'AnswerSort': AnswerSortSerializer,
-            'AnswerDragAndDrop': AnswerDragAndDropSerializer
+            'AnswerDragAndDrop': AnswerDragAndDropSerializer,
+            'AnswerSEL': AnswerSELSerializer,
+            'AnswerDomino': AnswerDominoSerializer
         }
 
     def to_internal_value(self, data):
@@ -68,6 +70,10 @@ class AnswerSerializer(PolymorphicSerializer):
             data['type'] = 'AnswerSort'
         elif question_type == 'QuestionDragAndDrop':
             data['type'] = 'AnswerDragAndDrop'
+        elif question_type == 'QuestionSEL':
+            data['type'] = 'AnswerSEL'
+        elif question_type == 'QuestionDomino':
+            data['type'] = 'AnswerDomino'
         return super().to_internal_value(data)
 
 
@@ -115,12 +121,12 @@ class AnswerSelectSerializer(AbstractAnswerSerializer):
     """
     Answer select serializer.
     """
-    selected_options = NestedRelatedField(
-        model=SelectOption, serializer_class=SelectOptionSerializer, many=True, required=False)
+    selected_option = NestedRelatedField(
+        model=SelectOption, serializer_class=SelectOptionSerializer, many=False, required=False)
 
     class Meta(AbstractAnswerSerializer.Meta):
         model = AnswerSelect
-        fields = AbstractAnswerSerializer.Meta.fields + ('selected_options',)
+        fields = AbstractAnswerSerializer.Meta.fields + ('selected_option',)
 
 
 class AnswerSortSerializer(AbstractAnswerSerializer):
@@ -152,8 +158,8 @@ class DragAndDropAreaEntrySerializer(serializers.ModelSerializer):
     """
     Drag and drop area entry serializer.
     """
-    selected_draggable_options = NestedRelatedField(
-        model=DraggableOption, serializer_class=DraggableOptionSerializer, many=True, required=False)
+    selected_draggable_option = NestedRelatedField(
+        model=DraggableOption, serializer_class=DraggableOptionSerializer, many=False, required=False)
 
     area = NestedRelatedField(
         model=AreaOption, serializer_class=AreaOptionSerializer, many=False)
@@ -187,9 +193,7 @@ class AnswerDragAndDropSerializer(AbstractAnswerSerializer):
                 area_entry_serializer = DragAndDropAreaEntrySerializer(
                     data={
                         'area': area_entry['area'].id,
-                        'selected_draggable_options': list(map(
-                            lambda e: e.id, area_entry['selected_draggable_options'],
-                        )),
+                        'selected_draggable_option': area_entry['selected_draggable_option'].id,
                         'answer': instance
                     }
                 )
@@ -198,6 +202,23 @@ class AnswerDragAndDropSerializer(AbstractAnswerSerializer):
 
         return instance
 
+class AnswerSELSerializer(AbstractAnswerSerializer):
+    """
+    Answer SEL serializer.
+    """
+
+    class Meta(AbstractAnswerSerializer.Meta):
+        model = AnswerSEL
+        fields = AbstractAnswerSerializer.Meta.fields + ('statement',)
+
+class AnswerDominoSerializer(AbstractAnswerSerializer):
+    """
+    Answer Domino serializer.
+    """
+
+    class Meta(AbstractAnswerSerializer.Meta):
+        model = AnswerDomino
+        fields = AbstractAnswerSerializer.Meta.fields + ('selected_domino',)
 
 class AssessmentTopicAnswerFullSerializer(serializers.ModelSerializer):
     """

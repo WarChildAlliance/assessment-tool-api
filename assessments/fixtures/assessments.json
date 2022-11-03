@@ -1623,464 +1623,406 @@
         "model": "assessments.questionselect",
         "pk": 31,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 46,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 67,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 50,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 16,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 54,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 87,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 88,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 32,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 51,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 47,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 17,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 68,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 55,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 56,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 18,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 89,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 33,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 69,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 48,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 52,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 57,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 49,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 90,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 19,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 34,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 70,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 53,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 20,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 35,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 71,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 91,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 72,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 92,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 21,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 36,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 93,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 73,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 37,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 22,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 38,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 23,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 74,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 94,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 39,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 24,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 25,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 40,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 26,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 41,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 42,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 27,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 43,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 28,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 44,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 29,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 45,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
         "model": "assessments.questionselect",
         "pk": 30,
         "fields": {
-            "display_type": "GRID",
-            "multiple": false
+            "display_type": "GRID"
         }
     },
     {
@@ -2090,10 +2032,7 @@
             "expected_value": 3,
             "start": 0,
             "end": 10,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2103,10 +2042,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2116,10 +2052,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2129,10 +2062,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2142,10 +2072,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2155,10 +2082,7 @@
             "expected_value": 5,
             "start": 0,
             "end": 10,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2168,10 +2092,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2181,10 +2102,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2194,10 +2112,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2207,10 +2122,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2220,10 +2132,7 @@
             "expected_value": 6,
             "start": 0,
             "end": 10,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2233,10 +2142,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2246,10 +2152,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2259,10 +2162,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2272,10 +2172,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2285,10 +2182,7 @@
             "expected_value": 8,
             "start": 0,
             "end": 10,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2298,10 +2192,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2311,10 +2202,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2324,10 +2212,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2337,10 +2222,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2350,10 +2232,7 @@
             "expected_value": 9,
             "start": 0,
             "end": 10,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2363,10 +2242,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2376,10 +2252,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2389,10 +2262,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2402,10 +2272,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2415,10 +2282,7 @@
             "expected_value": 10,
             "start": 0,
             "end": 20,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2428,10 +2292,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2441,10 +2302,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2454,10 +2312,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2467,10 +2322,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2480,10 +2332,7 @@
             "expected_value": 13,
             "start": 0,
             "end": 20,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2493,10 +2342,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2506,10 +2352,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2519,10 +2362,7 @@
             "expected_value": 11,
             "start": 0,
             "end": 20,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2532,10 +2372,7 @@
             "expected_value": 3,
             "start": 1,
             "end": 4,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2545,10 +2382,7 @@
             "expected_value": 1,
             "start": 1,
             "end": 5,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": true,
-            "show_value": true
+            "step": 1
         }
     },
     {
@@ -2558,10 +2392,7 @@
             "expected_value": 16,
             "start": 0,
             "end": 20,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2571,10 +2402,7 @@
             "expected_value": 19,
             "start": 0,
             "end": 20,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2584,10 +2412,7 @@
             "expected_value": 50,
             "start": 0,
             "end": 100,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2597,10 +2422,7 @@
             "expected_value": 61,
             "start": 0,
             "end": 100,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2610,10 +2432,7 @@
             "expected_value": 99,
             "start": 0,
             "end": 100,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2623,10 +2442,7 @@
             "expected_value": 86,
             "start": 0,
             "end": 100,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {
@@ -2636,10 +2452,7 @@
             "expected_value": 78,
             "start": 0,
             "end": 100,
-            "step": 1,
-            "tick_step": 1,
-            "show_ticks": false,
-            "show_value": false
+            "step": 1
         }
     },
     {

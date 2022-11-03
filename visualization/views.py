@@ -96,6 +96,20 @@ class AssessmentTableViewSet(ModelViewSet):
         Queryset to get allowed assessments for table.
         """
         assessments = Assessment.objects.filter(Q(created_by=self.request.user) | Q(private=False))
+           
+        topic = self.request.query_params.get('topic')
+        if topic:
+            topics = AssessmentTopic.objects.filter(id=topic)
+            assessments = assessments.filter(assessmenttopic__in=topics).distinct()
+
+        subtopic = self.request.query_params.get('subtopic')
+        if subtopic:
+            topics = AssessmentTopic.objects.filter(subtopic=subtopic, assessment__in=assessments)
+            assessments = assessments.filter(assessmenttopic__in=topics).distinct()
+
+        subject = self.request.query_params.get('subject')
+        if subject:
+            assessments = assessments.filter(subject=subject)
 
         language = self.request.query_params.get('language')
         if language:
@@ -479,7 +493,7 @@ class QuestionOverviewViewSet(ModelViewSet):
         topic_pk = int(self.kwargs.get('topic_pk', None))
 
         questions = Question.objects.filter(
-            assessment_topic=topic_pk,
+            Q(assessment_topic=topic_pk) & ~Q(question_type='SEL')
         )
 
         groups = self.request.query_params.getlist('groups[]')
@@ -530,7 +544,7 @@ class StudentAnswersViewSet(ModelViewSet):
         assessment_topic_answer_pk = int(
             self.kwargs.get('assessment_topic_answer_pk', None))
 
-        return Answer.objects.filter(question__assessment_topic=topic_pk, topic_answer=assessment_topic_answer_pk)
+        return Answer.objects.filter(question__assessment_topic=topic_pk, topic_answer=assessment_topic_answer_pk).exclude(question__question_type='SEL')
 
     def retrieve(self, request, *args, **kwargs):
         answer_pk = self.kwargs.get('pk', None)

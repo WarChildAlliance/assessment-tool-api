@@ -132,11 +132,27 @@ class AnswerSelect(Answer):
     Answer select model (inherits Answer).
     """
 
-    selected_options = models.ManyToManyField(
+    selected_option = models.ForeignKey(
         'assessments.SelectOption',
+        related_name='selected_option',
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True
     )
 
+
+class AnswerDomino(Answer):
+    """
+    Answer domino model (inherits Answer).
+    """
+
+    selected_domino = models.ForeignKey(
+        'assessments.DominoOption',
+        related_name='selected_domino',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
 class AnswerSort(Answer):
     """
@@ -191,8 +207,11 @@ class DragAndDropAreaEntry(models.Model):
     Designates an answer for one of the AreaOptions of the QuestionDragAndDrop.
     """
 
-    selected_draggable_options = models.ManyToManyField(
+    selected_draggable_option = models.ForeignKey(
         'assessments.DraggableOption',
+        related_name='selected_draggable_option',
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True
     )
 
@@ -208,4 +227,19 @@ class DragAndDropAreaEntry(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True
+    )
+
+class AnswerSEL(Answer):
+    """
+    Answer SEL model (inherits Answer).
+    """
+
+    class SELStatements(models.TextChoices):
+        NOT_REALLY = 'NOT_REALLY', 'Not really like me'
+        A_LITTLE = 'A_LITTLE', 'A little like me'
+        A_LOT = 'A_LOT', 'A lot like me'
+
+    statement = models.CharField(
+        max_length=32,
+        choices=SELStatements.choices
     )

@@ -9,7 +9,7 @@ class AssessmentsSupervisorTests(APITestCase):
     Assessment tests from a supervisor account.
     """
     fixtures = ['languages_countries.json', 'users.json',
-                'assessments-test.json', 'assessments_access.json']
+                'assessments-test.json', 'assessments_access.json', 'subtopics_learningobjectives.json']
 
     def setUp(self):
         """
@@ -128,7 +128,8 @@ class AssessmentsSupervisorTests(APITestCase):
         Ensure that supervisors can create a topic in an assessment they have created.
         """
         url = reverse('assessment-topics-list', args=[2])
-        data = {'assessment': 2, 'name': 'New topic'}
+        print(self)
+        data = {'assessment': 1, 'name': 'New topic', 'subtopic': 1}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.data['show_feedback'], 2)
         self.assertFalse(response.data['allow_skip'])
