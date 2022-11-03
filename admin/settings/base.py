@@ -44,7 +44,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     'glmt-api.development.humanitarian.tech',
-    'api.gobee-education.org', # Azure API
+    'assessment-tool-api.westeurope.cloudapp.azure.com', # Azure API
 ]
 
 AUTH_USER_MODEL = 'users.User'
