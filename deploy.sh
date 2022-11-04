@@ -10,9 +10,6 @@ rsync -e "ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes" -avzr --de
 if [ "$PROD" = true ]
 then
   DOCKER_COMPOSE="docker compose"
-  echo -e "Set production SECRET_KEY in path"
-  CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S export SECRET_KEY='$DJANGO_SECRET_KEY'""'"
-  ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
   echo -e "Copy docker-compose.yml file..."
   CMD="'""cd $REMOTE_PATH && mv docker-compose.prod.yml docker-compose.yml""'"
   ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
