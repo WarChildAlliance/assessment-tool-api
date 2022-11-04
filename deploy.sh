@@ -11,7 +11,6 @@ if [ "$PROD" = true ]
 then
   DOCKER_COMPOSE="docker compose"
   echo -e "SECRET_KEY = $SECRET_KEY"
-  echo SECRET_KEY=$SECRET_KEY >> .env
   echo -e "Copy docker-compose.yml file..."
   CMD="'""cd $REMOTE_PATH && mv docker-compose.prod.yml docker-compose.yml""'"
   ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
