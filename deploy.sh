@@ -10,7 +10,9 @@ rsync -e "ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes" -avzr --de
 if [ "$PROD" = true ]
 then
   DOCKER_COMPOSE="docker compose"
-  echo -e "SECRET_KEY = $SECRET_KEY"
+  echo -e "Set production SECRET_KEY in path"
+  CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S export SECRET_KEY=$SECRET_KEY""'"
+  ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
   echo -e "Copy docker-compose.yml file..."
   CMD="'""cd $REMOTE_PATH && mv docker-compose.prod.yml docker-compose.yml""'"
   ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
@@ -21,7 +23,7 @@ CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S $DOCKER_COMPOSE down""'"
 ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 
 echo -e "Starting docker containers..."
-CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S $DOCKER_COMPOSE up --build -d""'"
+CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S $DOCKER_COMPOSE up --build -d --env-file .env""'"
 ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 
 echo -e "Executing migrations..."
