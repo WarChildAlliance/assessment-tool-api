@@ -41,32 +41,9 @@ SECRET_KEY = '_nnx-zxrozl5p8w58%evez(#$r0a_y8#8__)iczmlys=5iz322'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'localhost',
-    'glmt-api.development.humanitarian.tech',
-    'api.gobee-education.org', # Azure API
-]
-
 AUTH_USER_MODEL = 'users.User'
 
 # CORS settings
-
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:4200',
-    'http://localhost:4300',
-    'http://localhost:8080',
-    'http://127.0.0.1:8080',
-    'https://glmt-admin.development.humanitarian.tech',
-    'https://glmt-main.development.humanitarian.tech',
-    'https://play.gobee-education.org', # Azure assessment tool
-    'https://admin.gobee-education.org' # Azure admin dashboard
-]
-
-# Whitelisting private IP addresses
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r'^http://172\.(?:1[6-9]|2[0-9]|3[01]).(\d|\.)*:8080$',
-    r'^http://192\.168.(\d|\.)*:8080$'
-]
 
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -76,8 +53,6 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
-
-
 
 # Application definition
 

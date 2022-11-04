@@ -41,10 +41,12 @@ deploy_sandbox:
   script: REMOTE_PATH=/var/www/html/assessment-tool/api CONNECTION=reliefapps@92.243.25.191 ./deploy.sh
 
 # Deploy to Azure.
-deploy_azure:
+deploy_prod:
   stage: deploy
   only:
     - master
+  variables:
+    SECRET_KEY: $DJANGO_SECRET_KEY
   before_script:
     - apt-get update -qq && apt-get install -y -qq sshpass rsync
     - 'which ssh-agent || (apt-get install -y -qq openssh-client)'
@@ -54,4 +56,4 @@ deploy_azure:
     - chmod 700 ~/.ssh
     - ssh-keyscan assessment-tool-api.westeurope.cloudapp.azure.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-  script: REMOTE_PATH=/home/azureadmin/assessment-tool-api CONNECTION=azureadmin@assessment-tool-api.westeurope.cloudapp.azure.com AZURE=true ./deploy.sh
+  script: REMOTE_PATH=/home/azureadmin/assessment-tool-api CONNECTION=azureadmin@assessment-tool-api.westeurope.cloudapp.azure.com PROD=true ./deploy.sh

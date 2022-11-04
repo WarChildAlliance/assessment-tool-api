@@ -7,14 +7,12 @@ set -e
 echo -e "Synchronizing files..."
 rsync -e "ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes" -avzr --delete --exclude-from '.gitignore' $OUT/* $CONNECTION:$REMOTE_PATH
 
-if [ "$AZURE" = true ]
+if [ "$PROD" = true ]
 then
   DOCKER_COMPOSE="docker compose"
-  echo -e "Copy local.py file..."
-  CMD="'""cd $REMOTE_PATH && mv admin/settings/local.dist.py admin/settings/local.py""'"
-  ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
+  echo -e "SECRET_KEY = $SECRET_KEY"
   echo -e "Copy docker-compose.yml file..."
-  CMD="'""cd $REMOTE_PATH && mv docker-compose.dist.yml docker-compose.yml""'"
+  CMD="'""cd $REMOTE_PATH && mv docker-compose.prod.yml docker-compose.yml""'"
   ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 fi
 
