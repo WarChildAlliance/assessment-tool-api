@@ -31,5 +31,9 @@ CORS_ALLOW_METHODS = [
     'PUT',
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://api.gobee-education.org'
+]
+
 # WSGI application ---> TO DO TO FINALIZE PROD
 WSGI_APPLICATION = 'admin.wsgi.application'
