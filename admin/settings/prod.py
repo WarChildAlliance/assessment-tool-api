@@ -5,7 +5,7 @@ Django settings for prod.
 from .base import *
 
 # Pass in Production
-DEBUG = False
+DEBUG = True
 
 # Get the SECRET_KEY from the environment. Needs to be set in the CI step.
 SECRET_KEY = get_env_value('SECRET_KEY')
