@@ -20,7 +20,7 @@ CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S $DOCKER_COMPOSE down""'"
 ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 
 echo -e "Starting docker containers..."
-CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S $DOCKER_COMPOSE up --build -d --env-file .env""'"
+CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S $DOCKER_COMPOSE up --build -d""'"
 ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 
 echo -e "Executing migrations..."
