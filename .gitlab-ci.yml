@@ -46,7 +46,6 @@ deploy_prod:
   only:
     - master
   before_script:
-    - export SECRET_KEY=$DJANGO_SECRET_KEY
     - apt-get update -qq && apt-get install -y -qq sshpass rsync
     - 'which ssh-agent || (apt-get install -y -qq openssh-client)'
     - eval $(ssh-agent -s)
@@ -55,4 +54,4 @@ deploy_prod:
     - chmod 700 ~/.ssh
     - ssh-keyscan assessment-tool-api.westeurope.cloudapp.azure.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-  script: REMOTE_PATH=/home/azureadmin/assessment-tool-api CONNECTION=azureadmin@assessment-tool-api.westeurope.cloudapp.azure.com PROD=true ./deploy.sh
+  script: REMOTE_PATH=/home/azureadmin/assessment-tool-api CONNECTION=azureadmin@assessment-tool-api.westeurope.cloudapp.azure.com PROD=true SECRET_KEY=$DJANGO_SECRET_KEY ./deploy.sh
