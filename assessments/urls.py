@@ -1,19 +1,28 @@
 from django.urls import include, path
-from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_nested import routers
 
 from . import views
 
 router = routers.SimpleRouter()
-router.register(r'', views.AssessmentsViewSet, basename='assessments')
+
+router.register(r'subtopics', views.SubtopicsViewSet, basename='subtopics')
 # generates:
-# /assessments/
-# /assessments/{assessment_pk}/
+# /assessments/subtopics/
+
+router.register(r'learning-objectives', views.LearningObjectivesViewSet, basename='learning-objectives')
+# generates:
+# /assessments/learning-objectives/
+# /assessments/learning-objectives/{learning_objective_pk}/
 
 router.register(r'questions', views.QuestionsViewSet, basename='all-questions-type')
 # generates:
 # /assessments/questions/all/
+
+router.register(r'', views.AssessmentsViewSet, basename='assessments')
+# generates:
+# /assessments/
+# /assessments/{assessment_pk}/
 
 """ router.register(r'attachments', views.AttachmentsViewSet, basename='attachments') """
 # We would like a single route for attachments but this doesn't work because Django thinks that
@@ -61,12 +70,9 @@ questions_router.register(
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/draggable/
 # /assessments/{assessment_pk}/topics/{topic_pk}/questions/{question_pk}/draggable/{draggable_option_pk}
 
-
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(assessments_router.urls)),
     path('', include(topics_router.urls)),
     path('', include(questions_router.urls)),
 ]
-
-

@@ -9,7 +9,6 @@ from django.http import HttpResponse
 import csv
 
 
-
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
@@ -34,15 +33,16 @@ class CustomUserCreationForm(UserCreationForm):
                 raise forms.ValidationError('Username must be 6 digits.')
             self.cleaned_data['password1'] = None
             self.cleaned_data['password2'] = None
-            if (self.cleaned_data.get('language') is None 
+            if (self.cleaned_data.get('language') is None
                     or self.cleaned_data.get('country') is None):
-                raise forms.ValidationError('Language and country required for students.')
+                raise forms.ValidationError(
+                    'Language and country required for students.')
         return cleaned_data
 
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('first_name', 'last_name', 'username', 'role',
-                    'country', 'language', 'is_staff', 'group',)
+                    'country', 'language', 'is_staff', 'group', 'grade')
     list_display_links = ('username',)
     list_filter = ('is_staff', 'role', 'language', 'country',)
     search_fields = ('username', 'first_name', 'last_name', 'email',)
@@ -51,7 +51,7 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name',
-                                      'email', 'country', 'language',)}),
+                                      'email', 'country', 'language', 'see_intro','grade')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser',
                                     'role',)}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
@@ -69,19 +69,20 @@ class CustomUserAdmin(UserAdmin):
         ),
     )
 
+
 class UserGroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'id', 'supervisor', 'students',)
     list_filter = ('supervisor',)
 
     def students(self, obj):
-        students =  UserGroup.objects.filter(id=obj.id)
+        students = UserGroup.objects.filter(id=obj.id)
         exists = User.objects.filter(group__id__in=students).exists()
 
         if exists:
-            return [student['student_group__first_name'] + ' ' + student['student_group__last_name'] + ' (' + student['student_group__username'] + ')' 
-                for student in students.values('student_group__username', 'student_group__first_name', 'student_group__last_name')
-                ]
-        else :
+            return [student['student_group__first_name'] + ' ' + student['student_group__last_name'] + ' (' + student['student_group__username'] + ')'
+                    for student in students.values('student_group__username', 'student_group__first_name', 'student_group__last_name')
+                    ]
+        else:
             return None
 
     def export_as_csv(self, request, queryset):
@@ -89,12 +90,14 @@ class UserGroupAdmin(admin.ModelAdmin):
         field_names = [field.name for field in meta.fields]
 
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(
+            meta)
         writer = csv.writer(response)
 
         writer.writerow(field_names)
         for obj in queryset:
-            row = writer.writerow([getattr(obj, field) for field in field_names])
+            row = writer.writerow([getattr(obj, field)
+                                  for field in field_names])
 
         return response
 

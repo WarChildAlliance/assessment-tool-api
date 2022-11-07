@@ -4,21 +4,19 @@ from django.contrib.postgres.fields import ArrayField
 from model_utils.managers import InheritanceManager
 from users.models import User
 
+class AssessmentSubject(models.TextChoices):
+    """
+    Subject enumeration.
+    """
+    MATH = 'MATH', 'Math'
+    LITERACY = 'LITERACY', 'Literacy'
+    TUTORIAL = 'TUTORIAL', 'Tutorial'
+
 
 class Assessment(models.Model):
     """
     Assessment model.
     """
-
-    class AssessmentSubject(models.TextChoices):
-        """
-        Subject enumeration.
-        """
-        MATH = 'MATH', 'Math'
-        LITERACY = 'LITERACY', 'Literacy'
-        PRESEL = 'PRESEL', 'PreSel'
-        POSTSEL = 'POSTSEL', 'PostSel'
-        TUTORIAL = 'TUTORIAL', 'Tutorial'
 
     title = models.CharField(
         max_length=256
@@ -104,14 +102,6 @@ class AssessmentTopic(models.Model):
         ALWAYS = 1, 'Always'
         SECOND = 2, 'Second attempt on'
 
-    class Subtopic(models.TextChoices):
-        """
-        Subtopic options enumeration. TEMPORARY: waiting for the real list!
-        """
-        SUBTOPIC1 = 'Subtopic 1', 'Subtopic 1'
-        SUBTOPIC2 = 'Subtopic 2', 'Subtopic 2'
-        SUBTOPIC3 = 'Subtopic 3', 'Subtopic 3'
-
     name = models.CharField(
         max_length=256
     )
@@ -180,9 +170,10 @@ class AssessmentTopic(models.Model):
         blank=True
     )
 
-    subtopic = models.CharField(
-        max_length=64,
-        choices=Subtopic.choices,
+    subtopic = models.ForeignKey(
+        'Subtopic',
+        on_delete=models.SET_NULL,
+        blank=True,
         null=True
     )
 
@@ -262,14 +253,6 @@ class Question(models.Model):
         CALCUL = 'CALCUL', 'Calcul'
         FIND_HOTSPOT = 'FIND_HOTSPOT', 'Find hotspot'
 
-    class QuestionDifficulty(models.IntegerChoices):
-        """
-        Question difficulty options enumeration.
-        """
-        DIFFICULTY1 = 1, 'Difficulty 1'
-        DIFFICULTY2 = 2, 'Difficulty 2'
-        DIFFICULTY3 = 3, 'Difficulty 3'
-
     value = models.CharField(
         max_length=256,
         default='question-value-missing',
@@ -301,10 +284,11 @@ class Question(models.Model):
         default=False
     )
 
-    difficulty = models.IntegerField(
-        choices=QuestionDifficulty.choices,
-        null=True,
-        blank=True
+    learning_objective = models.ForeignKey(
+        'LearningObjective',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
     )
 
     def __str__(self):
@@ -312,6 +296,7 @@ class Question(models.Model):
 
     class Meta:
         ordering = ['order']
+
 
 class Hint(models.Model):
     """
@@ -448,6 +433,10 @@ class QuestionNumberLine(Question):
 
     step = models.IntegerField(
         default=1
+    )
+
+    shuffle = models.BooleanField(
+        default=False
     )
 
     def __str__(self):
@@ -698,3 +687,49 @@ class Attachment(models.Model):
     def delete(self, *args, **kwargs):
         self.file.delete()
         super().delete(*args, **kwargs)
+
+
+class Subtopic(models.Model):
+    """
+    Subtopic model.
+    """
+    subject = models.CharField(
+        max_length=32,
+        choices=AssessmentSubject.choices
+    )
+
+    name = models.CharField(
+        max_length=62,
+    )
+
+    def __str__(self):
+        return f'{self.name}'
+
+
+class LearningObjective(models.Model):
+    """
+    Learning objective model.
+    """
+    code = models.CharField(
+        max_length=8,
+        primary_key=True
+    )
+
+    grade = models.CharField(
+        max_length=32
+    )
+
+    subtopic = models.ForeignKey(
+        'Subtopic',
+        on_delete=models.CASCADE,
+    )
+
+    name_eng = models.CharField(
+        max_length=255,
+        default=''
+    )
+
+    name_ara = models.CharField(
+        max_length=255,
+        default=''
+    )
