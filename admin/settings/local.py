@@ -26,3 +26,6 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     r'^http://192\.168.(\d|\.)*:8080$'
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://glmt-api.development.humanitarian.tech'
+]
