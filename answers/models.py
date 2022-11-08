@@ -243,3 +243,10 @@ class AnswerSEL(Answer):
         max_length=32,
         choices=SELStatements.choices
     )
+
+class AnswerCalcul(Answer):
+    """
+    Answer Calcul model (inherits Answer).
+    """
+
+    value = models.IntegerField()

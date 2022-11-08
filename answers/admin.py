@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.http import HttpResponse
 import csv
 
-from .models import (Answer, AnswerDomino, AnswerInput, AnswerNumberLine, AnswerSEL, AnswerSelect, AnswerFindHotspot,
+from .models import (Answer, AnswerCalcul, AnswerDomino, AnswerInput, AnswerNumberLine, AnswerSEL, AnswerSelect, AnswerFindHotspot,
                     AnswerDragAndDrop, DragAndDropAreaEntry, AnswerSession, AnswerSort, AssessmentTopicAnswer)
 
 
@@ -84,3 +84,4 @@ admin.site.register(DragAndDropAreaEntry, admin.ModelAdmin)
 admin.site.register(AnswerFindHotspot, admin.ModelAdmin)
 admin.site.register(AnswerSEL, admin.ModelAdmin)
 admin.site.register(AnswerDomino, admin.ModelAdmin)
+admin.site.register(AnswerCalcul, admin.ModelAdmin)
