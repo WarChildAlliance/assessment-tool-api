@@ -9,17 +9,20 @@ DEBUG = True
 
 # Get the SECRET_KEY from the environment. Needs to be set in the CI step.
 SECRET_KEY = get_env_value('SECRET_KEY')
+SECRET_KEY_FALLBACKS = [
+    '_nnx-zxrozl5p8w58%evez(#$r0a_y8#8__)iczmlys=5iz322',   # Original local key
+]
 
 # Host
 ALLOWED_HOSTS = [
-    'api.gobee-education.org', # Azure API
+    'api.gobee-education.org',  # Azure API
 ]
 
 # CORS settings
 
 CORS_ORIGIN_WHITELIST = [
-    'https://play.gobee-education.org', # Azure assessment tool
-    'https://admin.gobee-education.org' # Azure admin dashboard
+    'https://play.gobee-education.org',  # Azure assessment tool
+    'https://admin.gobee-education.org'  # Azure admin dashboard
 ]
 
 CORS_ALLOW_METHODS = [
