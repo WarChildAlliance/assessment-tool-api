@@ -250,6 +250,7 @@ class Question(models.Model):
         DOMINO = 'DOMINO', 'Domino'
         NUMBER_LINE = 'NUMBER_LINE', 'Number line'
         DRAG_AND_DROP = 'DRAG_AND_DROP', 'Drag and Drop'
+        CALCUL = 'CALCUL', 'Calcul'
         FIND_HOTSPOT = 'FIND_HOTSPOT', 'Find hotspot'
 
     value = models.CharField(
@@ -371,6 +372,28 @@ class QuestionDomino(Question):
     """
 
     expected_value = models.IntegerField()
+
+    def __str__(self):
+        return f'{self.title} ({self.question_type})'
+
+class QuestionCalcul(Question):
+    """
+    Question calcul model (inherits Question).
+    """
+    class OperatorType(models.TextChoices):
+        ADDITION = 'ADDITION', 'Addition'
+        SUBTRACTION = 'SUBTRACTION', 'Subtraction'
+        DIVISION = 'DIVISION', 'Division'
+        MULTIPLICATION = 'MULTIPLICATION', 'Multiplication'
+
+    first_value = models.IntegerField()
+
+    second_value = models.IntegerField()
+
+    operator = models.CharField(
+        max_length=32,
+        choices=OperatorType.choices,
+    )
 
     def __str__(self):
         return f'{self.title} ({self.question_type})'
