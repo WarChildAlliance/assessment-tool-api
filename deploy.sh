@@ -22,4 +22,8 @@ echo -e "Load languages and countries..."
 CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S docker-compose run --rm web python manage.py loaddata languages_countries""'"
 ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 
+echo -e "Load subtopics and learning objectives..."
+CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S docker-compose run --rm web python manage.py loaddata subtopics_learningobjectives""'"
+ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
+
 echo -e "Deployed!"
