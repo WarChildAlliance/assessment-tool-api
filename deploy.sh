@@ -31,7 +31,7 @@ CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S $DOCKER_COMPOSE run --rm w
 ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 
 echo -e "Load languages and countries..."
-CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S $DOCKER_COMPOSE run --rm web python manage.py loaddata languages_countries subtopics_learningobjectives""'"
+CMD="'""cd $REMOTE_PATH && echo '$SSH_PASS' | sudo -S $DOCKER_COMPOSE run --rm web python manage.py loaddata languages_countries""'"
 ssh -oStrictHostKeyChecking=no -o PubkeyAuthentication=yes $CONNECTION "'"$CMD"'"
 
 echo -e "Deployed!"
