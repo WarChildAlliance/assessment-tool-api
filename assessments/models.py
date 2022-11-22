@@ -250,6 +250,7 @@ class Question(models.Model):
         DOMINO = 'DOMINO', 'Domino'
         NUMBER_LINE = 'NUMBER_LINE', 'Number line'
         DRAG_AND_DROP = 'DRAG_AND_DROP', 'Drag and Drop'
+        CUSTOMIZED_DRAG_AND_DROP = 'CUSTOMIZED_DRAG_AND_DROP', 'Customized Drag and Drop'
         CALCUL = 'CALCUL', 'Calcul'
         FIND_HOTSPOT = 'FIND_HOTSPOT', 'Find hotspot'
 
@@ -457,7 +458,63 @@ class QuestionFindHotspot(Question):
 
     def __str__(self):
         return f'{self.title} ({self.question_type})'
+
+class QuestionCustomizedDragAndDrop(Question):
+    """
+    Question Customized Drag And Drop (inherits from Question).
+    """
+    class OperatorType(models.TextChoices):
+        ADDITION = 'ADDITION', 'Addition'
+        SUBTRACTION = 'SUBTRACTION', 'Subtraction'
+        DIVISION = 'DIVISION', 'Division'
+        MULTIPLICATION = 'MULTIPLICATION', 'Multiplication'
     
+    class ItemType(models.TextChoices):
+        PENCIL = 'PENCIL', 'pencil'
+        FRUIT = 'FRUIT', 'fruit'
+        BALLON = 'BALLON', 'ballon'
+        BUTTON = 'BUTTON', 'button'
+        SOCKS = 'SOCKS', 'socks'
+        PAINT = 'PAINT', 'paint'
+
+    class Colors(models.TextChoices):
+        RED = 'RED', 'Red'
+        LIGHT_GREEN = 'LIGHT_GREEN', 'Light Green'
+        DARK_GREEN = 'DARK_GREEN', 'Dark Green'
+        YELLOW = 'YELLOW', 'Yellow'
+        ORANGE = 'ORANGE', 'Orange'
+        LIGHT_BLUE = 'LIGHT_BLUE', 'Light Blue'
+        DARK_BLUE = 'DARK_BLUE', 'Dark Blue'
+        PINK = 'PINK', 'Pink'
+        PURPLE = 'PURPLE', 'Purple'
+
+    first_value = models.IntegerField()
+
+    first_color = models.CharField(
+        max_length=32,
+        choices=Colors.choices,
+    )
+
+    second_value = models.IntegerField()
+
+    second_color = models.CharField(
+        max_length=32,
+        choices=Colors.choices,
+    )
+
+    operator = models.CharField(
+        max_length=32,
+        choices=OperatorType.choices,
+    )
+
+    item = models.CharField(
+        max_length=32,
+        choices=ItemType.choices,
+    )
+
+    def __str__(self):
+        return f'{self.title} ({self.question_type})'
+
 class AreaOption(models.Model):
     """
     Area option model (used for QuestionFindHotspot and QuestionDragAndDrop).

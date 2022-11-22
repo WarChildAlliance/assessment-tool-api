@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
-from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, DominoOption, Question, QuestionCalcul, QuestionDomino, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint, Subtopic, LearningObjective
+from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, DominoOption, Question, QuestionCalcul, QuestionDomino, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint, Subtopic, LearningObjective, QuestionCustomizedDragAndDrop
 from answers.models import AnswerCalcul, AnswerDomino, AnswerDragAndDrop, AnswerSEL, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry
 
 from answers.serializers import DragAndDropAreaEntrySerializer
@@ -409,6 +409,7 @@ class QuestionDetailsTableSerializer(PolymorphicSerializer):
             'QuestionSEL': QuestionSELTableSerializer,
             'QuestionDomino': QuestionDominoTableSerializer,
             'QuestionCalcul': QuestionCalculTableSerializer,
+            'QuestionCustomizedDragAndDrop': QuestionCustomizedDragAndDropTableSerializer,
         }
 
 
@@ -439,6 +440,13 @@ class QuestionNumberLineTableSerializer(AbstractQuestionDetailsTableSerializer):
         model = QuestionNumberLine
         fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
             ('expected_value', 'start', 'end', 'step',)
+
+class QuestionCustomizedDragAndDropTableSerializer(AbstractQuestionDetailsTableSerializer):
+
+    class Meta(AbstractQuestionDetailsTableSerializer.Meta):
+        model = QuestionCustomizedDragAndDrop
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
+            ('first_value', 'first_color', 'second_value', 'second_color', 'operator', 'item',)
 
 class QuestionCalculTableSerializer(AbstractQuestionDetailsTableSerializer):
 
