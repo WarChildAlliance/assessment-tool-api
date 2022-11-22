@@ -250,3 +250,14 @@ class AnswerCalcul(Answer):
     """
 
     value = models.IntegerField()
+
+class AnswerCustomizedDragAndDrop(Answer):
+    """
+    Answer Customized Drag And Drop model (inherits Answer).
+    """
+
+    left_value = models.IntegerField()
+
+    right_value = models.IntegerField()
+
+    final_value = models.IntegerField()

@@ -3,7 +3,7 @@ from django.http import HttpResponse
 import csv
 
 from .models import (Answer, AnswerCalcul, AnswerDomino, AnswerInput, AnswerNumberLine, AnswerSEL, AnswerSelect, AnswerFindHotspot,
-                    AnswerDragAndDrop, DragAndDropAreaEntry, AnswerSession, AnswerSort, AssessmentTopicAnswer)
+                    AnswerDragAndDrop, DragAndDropAreaEntry, AnswerSession, AnswerSort, AssessmentTopicAnswer, AnswerCustomizedDragAndDrop)
 
 
 class AnswerSelectAnswerAdmin(admin.ModelAdmin):
@@ -85,3 +85,4 @@ admin.site.register(AnswerFindHotspot, admin.ModelAdmin)
 admin.site.register(AnswerSEL, admin.ModelAdmin)
 admin.site.register(AnswerDomino, admin.ModelAdmin)
 admin.site.register(AnswerCalcul, admin.ModelAdmin)
+admin.site.register(AnswerCustomizedDragAndDrop, admin.ModelAdmin)
