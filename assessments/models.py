@@ -1,6 +1,5 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 from model_utils.managers import InheritanceManager
 from users.models import User
 
@@ -286,6 +285,13 @@ class Question(models.Model):
 
     learning_objective = models.ForeignKey(
         'LearningObjective',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+
+    number_range = models.ForeignKey(
+        'NumberRange',
         on_delete=models.SET_NULL,
         blank=True,
         null=True
@@ -704,6 +710,24 @@ class Subtopic(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
+
+class NumberRange(models.Model):
+    """
+    Number range model.
+    """
+    grade = models.CharField(max_length=32)
+
+    min = models.PositiveSmallIntegerField(default=1)
+
+    max = models.PositiveSmallIntegerField()
+
+    @property
+    def handle(self):
+        return f'{self.min}-{self.max}'
+
+    def __str__(self):
+        return f'{self.grade}: {self.handle}'
 
 
 class LearningObjective(models.Model):

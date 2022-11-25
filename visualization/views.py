@@ -119,6 +119,28 @@ class AssessmentTableViewSet(ModelViewSet):
         if country:
             assessments = assessments.filter(country__code=country)
 
+        grade = self.request.query_params.get('grade')
+        if grade:
+            assessments = assessments.filter(grade=grade)
+
+        subtopic = self.request.query_params.get('subtopic')
+        if subtopic:
+            assessments = assessments.filter(assessmenttopic__subtopic=subtopic)
+
+        number_range = self.request.query_params.get('number_range')
+        if number_range:
+            assessments = assessments.filter(assessmenttopic__question__number_range=number_range)
+
+        question_types = self.request.query_params.getlist('question_types[]', None)
+        if question_types:
+            questions = Question.objects.filter(question_type__in=question_types)
+            assessments = assessments.filter(assessmenttopic__question__in=questions)
+
+        learning_objectives = self.request.query_params.getlist('learning_objectives[]', None)
+        if learning_objectives:
+            questions = Question.objects.filter(learning_objective__in=learning_objectives)
+            assessments = assessments.filter(assessmenttopic__question__in=questions)
+
         return assessments
     
     def list(self, request, *args, **kwargs):

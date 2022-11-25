@@ -15,6 +15,11 @@ router.register(r'learning-objectives', views.LearningObjectivesViewSet, basenam
 # /assessments/learning-objectives/
 # /assessments/learning-objectives/{learning_objective_pk}/
 
+router.register(r'number-ranges', views.NumberRangesViewSet, basename='number-ranges')
+# generates:
+# /assessments/number-ranges/
+# /assessments/number-ranges/{number-ranges_pk}/
+
 router.register(r'questions', views.QuestionsViewSet, basename='all-questions-type')
 # generates:
 # /assessments/questions/all/
