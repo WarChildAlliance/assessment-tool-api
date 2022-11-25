@@ -741,5 +741,53 @@
       "subtopic": 4,
       "name_eng": "Divide 2-digit no. by 1-digit, with remainders"
     }
+  },
+  {
+    "model": "assessments.numberrange",
+    "pk": 1,
+    "fields": {
+      "grade": "1",
+      "max": "10"
+    }
+  },
+  {
+    "model": "assessments.numberrange",
+    "pk": 2,
+    "fields": {
+      "grade": "1",
+      "max": "20"
+    }
+  },
+  {
+    "model": "assessments.numberrange",
+    "pk": 3,
+    "fields": {
+      "grade": "1",
+      "max": "50"
+    }
+  },
+  {
+    "model": "assessments.numberrange",
+    "pk": 4,
+    "fields": {
+      "grade": "1",
+      "max": "100"
+    }
+  },
+  {
+    "model": "assessments.numberrange",
+    "pk": 5,
+    "fields": {
+      "grade": "2",
+      "max": "1000"
+    }
+  },
+  {
+    "model": "assessments.numberrange",
+    "pk": 6,
+    "fields": {
+      "grade": "3",
+      "max": "10000"
+    }
   }
 ]
