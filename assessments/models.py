@@ -469,37 +469,49 @@ class QuestionCustomizedDragAndDrop(Question):
         DIVISION = 'DIVISION', 'Division'
         MULTIPLICATION = 'MULTIPLICATION', 'Multiplication'
     
-    class ItemType(models.TextChoices):
-        PENCIL = 'PENCIL', 'pencil'
-        FRUIT = 'FRUIT', 'fruit'
-        BALLON = 'BALLON', 'ballon'
-        BUTTON = 'BUTTON', 'button'
-        SOCKS = 'SOCKS', 'socks'
-        PAINT = 'PAINT', 'paint'
+    class ShapesType(models.TextChoices):
+        PENCIL = 'PENCIL', 'Pencil'
+        FRUIT = 'FRUIT', 'Fruit'
+        BALLON = 'BALLON', 'Ballon'
+        BUTTON = 'BUTTON', 'Button'
+        SOCKS = 'SOCKS', 'Socks'
+        PAINT = 'PAINT', 'Paint'
+        BUG = 'BUG', 'Bug'
 
-    class Colors(models.TextChoices):
+    class StyleTypes(models.TextChoices):
+        # Colors
         RED = 'RED', 'Red'
         LIGHT_GREEN = 'LIGHT_GREEN', 'Light Green'
         DARK_GREEN = 'DARK_GREEN', 'Dark Green'
         YELLOW = 'YELLOW', 'Yellow'
-        ORANGE = 'ORANGE', 'Orange'
+        ORANGE = 'ORANGE', 'Orange' # Can also be the fruit orange
         LIGHT_BLUE = 'LIGHT_BLUE', 'Light Blue'
         DARK_BLUE = 'DARK_BLUE', 'Dark Blue'
         PINK = 'PINK', 'Pink'
         PURPLE = 'PURPLE', 'Purple'
+        # Bugs
+        CATERPILLAR = 'CATERPILLAR', 'Caterpillar'
+        ANT = 'ANT', 'Ant'
+        BUTTERFLY = 'BUTTERFLY', 'Butterfly'
+        CENTIPEDE = 'CENTIPEDE', 'Centipede'
+        FLY = 'FLY', 'Fly'
+        #Fruits
+        APPLE = 'APPLE', 'Apple'
+        BANANA = 'BANANA', 'Banana'
+        WATERMELON = 'WATERMELON', 'Watermelon'
 
     first_value = models.IntegerField()
 
-    first_color = models.CharField(
+    first_style = models.CharField(
         max_length=32,
-        choices=Colors.choices,
+        choices=StyleTypes.choices
     )
 
     second_value = models.IntegerField()
 
-    second_color = models.CharField(
+    second_style = models.CharField(
         max_length=32,
-        choices=Colors.choices,
+        choices=StyleTypes.choices
     )
 
     operator = models.CharField(
@@ -507,9 +519,9 @@ class QuestionCustomizedDragAndDrop(Question):
         choices=OperatorType.choices,
     )
 
-    item = models.CharField(
+    shape = models.CharField(
         max_length=32,
-        choices=ItemType.choices,
+        choices=ShapesType.choices,
     )
 
     def __str__(self):
