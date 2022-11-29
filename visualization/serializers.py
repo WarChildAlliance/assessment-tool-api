@@ -446,7 +446,7 @@ class QuestionCustomizedDragAndDropTableSerializer(AbstractQuestionDetailsTableS
     class Meta(AbstractQuestionDetailsTableSerializer.Meta):
         model = QuestionCustomizedDragAndDrop
         fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
-            ('first_value', 'first_color', 'second_value', 'second_color', 'operator', 'item',)
+            ('first_value', 'first_style', 'second_value', 'second_style', 'operator', 'shape',)
 
 class QuestionCalculTableSerializer(AbstractQuestionDetailsTableSerializer):
 
