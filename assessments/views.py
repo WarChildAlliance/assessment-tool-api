@@ -11,12 +11,12 @@ from datetime import date
 
 from admin.lib.viewsets import ModelViewSet
 
-from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess,
+from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess, NumberRange,
                      Attachment, DraggableOption, LearningObjective, Question, Subtopic)
 from .serializers import (AssessmentDeepSerializer, AssessmentSerializer,
                           AssessmentTopicAccessSerializer,
                           AssessmentTopicSerializer, AttachmentSerializer, DraggableOptionSerializer,
-                          QuestionSerializer, SubtopicSerializer, LearningObjectiveSerializer)
+                          QuestionSerializer, SubtopicSerializer, LearningObjectiveSerializer, NumberRangeSerializer)
 
 
 class AssessmentsViewSet(ModelViewSet):
@@ -442,11 +442,16 @@ class SubtopicsViewSet(GenericViewSet, ListModelMixin):
         """
         Queryset to get subtopics.
         """
+        subtopics = Subtopic.objects.all()
         subject = self.request.query_params.get('subject', None)
         if subject:
-            return Subtopic.objects.filter(subject=subject)
+            subtopics = subtopics.filter(subject=subject)
 
-        return Subtopic.objects.all()
+        learning_objectives = self.request.query_params.getlist('learning_objectives[]', None)
+        if learning_objectives:
+            subtopics = subtopics.filter(learningobjective__in=learning_objectives).distinct()
+
+        return subtopics
 
 
 class LearningObjectivesViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
@@ -472,3 +477,20 @@ class LearningObjectivesViewSet(GenericViewSet, RetrieveModelMixin, ListModelMix
             learning_objectives = learning_objectives.filter(subtopic=subtopic)
 
         return learning_objectives
+
+
+class NumberRangesViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
+    """
+    Number ranges viewset.
+    """
+    serializer_class = NumberRangeSerializer
+    permission_classes = [IsAuthenticated, IsSupervisor]
+
+    def get_queryset(self):
+        number_ranges = NumberRange.objects.all()
+
+        grade = self.request.query_params.get('grade', None)
+        if grade:
+            number_ranges = number_ranges.filter(grade=grade)
+
+        return number_ranges

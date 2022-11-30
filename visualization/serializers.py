@@ -174,12 +174,47 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
     country_name = serializers.SerializerMethodField()
     country_code = serializers.SerializerMethodField()
 
+    # Number of student invited to the assessment
+    invites = serializers.SerializerMethodField()
+    # Number of time the assessment has been played by a student
+    plays = serializers.SerializerMethodField()
+    # Score is the global average score for this assessment amongst all the students
+    score = serializers.SerializerMethodField()
+
     class Meta:
         model = Assessment
-        fields = ('id', 'title', 'language_name', 'language_code',
-                  'country_name', 'country_code', 'topics_count', 'topics',
+        fields = ('id', 'title', 'language_name', 'language_code', 'invites',
+                  'country_name', 'country_code', 'topics_count', 'topics', 'plays',
                   'students_count', 'grade', 'subject', 'private', 'can_edit',
-                  'icon', 'archived', 'downloadable', 'sel_question')
+                  'icon', 'archived', 'downloadable', 'sel_question', 'score')
+
+    def __get_topic_correct_answers_percentage(self, topic):
+        """
+        Get the percentage of correct answers for the given topic
+        """
+        correct_answers_percentage = 0
+        topic_total_answers = Question.objects.filter(assessment_topic=topic).exclude(question_type='SEL').count()
+        topic_answers = AssessmentTopicAnswer.objects.filter(topic_access__topic=topic)
+        if not topic_total_answers or not topic_answers:
+            return None
+        topic_total_correct_answers = Answer.objects.filter(
+                topic_answer__in=topic_answers,
+                valid=True
+            ).exclude(question__question_type='SEL').count()
+        topic_total_wrong_answers = 0
+        if topic_total_correct_answers == 0:
+            topic_total_wrong_answers = Answer.objects.filter(
+                topic_answer__in=topic_answers,
+                valid=False
+            ).exclude(question__question_type='SEL').count()
+        if (topic_total_answers != 0):
+            if topic_total_correct_answers != 0:
+                correct_answers_percentage = round((topic_total_correct_answers / topic_total_answers) * 100, 1)
+            elif topic_total_wrong_answers != 0:
+                correct_answers_percentage = 0
+
+        return min(correct_answers_percentage, 100.0)
+
 
     def get_topics_count(self, instance):
         return AssessmentTopic.objects.filter(assessment=instance).count()
@@ -187,15 +222,17 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
     def get_topics(self, instance):
         topics = AssessmentTopic.objects.filter(assessment=instance).values_list('id', 'name', 'description', 'icon', 'archived', 'order')
 
-        topics_with_question_count = []
+        topics_res = []
 
         for topic in topics:
             question_count = Question.objects.filter(assessment_topic=topic[0]).exclude(
                 Q(question_type='SEL') & (~Q(assessment_topic__order=1) | Q(assessment_topic__assessment__sel_question=False))
             ).count()
-            topics_with_question_count.append({"id": topic[0], "title": topic[1], "description": topic[2], "questionsCount": question_count,"icon": topic[3], "archived": topic[4], "order": topic[5]})
-        
-        return topics_with_question_count
+            correct_answers_percentage = self.__get_topic_correct_answers_percentage(topic)
+            topics_res.append({"id": topic[0], "title": topic[1], "description": topic[2], "questionsCount": question_count,"icon": topic[3], "archived": topic[4], "order": topic[5],
+                    "score": correct_answers_percentage})
+
+        return topics_res
 
     def get_students_count(self, instance):
         return User.objects.filter(
@@ -229,6 +266,29 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
         else:
             return False
 
+    def get_invites(self, instance):
+        topics = AssessmentTopic.objects.filter(assessment=instance)
+        return User.objects.filter(assessmenttopicaccess__topic__in=topics).distinct().count()
+
+    def get_plays(self, instance):
+        topics = AssessmentTopic.objects.filter(assessment=instance)
+        return AssessmentTopicAnswer.objects.filter(topic_access__topic__in=topics).distinct('session').count()
+
+    def get_score(self, instance):
+        topics = AssessmentTopic.objects.filter(assessment=instance, archived=False)
+        assessment_topics_answers = []
+
+        for topic in topics:
+            if topic.evaluated:
+                correct_answers_percentage = self.__get_topic_correct_answers_percentage(topic)
+                if correct_answers_percentage is not None:
+                    assessment_topics_answers.append(correct_answers_percentage)
+
+        score = None
+        if assessment_topics_answers:
+            score = sum(assessment_topics_answers) / float(len(assessment_topics_answers))
+
+        return score
 
 class AssessmentTopicTableSerializer(serializers.ModelSerializer):
     """

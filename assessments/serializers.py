@@ -15,7 +15,7 @@ from users.serializers import LanguageSerializer, CountrySerializer
 from .models import (AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess,
                      Attachment, DominoOption, DraggableOption, Hint, Question, QuestionCalcul, QuestionDomino, QuestionDragAndDrop, QuestionFindHotspot, QuestionInput,
                      QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, QuestionCustomizedDragAndDrop,
-                     SelectOption, SortOption, Subtopic, LearningObjective)
+                     SelectOption, SortOption, Subtopic, LearningObjective, NumberRange)
 
 
 class AttachmentSerializer(serializers.ModelSerializer):
@@ -318,6 +318,14 @@ class LearningObjectiveSerializer(serializers.ModelSerializer):
         model = LearningObjective
         fields = ('code', 'grade', 'name_eng', 'name_ara', 'subtopic')
 
+class NumberRangeSerializer(serializers.ModelSerializer):
+    """
+    Number range serializer.
+    """
+
+    class Meta:
+        model = NumberRange
+        fields = ('id', 'min', 'max', 'handle')
 
 class QuestionSerializer(PolymorphicSerializer):
     """
@@ -753,10 +761,6 @@ class AssessmentTopicAccessListSerializer(serializers.ListSerializer):
         to_create = []
         to_update = []
         for item in validated_data:
-            # Prevent student to have multiple assessment assigned
-            AssessmentTopicAccess.objects.filter(
-                student=item['student']).exclude(topic__assessment=item['topic'].assessment
-            ).delete()
             try:
                 obj = AssessmentTopicAccess.objects.get(
                     student=item['student'], topic=item['topic'])
