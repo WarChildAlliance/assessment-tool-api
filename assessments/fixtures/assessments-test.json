@@ -106,8 +106,7 @@
             "title": "Mr and Mrs Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal, thank you very much.\nWhat is the subject of this sentence?",
             "order": 1,
             "assessment_topic": 3,
-            "question_type": "INPUT",
-            "on_popup": false
+            "question_type": "INPUT"
         }
     },
     {
@@ -118,8 +117,7 @@
             "title": "Harry – yer a ________.\n Fill in the missing word.",
             "order": 2,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -130,8 +128,7 @@
             "title": "Sort the numbers that are less than 10 and more than 10.",
             "order": 1,
             "assessment_topic": 2,
-            "question_type": "SORT",
-            "on_popup": false
+            "question_type": "SORT"
         }
     },
     {
@@ -142,8 +139,7 @@
             "title": "Identify the following number on the line: 8",
             "order": 1,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {

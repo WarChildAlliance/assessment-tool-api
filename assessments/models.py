@@ -279,11 +279,6 @@ class Question(models.Model):
         choices=QuestionType.choices
     )
 
-    # For the teacher to choose if he wants the question in a modal on the student's platform
-    on_popup = models.BooleanField(
-        default=False
-    )
-
     learning_objective = models.ForeignKey(
         'LearningObjective',
         on_delete=models.SET_NULL,
