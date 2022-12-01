@@ -4,8 +4,8 @@ from django.db.models import Q
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
-from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, DominoOption, Question, QuestionCalcul, QuestionDomino, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint, Subtopic, LearningObjective
-from answers.models import AnswerCalcul, AnswerDomino, AnswerDragAndDrop, AnswerSEL, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry
+from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, DominoOption, Question, QuestionCalcul, QuestionDomino, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint, Subtopic, LearningObjective, QuestionCustomizedDragAndDrop
+from answers.models import AnswerCalcul, AnswerDomino, AnswerDragAndDrop, AnswerSEL, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry, AnswerCustomizedDragAndDrop
 
 from answers.serializers import DragAndDropAreaEntrySerializer
 from assessments.serializers import (AreaOptionSerializer, DominoOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
@@ -469,6 +469,7 @@ class QuestionDetailsTableSerializer(PolymorphicSerializer):
             'QuestionSEL': QuestionSELTableSerializer,
             'QuestionDomino': QuestionDominoTableSerializer,
             'QuestionCalcul': QuestionCalculTableSerializer,
+            'QuestionCustomizedDragAndDrop': QuestionCustomizedDragAndDropTableSerializer,
         }
 
 
@@ -499,6 +500,13 @@ class QuestionNumberLineTableSerializer(AbstractQuestionDetailsTableSerializer):
         model = QuestionNumberLine
         fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
             ('expected_value', 'start', 'end', 'step',)
+
+class QuestionCustomizedDragAndDropTableSerializer(AbstractQuestionDetailsTableSerializer):
+
+    class Meta(AbstractQuestionDetailsTableSerializer.Meta):
+        model = QuestionCustomizedDragAndDrop
+        fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
+            ('first_value', 'first_style', 'second_value', 'second_style', 'operator', 'shape',)
 
 class QuestionCalculTableSerializer(AbstractQuestionDetailsTableSerializer):
 
@@ -813,7 +821,8 @@ class AnswerTableSerializer(PolymorphicSerializer):
             'AnswerDragAndDrop': AnswerDragAndDropTableSerializer,
             'AnswerSEL': AnswerSELTableSerializer,
             'AnswerDomino': AnswerDominoTableSerializer,
-            'AnswerCalcul': AnswerCalculTableSerializer
+            'AnswerCalcul': AnswerCalculTableSerializer,
+            'AnswerCustomizedDragAndDrop': AnswerCustomizedDragAndDropTableSerializer
         }
 
 
@@ -858,6 +867,16 @@ class AnswerCalculTableSerializer(AbstractAnswerTableSerializer):
         model = AnswerCalcul
         fields = AbstractAnswerTableSerializer.Meta.fields + \
             ('value', 'question',)
+
+class AnswerCustomizedDragAndDropTableSerializer(AbstractAnswerTableSerializer):
+
+    question = NestedRelatedField(
+        model=QuestionCalcul, serializer_class=QuestionCustomizedDragAndDropTableSerializer, many=False)
+
+    class Meta(AbstractAnswerTableSerializer.Meta):
+        model = AnswerCustomizedDragAndDrop
+        fields = AbstractAnswerTableSerializer.Meta.fields + \
+            ('left_value',  'right_value', 'final_value', 'question',)
 
 class AnswerSelectTableSerializer(AbstractAnswerTableSerializer):
 
