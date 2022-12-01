@@ -249,6 +249,7 @@ class Question(models.Model):
         DOMINO = 'DOMINO', 'Domino'
         NUMBER_LINE = 'NUMBER_LINE', 'Number line'
         DRAG_AND_DROP = 'DRAG_AND_DROP', 'Drag and Drop'
+        CUSTOMIZED_DRAG_AND_DROP = 'CUSTOMIZED_DRAG_AND_DROP', 'Customized Drag and Drop'
         CALCUL = 'CALCUL', 'Calcul'
         FIND_HOTSPOT = 'FIND_HOTSPOT', 'Find hotspot'
 
@@ -463,7 +464,75 @@ class QuestionFindHotspot(Question):
 
     def __str__(self):
         return f'{self.title} ({self.question_type})'
+
+class QuestionCustomizedDragAndDrop(Question):
+    """
+    Question Customized Drag And Drop (inherits from Question).
+    """
+    class OperatorType(models.TextChoices):
+        ADDITION = 'ADDITION', 'Addition'
+        SUBTRACTION = 'SUBTRACTION', 'Subtraction'
+        DIVISION = 'DIVISION', 'Division'
+        MULTIPLICATION = 'MULTIPLICATION', 'Multiplication'
     
+    class ShapesType(models.TextChoices):
+        PENCIL = 'PENCIL', 'Pencil'
+        FRUIT = 'FRUIT', 'Fruit'
+        BALLON = 'BALLON', 'Ballon'
+        BUTTON = 'BUTTON', 'Button'
+        SOCKS = 'SOCKS', 'Socks'
+        PAINT = 'PAINT', 'Paint'
+        BUG = 'BUG', 'Bug'
+
+    class StyleTypes(models.TextChoices):
+        # Colors
+        RED = 'RED', 'Red'
+        LIGHT_GREEN = 'LIGHT_GREEN', 'Light Green'
+        DARK_GREEN = 'DARK_GREEN', 'Dark Green'
+        YELLOW = 'YELLOW', 'Yellow'
+        ORANGE = 'ORANGE', 'Orange' # Can also be the fruit orange
+        LIGHT_BLUE = 'LIGHT_BLUE', 'Light Blue'
+        DARK_BLUE = 'DARK_BLUE', 'Dark Blue'
+        PINK = 'PINK', 'Pink'
+        PURPLE = 'PURPLE', 'Purple'
+        # Bugs
+        CATERPILLAR = 'CATERPILLAR', 'Caterpillar'
+        ANT = 'ANT', 'Ant'
+        BUTTERFLY = 'BUTTERFLY', 'Butterfly'
+        CENTIPEDE = 'CENTIPEDE', 'Centipede'
+        FLY = 'FLY', 'Fly'
+        #Fruits
+        APPLE = 'APPLE', 'Apple'
+        BANANA = 'BANANA', 'Banana'
+        WATERMELON = 'WATERMELON', 'Watermelon'
+
+    first_value = models.IntegerField()
+
+    first_style = models.CharField(
+        max_length=32,
+        choices=StyleTypes.choices
+    )
+
+    second_value = models.IntegerField()
+
+    second_style = models.CharField(
+        max_length=32,
+        choices=StyleTypes.choices
+    )
+
+    operator = models.CharField(
+        max_length=32,
+        choices=OperatorType.choices,
+    )
+
+    shape = models.CharField(
+        max_length=32,
+        choices=ShapesType.choices,
+    )
+
+    def __str__(self):
+        return f'{self.title} ({self.question_type})'
+
 class AreaOption(models.Model):
     """
     Area option model (used for QuestionFindHotspot and QuestionDragAndDrop).

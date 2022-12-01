@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, DominoOption, LearningObjective, Question, QuestionCalcul, QuestionDomino, QuestionFindHotspot,
-                     QuestionInput, QuestionSEL, QuestionSelect, QuestionSort, QuestionNumberLine, QuestionDragAndDrop,
+                     QuestionInput, QuestionSEL, QuestionSelect, QuestionSort, QuestionNumberLine, QuestionDragAndDrop, QuestionCustomizedDragAndDrop,
                      SelectOption, SortOption, Hint, AreaOption, DraggableOption, Subtopic, NumberRange)
 
 
@@ -90,6 +90,7 @@ admin.site.register(QuestionDragAndDrop, admin.ModelAdmin)
 admin.site.register(QuestionFindHotspot, admin.ModelAdmin)
 admin.site.register(QuestionNumberLine, admin.ModelAdmin)
 admin.site.register(QuestionCalcul, admin.ModelAdmin)
+admin.site.register(QuestionCustomizedDragAndDrop, admin.ModelAdmin)
 admin.site.register(SelectOption, SelectOptionAdmin)
 admin.site.register(SortOption, admin.ModelAdmin)
 admin.site.register(Hint, admin.ModelAdmin)

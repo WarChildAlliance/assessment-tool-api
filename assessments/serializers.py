@@ -14,7 +14,7 @@ from users.serializers import LanguageSerializer, CountrySerializer
 
 from .models import (AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess,
                      Attachment, DominoOption, DraggableOption, Hint, Question, QuestionCalcul, QuestionDomino, QuestionDragAndDrop, QuestionFindHotspot, QuestionInput,
-                     QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort,
+                     QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, QuestionCustomizedDragAndDrop,
                      SelectOption, SortOption, Subtopic, LearningObjective, NumberRange)
 
 
@@ -345,6 +345,7 @@ class QuestionSerializer(PolymorphicSerializer):
             'QuestionSort': QuestionSortSerializer,
             'QuestionCalcul': QuestionCalculSerializer,
             'QuestionDragAndDrop': QuestionDragAndDropSerializer,
+            'QuestionCustomizedDragAndDrop': QuestionCustomizedDragAndDropSerializer,
             'QuestionFindHotspot': QuestionFindHotspotSerializer
         }
 
@@ -363,7 +364,8 @@ class QuestionSerializer(PolymorphicSerializer):
             Question.QuestionType.NUMBER_LINE: 'QuestionNumberLine',
             Question.QuestionType.FIND_HOTSPOT: 'QuestionFindHotspot',
             Question.QuestionType.CALCUL: 'QuestionCalcul',
-            Question.QuestionType.DRAG_AND_DROP: 'QuestionDragAndDrop'
+            Question.QuestionType.DRAG_AND_DROP: 'QuestionDragAndDrop',
+            Question.QuestionType.CUSTOMIZED_DRAG_AND_DROP: 'QuestionCustomizedDragAndDrop'
         }
         if 'question_type' in data and data['question_type'] in type_dict:
             data['type'] = type_dict[data['question_type']]
@@ -467,6 +469,8 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
                 QuestionFindHotspot.objects.get(id=instance.id).delete()
             elif instance.question_type == Question.QuestionType.CALCUL:
                 QuestionCalcul.objects.get(id=instance.id).delete()
+            elif instance.question_type == Question.QuestionType.CUSTOMIZED_DRAG_AND_DROP:
+                QuestionCustomizedDragAndDrop.objects.get(id=instance.id).delete()
             instance.question_type = new_question_type
 
         if 'attachments' in validated_data:
@@ -741,6 +745,15 @@ class QuestionCalculSerializer(AbstractQuestionSerializer):
 
     class Meta:
         model = QuestionCalcul
+        fields = '__all__'
+
+class QuestionCustomizedDragAndDropSerializer(AbstractQuestionSerializer):
+    """
+    Question Customized Drag and Drop serializer.
+    """
+
+    class Meta:
+        model = QuestionCustomizedDragAndDrop
         fields = '__all__'
 
 class AssessmentTopicAccessListSerializer(serializers.ListSerializer):

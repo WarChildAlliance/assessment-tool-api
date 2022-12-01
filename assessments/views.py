@@ -300,9 +300,9 @@ class QuestionsViewSet(ModelViewSet):
     @action(detail=False, methods=['get'], url_path='all')
     def get_all_questions_type(self, request):
         accessible_assessments = AssessmentsViewSet.get_queryset(self)
-        request_question_type = self.request.query_params.get('type')
+        request_question_type = self.request.query_params.get('type').split(',')
 
-        questions = Question.objects.filter(assessment_topic__assessment__in=accessible_assessments, question_type=request_question_type).select_subclasses()
+        questions = Question.objects.filter(assessment_topic__assessment__in=accessible_assessments, question_type__in=request_question_type).select_subclasses()
         serializer = QuestionSerializer(questions, many=True)
 
         return Response(serializer.data, status=200)

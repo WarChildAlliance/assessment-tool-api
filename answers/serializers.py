@@ -13,7 +13,7 @@ from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 
 from .models import (Answer, AnswerCalcul, AnswerDomino, AnswerInput, AnswerNumberLine, AnswerSEL,
                      AnswerSelect, AnswerSession, AnswerSort, DragAndDropAreaEntry,
-                     AnswerDragAndDrop, AssessmentTopicAnswer)
+                     AnswerDragAndDrop, AssessmentTopicAnswer, AnswerCustomizedDragAndDrop)
 
 
 class AssessmentTopicAnswerSerializer(serializers.ModelSerializer):
@@ -54,7 +54,8 @@ class AnswerSerializer(PolymorphicSerializer):
             'AnswerDragAndDrop': AnswerDragAndDropSerializer,
             'AnswerSEL': AnswerSELSerializer,
             'AnswerDomino': AnswerDominoSerializer,
-            'AnswerCalcul': AnswerCalculSerializer
+            'AnswerCalcul': AnswerCalculSerializer,
+            'AnswerCustomizedDragAndDrop': AnswerCustomizedDragAndDropSerializer
         }
 
     def to_internal_value(self, data):
@@ -77,6 +78,8 @@ class AnswerSerializer(PolymorphicSerializer):
             data['type'] = 'AnswerDomino'
         elif question_type == 'QuestionCalcul':
             data['type'] = 'AnswerCalcul'
+        elif question_type == 'QuestionCustomizedDragAndDrop':
+            data['type'] = 'AnswerCustomizedDragAndDrop'
         return super().to_internal_value(data)
 
 
@@ -164,6 +167,15 @@ class AnswerCalculSerializer(AbstractAnswerSerializer):
     class Meta(AbstractAnswerSerializer.Meta):
         model = AnswerCalcul
         fields = AbstractAnswerSerializer.Meta.fields + ('value',)
+
+class AnswerCustomizedDragAndDropSerializer(AbstractAnswerSerializer):
+    """
+    Answer Customized Drag And Drop serializer.
+    """
+
+    class Meta(AbstractAnswerSerializer.Meta):
+        model = AnswerCustomizedDragAndDrop
+        fields = AbstractAnswerSerializer.Meta.fields + ('left_value',  'right_value', 'final_value',)
 
 class DragAndDropAreaEntrySerializer(serializers.ModelSerializer):
     """
