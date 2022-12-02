@@ -74,6 +74,13 @@ class Assessment(models.Model):
         default=True
     )
 
+    subtopic = models.ForeignKey(
+        'Subtopic',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+
     def __str__(self):
         return f'{self.title}' \
             f' ({self.subject} grade {self.grade}, {self.country} - {self.language})'
@@ -169,8 +176,8 @@ class AssessmentTopic(models.Model):
         blank=True
     )
 
-    subtopic = models.ForeignKey(
-        'Subtopic',
+    learning_objective = models.ForeignKey(
+        'LearningObjective',
         on_delete=models.SET_NULL,
         blank=True,
         null=True
@@ -277,18 +284,6 @@ class Question(models.Model):
     question_type = models.CharField(
         max_length=32,
         choices=QuestionType.choices
-    )
-
-    # For the teacher to choose if he wants the question in a modal on the student's platform
-    on_popup = models.BooleanField(
-        default=False
-    )
-
-    learning_objective = models.ForeignKey(
-        'LearningObjective',
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True
     )
 
     number_range = models.ForeignKey(
@@ -449,6 +444,7 @@ class QuestionNumberLine(Question):
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
+
 class QuestionDragAndDrop(Question):
     """
     Question Drag And Drop (inherits from Question).
@@ -456,7 +452,8 @@ class QuestionDragAndDrop(Question):
 
     def __str__(self):
         return f'{self.title} ({self.question_type})'
-    
+
+
 class QuestionFindHotspot(Question):
     """
     Question Find hotspot (inherits from Question).
@@ -561,28 +558,29 @@ class AreaOption(models.Model):
 
     # Initial point: (x, y)
     x = models.DecimalField(
-        max_digits=10, 
+        max_digits=10,
         decimal_places=2
     )
 
     y = models.DecimalField(
-        max_digits=10, 
+        max_digits=10,
         decimal_places=2
     )
 
     # Rectangle measurements (width and height)
     width = models.DecimalField(
-        max_digits=10, 
+        max_digits=10,
         decimal_places=2
     )
 
     height = models.DecimalField(
-        max_digits=10, 
+        max_digits=10,
         decimal_places=2
     )
 
     def __str__(self):
         return f'{self.name} ({self.id})'
+
 
 class DraggableOption(models.Model):
     """
