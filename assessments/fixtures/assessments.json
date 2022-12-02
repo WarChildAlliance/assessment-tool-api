@@ -415,8 +415,7 @@
             "title": "3",
             "order": 1,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -427,8 +426,7 @@
             "title": "5",
             "order": 2,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -439,8 +437,7 @@
             "title": "6",
             "order": 3,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -451,8 +448,7 @@
             "title": "8",
             "order": 4,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -463,8 +459,7 @@
             "title": "9",
             "order": 5,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -475,8 +470,7 @@
             "title": "10",
             "order": 6,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -487,8 +481,7 @@
             "title": "13",
             "order": 7,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -499,8 +492,7 @@
             "title": "11",
             "order": 8,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -511,8 +503,7 @@
             "title": "16",
             "order": 9,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -523,8 +514,7 @@
             "title": "19",
             "order": 10,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -535,8 +525,7 @@
             "title": "50",
             "order": 11,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -547,8 +536,7 @@
             "title": "61",
             "order": 12,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -559,8 +547,7 @@
             "title": "99",
             "order": 13,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -571,8 +558,7 @@
             "title": "86",
             "order": 14,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -583,8 +569,7 @@
             "title": "78",
             "order": 15,
             "assessment_topic": 1,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -595,8 +580,7 @@
             "title": "1 + 2",
             "order": 1,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -607,8 +591,7 @@
             "title": "2 + 3",
             "order": 2,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -619,8 +602,7 @@
             "title": "3 + 4",
             "order": 3,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -631,8 +613,7 @@
             "title": "4 + 5",
             "order": 4,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -643,8 +624,7 @@
             "title": "3 + 7",
             "order": 5,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -655,8 +635,7 @@
             "title": "4 + 8",
             "order": 6,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -667,8 +646,7 @@
             "title": "5 + 2",
             "order": 7,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -679,8 +657,7 @@
             "title": "6 + 3",
             "order": 8,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -691,8 +668,7 @@
             "title": "7 + 4",
             "order": 9,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -703,8 +679,7 @@
             "title": "6 + 8",
             "order": 10,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -715,8 +690,7 @@
             "title": "7 + 8",
             "order": 11,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -727,8 +701,7 @@
             "title": "8 + 9",
             "order": 12,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -739,8 +712,7 @@
             "title": "12 + 13",
             "order": 13,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -751,8 +723,7 @@
             "title": "15 + 16",
             "order": 14,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -763,8 +734,7 @@
             "title": "17 + 18",
             "order": 15,
             "assessment_topic": 2,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -775,8 +745,7 @@
             "title": "1",
             "order": 1,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -787,8 +756,7 @@
             "title": "3",
             "order": 2,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -799,8 +767,7 @@
             "title": "2",
             "order": 3,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -811,8 +778,7 @@
             "title": "5",
             "order": 4,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -823,8 +789,7 @@
             "title": "8",
             "order": 5,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -835,8 +800,7 @@
             "title": "9",
             "order": 6,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -847,8 +811,7 @@
             "title": "10",
             "order": 7,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -859,8 +822,7 @@
             "title": "17",
             "order": 8,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -871,8 +833,7 @@
             "title": "16",
             "order": 9,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -883,8 +844,7 @@
             "title": "11",
             "order": 10,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -895,8 +855,7 @@
             "title": "29",
             "order": 11,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -907,8 +866,7 @@
             "title": "31",
             "order": 12,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -919,8 +877,7 @@
             "title": "34",
             "order": 13,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -931,8 +888,7 @@
             "title": "42",
             "order": 14,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -943,8 +899,7 @@
             "title": "56",
             "order": 15,
             "assessment_topic": 3,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -955,8 +910,7 @@
             "title": "باب",
             "order": 1,
             "assessment_topic": 4,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -967,8 +921,7 @@
             "title": "شَمْس",
             "order": 2,
             "assessment_topic": 4,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -979,8 +932,7 @@
             "title": "WR3",
             "order": 3,
             "assessment_topic": 4,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -991,8 +943,7 @@
             "title": "WR4",
             "order": 4,
             "assessment_topic": 4,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1003,8 +954,7 @@
             "title": "وِشاح",
             "order": 1,
             "assessment_topic": 5,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1015,8 +965,7 @@
             "title": "تُفّاحَة",
             "order": 2,
             "assessment_topic": 5,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1027,8 +976,7 @@
             "title": "WR2-3",
             "order": 3,
             "assessment_topic": 5,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1039,8 +987,7 @@
             "title": "WR2-4",
             "order": 4,
             "assessment_topic": 5,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1051,8 +998,7 @@
             "title": "1",
             "order": 1,
             "assessment_topic": 6,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1063,8 +1009,7 @@
             "title": "2",
             "order": 2,
             "assessment_topic": 6,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1075,8 +1020,7 @@
             "title": "طُ",
             "order": 3,
             "assessment_topic": 6,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1087,8 +1031,7 @@
             "title": "خِ",
             "order": 4,
             "assessment_topic": 6,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1099,8 +1042,7 @@
             "title": "I’m confident that I can do an excellent job on my math tests.",
             "order": 1,
             "assessment_topic": 7,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1111,8 +1053,7 @@
             "title": "I’m certain I can understand difficult material presented in my math text/work book.",
             "order": 2,
             "assessment_topic": 7,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1123,8 +1064,7 @@
             "title": "I’m confident I can understand the most difficult material presented by my math teacher.",
             "order": 3,
             "assessment_topic": 7,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1135,8 +1075,7 @@
             "title": "I’m confident I can do an excellent job on my math homework.",
             "order": 4,
             "assessment_topic": 7,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1147,8 +1086,7 @@
             "title": "I am certain I can master the skills being taught in my math class.",
             "order": 5,
             "assessment_topic": 7,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1159,8 +1097,7 @@
             "title": "I am confident that I can solve math problems.",
             "order": 6,
             "assessment_topic": 7,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1171,8 +1108,7 @@
             "title": "I am confident that I can recognize numbers when I see them.",
             "order": 7,
             "assessment_topic": 7,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1183,8 +1119,7 @@
             "title": "I am confident that I can use addition to add two numbers together.",
             "order": 8,
             "assessment_topic": 7,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1195,8 +1130,7 @@
             "title": "I’m confident that I can do an excellent job on my language tests.",
             "order": 1,
             "assessment_topic": 9,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1207,8 +1141,7 @@
             "title": "I’m certain I can understand difficult material presented in my language text/work book.",
             "order": 2,
             "assessment_topic": 9,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1219,8 +1152,7 @@
             "title": "I’m confident I can understand the most difficult material presented by my Arabic language teacher.",
             "order": 3,
             "assessment_topic": 9,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1231,8 +1163,7 @@
             "title": "I’m confident I can do an excellent job on my language homework.",
             "order": 4,
             "assessment_topic": 9,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1243,8 +1174,7 @@
             "title": "I am certain I can master the skills being taught in my language class.",
             "order": 5,
             "assessment_topic": 9,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1255,8 +1185,7 @@
             "title": "I am confident that I can read.",
             "order": 6,
             "assessment_topic": 9,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1267,8 +1196,7 @@
             "title": "I am confident that I can recognize letters when I see them.",
             "order": 7,
             "assessment_topic": 9,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1279,8 +1207,7 @@
             "title": "I am confident that I can read a word when I see it written.",
             "order": 8,
             "assessment_topic": 9,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1291,8 +1218,7 @@
             "title": "You have a certain amount of intelligence, and you really can’t do much to change it.",
             "order": 1,
             "assessment_topic": 10,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1303,8 +1229,7 @@
             "title": "Your intelligence is something about you that you can’t change very much.",
             "order": 2,
             "assessment_topic": 10,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1315,8 +1240,7 @@
             "title": "You can learn new things, but you can’t really change your basic intelligence.",
             "order": 3,
             "assessment_topic": 10,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1327,8 +1251,7 @@
             "title": "No matter who you are, you can change your intelligence a lot.",
             "order": 4,
             "assessment_topic": 10,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1339,8 +1262,7 @@
             "title": "You can always greatly change how intelligent you are.",
             "order": 5,
             "assessment_topic": 10,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1351,8 +1273,7 @@
             "title": "No matter how much intelligence you have, you can always change it quite a bit.",
             "order": 6,
             "assessment_topic": 10,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1363,8 +1284,7 @@
             "title": "You have a certain amount of intelligence, and you really can’t do much to change it.",
             "order": 1,
             "assessment_topic": 11,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1375,8 +1295,7 @@
             "title": "Your intelligence is something about you that you can’t change very much.",
             "order": 2,
             "assessment_topic": 11,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1387,8 +1306,7 @@
             "title": "You can learn new things, but you can’t really change your basic intelligence.",
             "order": 3,
             "assessment_topic": 11,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1399,8 +1317,7 @@
             "title": "No matter who you are, you can change your intelligence a lot.",
             "order": 4,
             "assessment_topic": 11,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1411,8 +1328,7 @@
             "title": "You can always greatly change how intelligent you are.",
             "order": 5,
             "assessment_topic": 11,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1423,8 +1339,7 @@
             "title": "No matter how much intelligence you have, you can always change it quite a bit.",
             "order": 6,
             "assessment_topic": 11,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1435,8 +1350,7 @@
             "title": "I’m confident that I can do an excellent job on my language tests.",
             "order": 1,
             "assessment_topic": 12,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1447,8 +1361,7 @@
             "title": "I’m certain I can understand difficult material presented in my language text/work book.",
             "order": 2,
             "assessment_topic": 12,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1459,8 +1372,7 @@
             "title": "I’m confident I can understand the most difficult material presented by my Arabic language teacher.",
             "order": 3,
             "assessment_topic": 12,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1471,8 +1383,7 @@
             "title": "I’m confident I can do an excellent job on my language homework.",
             "order": 4,
             "assessment_topic": 12,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1483,8 +1394,7 @@
             "title": "I am certain I can master the skills being taught in my language class.",
             "order": 5,
             "assessment_topic": 12,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1495,8 +1405,7 @@
             "title": "I am confident that I can read.",
             "order": 6,
             "assessment_topic": 12,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1507,8 +1416,7 @@
             "title": "I am confident that I can recognize letters when I see them.",
             "order": 7,
             "assessment_topic": 12,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1519,8 +1427,7 @@
             "title": "I am confident that I can read a word when I see it written.",
             "order": 8,
             "assessment_topic": 12,
-            "question_type": "SELECT",
-            "on_popup": false
+            "question_type": "SELECT"
         }
     },
     {
@@ -1531,8 +1438,7 @@
             "title": "I’m confident that I can do an excellent job on my math tests.",
             "order": 1,
             "assessment_topic": 13,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1543,8 +1449,7 @@
             "title": "I’m certain I can understand difficult material presented in my math text/work book.",
             "order": 2,
             "assessment_topic": 13,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1555,8 +1460,7 @@
             "title": "I’m confident I can understand the most difficult material presented by my math teacher.",
             "order": 3,
             "assessment_topic": 13,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1567,8 +1471,7 @@
             "title": "I’m confident I can do an excellent job on my math homework.",
             "order": 4,
             "assessment_topic": 13,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1579,8 +1482,7 @@
             "title": "I am certain I can master the skills being taught in my math class.",
             "order": 5,
             "assessment_topic": 13,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1591,8 +1493,7 @@
             "title": "I am confident that I can solve math problems.",
             "order": 6,
             "assessment_topic": 13,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1603,8 +1504,7 @@
             "title": "I am confident that I can recognize numbers when I see them.",
             "order": 7,
             "assessment_topic": 13,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
@@ -1615,8 +1515,7 @@
             "title": "I am confident that I can use addition to add two numbers together.",
             "order": 8,
             "assessment_topic": 13,
-            "question_type": "NUMBER_LINE",
-            "on_popup": false
+            "question_type": "NUMBER_LINE"
         }
     },
     {
