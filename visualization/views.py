@@ -102,11 +102,6 @@ class AssessmentTableViewSet(ModelViewSet):
             topics = AssessmentTopic.objects.filter(id=topic)
             assessments = assessments.filter(assessmenttopic__in=topics).distinct()
 
-        subtopic = self.request.query_params.get('subtopic')
-        if subtopic:
-            topics = AssessmentTopic.objects.filter(subtopic=subtopic, assessment__in=assessments)
-            assessments = assessments.filter(assessmenttopic__in=topics).distinct()
-
         subject = self.request.query_params.get('subject')
         if subject:
             assessments = assessments.filter(subject=subject)
@@ -125,7 +120,7 @@ class AssessmentTableViewSet(ModelViewSet):
 
         subtopic = self.request.query_params.get('subtopic')
         if subtopic:
-            assessments = assessments.filter(assessmenttopic__subtopic=subtopic)
+            assessments = assessments.filter(subtopic=subtopic)
 
         number_range = self.request.query_params.get('number_range')
         if number_range:
@@ -134,12 +129,11 @@ class AssessmentTableViewSet(ModelViewSet):
         question_types = self.request.query_params.getlist('question_types[]', None)
         if question_types:
             questions = Question.objects.filter(question_type__in=question_types)
-            assessments = assessments.filter(assessmenttopic__question__in=questions)
+            assessments = assessments.filter(assessmenttopic__question__in=questions).distinct()
 
         learning_objectives = self.request.query_params.getlist('learning_objectives[]', None)
         if learning_objectives:
-            questions = Question.objects.filter(learning_objective__in=learning_objectives)
-            assessments = assessments.filter(assessmenttopic__question__in=questions)
+            assessments = assessments.filter(assessmenttopic__learning_objective__in=learning_objectives).distinct()
 
         return assessments
     
