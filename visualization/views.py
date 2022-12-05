@@ -5,8 +5,8 @@ from rest_framework.decorators import action
 
 from django.shortcuts import get_object_or_404
 
-from users.models import User
-from visualization.serializers import StudentLinkedAssessmentsSerializer, UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer, ScoreByTopicSerializer, AssessmentListForDashboardSerializer, TopicLisForDashboardSerializer, QuestionOverviewSerializer, StudentsByTopicAccessSerializer, StudentAnswersSerializer
+from users.models import User, Group
+from visualization.serializers import GroupTableSerializer, StudentLinkedAssessmentsSerializer, UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer, ScoreByTopicSerializer, AssessmentListForDashboardSerializer, TopicLisForDashboardSerializer, QuestionOverviewSerializer, StudentsByTopicAccessSerializer, StudentAnswersSerializer
 
 from assessments.models import Assessment, AssessmentTopic, Question, AssessmentTopicAccess
 
@@ -574,3 +574,12 @@ class StudentAnswersViewSet(ModelViewSet):
             self.get_queryset().select_subclasses(), pk=answer_pk)
         serializer = AnswerTableSerializer(answer, many=False)
         return Response(serializer.data)
+
+class GroupTableViewSet(ModelViewSet):
+    """
+    Groups table viewset.
+    """
+    serializer_class = GroupTableSerializer
+
+    def get_queryset(self):
+        return Group.objects.filter(supervisor=self.request.user)
