@@ -447,10 +447,6 @@ class SubtopicsViewSet(GenericViewSet, ListModelMixin):
         if subject:
             subtopics = subtopics.filter(subject=subject)
 
-        learning_objectives = self.request.query_params.getlist('learning_objectives[]', None)
-        if learning_objectives:
-            subtopics = subtopics.filter(learningobjective__in=learning_objectives).distinct()
-
         return subtopics
 
 

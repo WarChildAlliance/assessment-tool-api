@@ -32,6 +32,26 @@ class AttachmentSerializer(serializers.ModelSerializer):
         return instance
 
 
+class SubtopicSerializer(serializers.ModelSerializer):
+    """
+    Subtopic serializer.
+    """
+    class Meta:
+        model = Subtopic
+        fields = ('id', 'name',)
+
+class LearningObjectiveSerializer(serializers.ModelSerializer):
+    """
+    Learning objective serializer.
+    """
+    subtopic = NestedRelatedField(
+        model=Subtopic, serializer_class=SubtopicSerializer)
+
+    class Meta:
+        model = LearningObjective
+        fields = ('code', 'grade', 'name_eng', 'name_ara', 'subtopic')
+
+
 class AssessmentSerializer(serializers.ModelSerializer):
     """
     Assessment serializer.
@@ -41,6 +61,8 @@ class AssessmentSerializer(serializers.ModelSerializer):
         model=Language, serializer_class=LanguageSerializer)
     country = NestedRelatedField(
         model=Country, serializer_class=CountrySerializer)
+    subtopic = NestedRelatedField(
+        model=Subtopic, serializer_class=SubtopicSerializer, required=False, allow_null=True)
 
     # THIS IS ONLY TEMPORARY FOR PRE-SEL AND POST-SEL, TODO REMOVE AFTERWARD
     # Verifies that all topics linked to this assessment are complete
@@ -78,23 +100,14 @@ class AssessmentSerializer(serializers.ModelSerializer):
     # END OF TEMPORARY
 
 
-class SubtopicSerializer(serializers.ModelSerializer):
-    """
-    Subtopic serializer.
-    """
-    class Meta:
-        model = Subtopic
-        fields = ('id', 'name',)
-
-
 class AssessmentTopicSerializer(serializers.ModelSerializer):
     """
     Assessment topic serializer.
     """
     attachments = AttachmentSerializer(many=True, required=False)
     can_edit = serializers.SerializerMethodField()
-    subtopic = NestedRelatedField(
-        model=Subtopic, serializer_class=SubtopicSerializer, allow_null=True)
+    learning_objective = NestedRelatedField(
+        model=LearningObjective, serializer_class=LearningObjectiveSerializer, required=False, allow_null=True)
     sel_question = serializers.SerializerMethodField()
     questions_count = serializers.SerializerMethodField(required=False, read_only=True)
 
@@ -307,17 +320,6 @@ class DraggableOptionSerializer(serializers.ModelSerializer):
         instance = super().save(*args, **kwargs)
         return instance
 
-class LearningObjectiveSerializer(serializers.ModelSerializer):
-    """
-    Learning objective serializer.
-    """
-    subtopic = NestedRelatedField(
-        model=Subtopic, serializer_class=SubtopicSerializer)
-
-    class Meta:
-        model = LearningObjective
-        fields = ('code', 'grade', 'name_eng', 'name_ara', 'subtopic')
-
 class NumberRangeSerializer(serializers.ModelSerializer):
     """
     Number range serializer.
@@ -388,9 +390,6 @@ class AbstractQuestionSerializer(serializers.ModelSerializer):
 
     # Does the question have answers?
     answered = serializers.SerializerMethodField()
-
-    learning_objective = NestedRelatedField(
-        model=LearningObjective, serializer_class=LearningObjectiveSerializer, allow_null=True)
 
     def get_answered(self, instance):
         return Answer.objects.filter(question=instance).exists()
