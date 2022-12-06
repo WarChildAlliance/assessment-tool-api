@@ -36,6 +36,11 @@ router.register(r'students', views.UserTableViewSet,
 # generates
 # /visualization/students/
 
+router.register(r'groups', views.GroupTableViewSet,
+                basename='groups-visualization')
+# generates
+# /visualization/groups/
+
 router.register(r'students_assessments/(?P<student_pk>\d+)', views.StudentLinkedAssessmentsViewSet, 
                 basename='student-assessments-visualization')
 # generates
