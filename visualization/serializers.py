@@ -1294,8 +1294,12 @@ class GroupTableSerializer(serializers.ModelSerializer):
     def get_average(self, instance):
         assessments_average = self.get_assessments_average(instance)
         if assessments_average:
-            assessments_average = [assessment for assessment in assessments_average if assessment is not None]
-            return sum(assessments_average) / len(assessments_average)
+            filtered_assessments_average = []
+            for assessment in assessments_average:
+                if assessment and assessment > 0:
+                    filtered_assessments_average.append(assessment)
+            if len(filtered_assessments_average):
+                return sum(filtered_assessments_average) / len(filtered_assessments_average)
         else:
             return None
 
