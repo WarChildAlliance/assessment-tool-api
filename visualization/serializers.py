@@ -1,6 +1,7 @@
+from gamification.models import Profile
 from rest_framework import serializers
 import datetime
-from django.db.models import Q
+from django.db.models import Q, Avg, ExpressionWrapper, F, fields
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
@@ -1243,3 +1244,87 @@ class StudentAnswersSerializer(serializers.ModelSerializer):
             return '#7EBF9A'
         else:
             return '#F2836B'
+
+class GroupTableSerializer(serializers.ModelSerializer):
+    """
+    Groups table serializer.
+    """
+
+    students_count = serializers.SerializerMethodField()
+    questions_count = serializers.SerializerMethodField()
+    # Average is the global average score of students in this group for all the assessments they're assigned
+    average = serializers.SerializerMethodField()
+    # Average of each assessment to which students in this group are assigned
+    assessments_average = serializers.SerializerMethodField()
+    # Speed is the average speed of all students of the groups to answer questions
+    speed = serializers.SerializerMethodField()
+    # Honey is the average of effort amongst all the students
+    honey = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Group
+        fields = '__all__'
+
+    def __get_topics(self, instance):
+        students = User.objects.filter(group=instance)
+        return AssessmentTopicAccess.objects.filter(student_id__in=students).values_list('topic', flat=True)
+    
+    def get_students_count(self, instance):
+        return User.objects.filter(group=instance).count()
+        
+    def get_questions_count(self, instance):
+        topics = self.__get_topics(instance)
+        questions = Question.objects.filter(assessment_topic__in=topics, assessment_topic__assessmenttopicaccess__student__group=instance).distinct()
+        return questions.count()
+
+    def get_assessments_average(self, instance):
+        topics = self.__get_topics(instance)
+        if topics:
+            assessments = AssessmentTopic.objects.filter(pk__in=topics).values_list('assessment', flat=True).distinct()
+            assessments_average = []
+            for assessment in assessments:
+                assessment_object = Assessment.objects.get(id=assessment)
+                assessment_result = AssessmentTableSerializer(instance=assessment_object).data['score']
+                assessments_average.append(assessment_result)
+            
+            return assessments_average
+        else:
+            return None
+
+    def get_average(self, instance):
+        assessments_average = self.get_assessments_average(instance)
+        if assessments_average:
+            filtered_assessments_average = []
+            for assessment in assessments_average:
+                if assessment and assessment > 0:
+                    filtered_assessments_average.append(assessment)
+            if len(filtered_assessments_average):
+                return sum(filtered_assessments_average) / len(filtered_assessments_average)
+        else:
+            return None
+
+    def get_speed(self, instance):
+        students = User.objects.filter(group=instance)
+        students_average = []
+        # get the average speed of each student
+        for student in students:
+            student_answers = Answer.objects.filter(topic_answer__session__student=student)
+            if student_answers:
+                student_result = student_answers.annotate(
+                    durations = ExpressionWrapper(F('end_datetime') - F('start_datetime'), output_field=fields.DurationField()),
+                ).aggregate(Avg('durations'))['durations__avg']
+                students_average.append(student_result)
+
+        if len(students_average) > 0:
+            return sum(students_average, datetime.timedelta()) / len(students_average)
+        else:
+            return None
+
+    def get_honey(self, instance):
+        students = User.objects.filter(group=instance)
+        effort_average = 0
+        students_effort = Profile.objects.filter(student__in=students)
+        if students_effort:
+            students_effort = students_effort.aggregate(Avg('effort'))['effort__avg']
+            effort_average = round(students_effort, 1)
+        return effort_average
