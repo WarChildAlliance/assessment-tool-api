@@ -217,17 +217,37 @@ class QuestionsTableViewset(ModelViewSet):
         """
         Queryset to get allowed assessment topics table.
         """
-
         accessible_topics = AssessmentTopicsTableViewset.get_queryset(self)
-
         topic_pk = int(self.kwargs.get('topic_pk', None))
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
 
-        return Question.objects.filter(
+        questions = Question.objects.filter(
             assessment_topic=topic_pk,
             assessment_topic__in=accessible_topics,
             assessment_topic__assessment=assessment_pk
         )
+
+        grade = self.request.query_params.get('grade')
+        if grade:
+            questions = questions.filter(assessment_topic__assessment__grade=grade)
+        
+        subtopic = self.request.query_params.get('subtopic')
+        if subtopic:
+            questions = questions.filter(assessment_topic__assessment__subtopic=subtopic)
+
+        number_range = self.request.query_params.get('number_range')
+        if number_range:
+            questions = questions.filter(number_range=number_range)
+
+        question_types = self.request.query_params.getlist('question_types[]', None)
+        if question_types:
+            questions = questions.filter(question_type__in=question_types)
+
+        learning_objectives = self.request.query_params.getlist('learning_objectives[]', None)
+        if learning_objectives:
+            questions = questions.filter(assessment_topic__learning_objective__in=learning_objectives)
+
+        return questions
 
     def list(self, request, *args, **kwargs):
 
