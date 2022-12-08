@@ -3,7 +3,7 @@ from django.db.models.deletion import CASCADE, SET_DEFAULT, SET_NULL
 from django.db.models.fields import IntegerField, related
 from django.db.models.lookups import In
 from users.models import User
-from assessments.models import AssessmentTopic
+from assessments.models import QuestionSet
 
 
 class Avatar(models.Model):
@@ -60,10 +60,10 @@ class Profile(models.Model):
         return f'Profile of {self.student.first_name} {self.student.last_name}'
 
 
-class TopicCompetency(models.Model):
+class QuestionSetCompetency(models.Model):
 
-    topic = models.ForeignKey(
-        'assessments.AssessmentTopic',
+    question_set = models.ForeignKey(
+        'assessments.QuestionSet',
         on_delete=models.CASCADE,
     )
 
@@ -75,9 +75,9 @@ class TopicCompetency(models.Model):
     competency = models.IntegerField(
         default=0
     )
-    
+
     class Meta:
-        verbose_name_plural = 'Topic competencies'
+        verbose_name_plural = 'QuestionSet competencies'
 
     def __str__(self):
-        return f'Competency of {self.profile} on {self.topic} equals {self.competency}'
+        return f'Competency of {self.profile} on {self.question_set} equals {self.competency}'

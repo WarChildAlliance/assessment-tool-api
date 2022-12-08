@@ -48,7 +48,7 @@
         }
     },
     {
-        "model": "assessments.assessmenttopic",
+        "model": "assessments.questionset",
         "pk": 1,
         "fields": {
             "name": "Addition",
@@ -65,11 +65,11 @@
         }
     },
     {
-        "model": "assessments.assessmenttopic",
+        "model": "assessments.questionset",
         "pk": 2,
         "fields": {
             "name": "Substraction",
-            "description": "This is the topic description!",
+            "description": "This is the question_set description!",
             "assessment": 1,
             "show_feedback": 2,
             "allow_skip": false,
@@ -82,7 +82,7 @@
         }
     },
     {
-        "model": "assessments.assessmenttopic",
+        "model": "assessments.questionset",
         "pk": 3,
         "fields": {
             "name": "Reading comprehension",
@@ -105,7 +105,7 @@
             "value": "question-value-missing",
             "title": "Mr and Mrs Dursley, of number four, Privet Drive, were proud to say that they were perfectly normal, thank you very much.\nWhat is the subject of this sentence?",
             "order": 1,
-            "assessment_topic": 3,
+            "question_set": 3,
             "question_type": "INPUT"
         }
     },
@@ -116,7 +116,7 @@
             "value": "question-value-missing",
             "title": "Harry – yer a ________.\n Fill in the missing word.",
             "order": 2,
-            "assessment_topic": 3,
+            "question_set": 3,
             "question_type": "SELECT"
         }
     },
@@ -127,7 +127,7 @@
             "value": "question-value-missing",
             "title": "Sort the numbers that are less than 10 and more than 10.",
             "order": 1,
-            "assessment_topic": 2,
+            "question_set": 2,
             "question_type": "SORT"
         }
     },
@@ -138,7 +138,7 @@
             "value": "question-value-missing",
             "title": "Identify the following number on the line: 8",
             "order": 1,
-            "assessment_topic": 1,
+            "question_set": 1,
             "question_type": "NUMBER_LINE"
         }
     },
@@ -273,7 +273,7 @@
         "fields": {
             "attachment_type": "AUDIO",
             "file": "",
-            "topic": null,
+            "question_set": null,
             "question": 1,
             "background_image": false,
             "hint": null,
@@ -288,7 +288,7 @@
         "fields": {
             "attachment_type": "IMAGE",
             "file": "",
-            "topic": null,
+            "question_set": null,
             "question": null,
             "background_image": false,
             "hint": null,
@@ -303,7 +303,7 @@
         "fields": {
             "attachment_type": "IMAGE",
             "file": "",
-            "topic": null,
+            "question_set": null,
             "question": null,
             "background_image": false,
             "hint": null,
@@ -318,7 +318,7 @@
         "fields": {
             "attachment_type": "IMAGE",
             "file": "",
-            "topic": null,
+            "question_set": null,
             "question": null,
             "background_image": false,
             "hint": null,
@@ -333,7 +333,7 @@
         "fields": {
             "attachment_type": "IMAGE",
             "file": "",
-            "topic": null,
+            "question_set": null,
             "question": null,
             "background_image": false,
             "hint": null,
@@ -348,7 +348,7 @@
         "fields": {
             "attachment_type": "IMAGE",
             "file": "",
-            "topic": 1,
+            "question_set": 1,
             "question": null,
             "background_image": false,
             "hint": null,
@@ -363,7 +363,7 @@
         "fields": {
             "attachment_type": "AUDIO",
             "file": "",
-            "topic": null,
+            "question_set": null,
             "question": null,
             "background_image": false,
             "hint": 1,

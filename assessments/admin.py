@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, DominoOption, LearningObjective, Question, QuestionCalcul, QuestionDomino, QuestionFindHotspot,
+from .models import (Assessment, QuestionSet, QuestionSetAccess, Attachment, DominoOption, LearningObjective, QuestionCalcul, QuestionDomino, QuestionFindHotspot,
                      QuestionInput, QuestionSEL, QuestionSelect, QuestionSort, QuestionNumberLine, QuestionDragAndDrop, QuestionCustomizedDragAndDrop,
-                     SelectOption, SortOption, Hint, AreaOption, DraggableOption, Subtopic, NumberRange)
+                     SelectOption, SortOption, Hint, AreaOption, DraggableOption, Topic, NumberRange)
 
 
 class AttachmentAdmin(admin.ModelAdmin):
@@ -54,14 +54,14 @@ class SelectOptionAdmin(admin.ModelAdmin):
             return None
 
 
-class AssessmentTopicAccessAdmin(admin.ModelAdmin):
-    list_display = ('student_name', 'topic_name', 'start_date', 'end_date', )
+class QuestionSetAccessAdmin(admin.ModelAdmin):
+    list_display = ('student_name', 'question_set_name', 'start_date', 'end_date', )
 
     def student_name(self, obj):
         return obj.student.first_name
 
-    def topic_name(self, obj):
-        return obj.topic.name
+    def question_set_name(self, obj):
+        return obj.question_set.name
 
 class AreaOptionAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'question', 'question_id')
@@ -79,8 +79,8 @@ class AreaOptionAdmin(admin.ModelAdmin):
             return 'Find hotspot'
 
 admin.site.register(Assessment, admin.ModelAdmin)
-admin.site.register(AssessmentTopic, admin.ModelAdmin)
-admin.site.register(AssessmentTopicAccess, AssessmentTopicAccessAdmin)
+admin.site.register(QuestionSet, admin.ModelAdmin)
+admin.site.register(QuestionSetAccess, QuestionSetAccessAdmin)
 admin.site.register(Attachment, AttachmentAdmin)
 admin.site.register(QuestionSEL, admin.ModelAdmin)
 admin.site.register(QuestionInput, admin.ModelAdmin)
@@ -96,7 +96,7 @@ admin.site.register(SortOption, admin.ModelAdmin)
 admin.site.register(Hint, admin.ModelAdmin)
 admin.site.register(AreaOption, AreaOptionAdmin)
 admin.site.register(DraggableOption, admin.ModelAdmin)
-admin.site.register(Subtopic, admin.ModelAdmin)
+admin.site.register(Topic, admin.ModelAdmin)
 admin.site.register(LearningObjective, admin.ModelAdmin)
 admin.site.register(QuestionDomino, admin.ModelAdmin)
 admin.site.register(DominoOption, admin.ModelAdmin)

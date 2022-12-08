@@ -139,7 +139,7 @@ class AssessmentPDFReport(PDFBuilder):
             # (keys must correspond to keys in serialized data, associated to a dict or list)
             self.write_handlers = {
                   'assessments': self.__write_assessment,
-                  'topics': self.__write_topic,
+                  'question_sets': self.__write_question_set,
                   'questions': self.__write_question
             }
 
@@ -271,7 +271,7 @@ class AssessmentPDFReport(PDFBuilder):
 
       def __write_question(self, data: dict) -> None:
             """
-            Writes an Assessment Topic Question info onto the PDF document
+            Writes an Assessment QuestionSet Question info onto the PDF document
             """
             question_title = self.__get_paragraph_with_attachments(
                   data['title'], self.text_styles['question_title'],
@@ -330,9 +330,9 @@ class AssessmentPDFReport(PDFBuilder):
             self._story.append(table)
 
 
-      def __write_topic(self, data: dict) -> None:
+      def __write_question_set(self, data: dict) -> None:
             """
-            Writes an Assessment Topic icon & title onto the PDF document
+            Writes an Assessment QuestionSet icon & title onto the PDF document
             """
             try:
                   table_icon = [self._get_sized_image(os.path.join(MEDIA_ROOT, data['icon'].replace(MEDIA_URL, '')), .75 * cm)]
