@@ -217,15 +217,15 @@ class QuestionsTableViewset(ModelViewSet):
         """
         Queryset to get allowed assessment topics table.
         """
-        accessible_topics = AssessmentTopicsTableViewset.get_queryset(self)
-        topic_pk = int(self.kwargs.get('topic_pk', None))
-        assessment_pk = int(self.kwargs.get('assessment_pk', None))
+        accessible_assessments = AssessmentTableViewSet.get_queryset(self)
+        questions = Question.objects.filter(assessment_topic__assessment__in=accessible_assessments)
 
-        questions = Question.objects.filter(
-            assessment_topic=topic_pk,
-            assessment_topic__in=accessible_topics,
-            assessment_topic__assessment=assessment_pk
-        )
+        topic_pk = self.kwargs.get('topic_pk', None)
+        assessment_pk = self.kwargs.get('assessment_pk', None)
+        if topic_pk and assessment_pk:
+            topic_pk = int(topic_pk)
+            assessment_pk = int(assessment_pk)
+            questions = questions.filter(assessment_topic=topic_pk, assessment_topic__assessment=assessment_pk )
 
         grade = self.request.query_params.get('grade')
         if grade:
@@ -268,6 +268,12 @@ class QuestionsTableViewset(ModelViewSet):
             self.get_queryset().select_subclasses(), pk=question_pk)
         serializer = QuestionDetailsTableSerializer(question, many=False)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='all')
+    def get_all(self, request):
+        questions = QuestionsTableViewset.get_queryset(self)
+        serializer = QuestionTableSerializer(questions, many=True)
+        return Response(serializer.data, status=200)
 
     def create(self, request):
         return Response('Unauthorized', status=403)

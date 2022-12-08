@@ -16,6 +16,11 @@ router.register(r'topics', views.AssessmentTopicsTableViewset,
 # generates
 # /visualization/topics/all/
 
+router.register(r'questions', views.QuestionsTableViewset,
+                basename='all-questions-visualization')
+# generates
+# /visualization/questions/all/
+
 assessments_router = routers.NestedSimpleRouter(
     router, r'assessments', lookup='assessment')
 assessments_router.register(
