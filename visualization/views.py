@@ -4,16 +4,12 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import action
 
 from django.shortcuts import get_object_or_404
-
-from users.models import User, Group
-from visualization.serializers import GroupTableSerializer, StudentLinkedAssessmentsSerializer, UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, AssessmentTopicTableSerializer, AssessmentAnswerTableSerializer, TopicAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer, ScoreByTopicSerializer, AssessmentListForDashboardSerializer, TopicLisForDashboardSerializer, QuestionOverviewSerializer, StudentsByTopicAccessSerializer, StudentAnswersSerializer
-
-from assessments.models import Assessment, AssessmentTopic, Question, AssessmentTopicAccess
-
-from answers.models import AssessmentTopicAnswer, AnswerSession, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
-
 from django.db.models import Q
 
+from users.models import User, Group
+from visualization.serializers import GroupTableSerializer, StudentLinkedAssessmentsSerializer, UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, QuestionSetTableSerializer, AssessmentAnswerTableSerializer, QuestionSetAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer, ScoreByQuestionSetSerializer, AssessmentListForDashboardSerializer, QuestionSetLisForDashboardSerializer, QuestionOverviewSerializer, StudentsByQuestionSetAccessSerializer, StudentAnswersSerializer
+from assessments.models import Assessment, QuestionSet, Question, QuestionSetAccess
+from answers.models import QuestionSetAnswer, AnswerSession, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 from admin.lib.viewsets import ModelViewSet
 
 
@@ -68,7 +64,7 @@ class StudentLinkedAssessmentsViewSet(ModelViewSet):
         student_pk = int(self.kwargs.get('student_pk', None))
 
         return Assessment.objects.filter(
-            assessmenttopic__assessmenttopicaccess__student=student_pk
+            questionset__questionsetaccess__student=student_pk
         ).distinct()
 
     def list(self, request, *args, **kwargs):
@@ -96,11 +92,11 @@ class AssessmentTableViewSet(ModelViewSet):
         Queryset to get allowed assessments for table.
         """
         assessments = Assessment.objects.filter(Q(created_by=self.request.user) | Q(private=False))
-           
-        topic = self.request.query_params.get('topic')
-        if topic:
-            topics = AssessmentTopic.objects.filter(id=topic)
-            assessments = assessments.filter(assessmenttopic__in=topics).distinct()
+
+        question_set = self.request.query_params.get('question_set')
+        if question_set:
+            question_sets = QuestionSet.objects.filter(id=question_set)
+            assessments = assessments.filter(questionset__in=question_sets).distinct()
 
         subject = self.request.query_params.get('subject')
         if subject:
@@ -118,25 +114,25 @@ class AssessmentTableViewSet(ModelViewSet):
         if grade:
             assessments = assessments.filter(grade=grade)
 
-        subtopic = self.request.query_params.get('subtopic')
-        if subtopic:
-            assessments = assessments.filter(subtopic=subtopic)
+        topic = self.request.query_params.get('topic')
+        if topic:
+            assessments = assessments.filter(topic=topic)
 
         number_range = self.request.query_params.get('number_range')
         if number_range:
-            assessments = assessments.filter(assessmenttopic__question__number_range=number_range)
+            assessments = assessments.filter(questionset__question__number_range=number_range)
 
         question_types = self.request.query_params.getlist('question_types[]', None)
         if question_types:
             questions = Question.objects.filter(question_type__in=question_types)
-            assessments = assessments.filter(assessmenttopic__question__in=questions).distinct()
+            assessments = assessments.filter(questionset__question__in=questions).distinct()
 
         learning_objectives = self.request.query_params.getlist('learning_objectives[]', None)
         if learning_objectives:
-            assessments = assessments.filter(assessmenttopic__learning_objective__in=learning_objectives).distinct()
+            assessments = assessments.filter(questionset__learning_objective__in=learning_objectives).distinct()
 
         return assessments
-    
+
     def list(self, request, *args, **kwargs):
 
         serializer = AssessmentTableSerializer(
@@ -166,21 +162,21 @@ class AssessmentTableViewSet(ModelViewSet):
         return Response('Unauthorized', status=403)
 
 
-class AssessmentTopicsTableViewset(ModelViewSet):
+class QuestionSetsTableViewset(ModelViewSet):
     """
-    Assessment topics table viewset
+    Question sets table viewset
     """
 
-    serializer_class = AssessmentTopicTableSerializer
+    serializer_class = QuestionSetTableSerializer
 
     def get_queryset(self):
         """
-        Queryset to get allowed assessment topics table.
+        Queryset to get allowed assessment question_sets table.
         """
         accessible_assessments = AssessmentTableViewSet.get_queryset(self)
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
 
-        return AssessmentTopic.objects.filter(
+        return QuestionSet.objects.filter(
             assessment=assessment_pk,
             assessment__in=accessible_assessments
         )
@@ -200,33 +196,33 @@ class AssessmentTopicsTableViewset(ModelViewSet):
     @action(detail=False, methods=['get'], url_path='all')
     def get_all(self, request):
         accessible_assessments = AssessmentTableViewSet.get_queryset(self)
-        topics = AssessmentTopic.objects.filter(assessment__in=accessible_assessments)
+        question_sets = QuestionSet.objects.filter(assessment__in=accessible_assessments)
 
-        serializer = AssessmentTopicTableSerializer(topics, many=True)
+        serializer = QuestionSetTableSerializer(question_sets, many=True)
 
         return Response(serializer.data, status=200)
 
 class QuestionsTableViewset(ModelViewSet):
     """
-    Assessment topics table viewset
+    Question sets table viewset
     """
 
     serializer_class = QuestionTableSerializer
 
     def get_queryset(self):
         """
-        Queryset to get allowed assessment topics table.
+        Queryset to get allowed assessment question_sets table.
         """
 
-        accessible_topics = AssessmentTopicsTableViewset.get_queryset(self)
+        accessible_question_sets = QuestionSetsTableViewset.get_queryset(self)
 
-        topic_pk = int(self.kwargs.get('topic_pk', None))
+        question_set_pk = int(self.kwargs.get('question_set_pk', None))
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
 
         return Question.objects.filter(
-            assessment_topic=topic_pk,
-            assessment_topic__in=accessible_topics,
-            assessment_topic__assessment=assessment_pk
+            question_set=question_set_pk,
+            question_set__in=accessible_question_sets,
+            question_set__assessment=assessment_pk
         )
 
     def list(self, request, *args, **kwargs):
@@ -275,7 +271,7 @@ class AssessmentAnswersTableViewSet(ModelViewSet):
         student_pk = int(self.kwargs.get('student_pk', None))
 
         return Assessment.objects.filter(
-            assessmenttopic__assessmenttopicaccess__assessment_topic_answers__session__student=student_pk
+            questionset__questionsetaccess__question_set_answers__session__student=student_pk
         ).distinct()
 
     def list(self, request, *args, **kwargs):
@@ -311,28 +307,28 @@ class AssessmentAnswersTableViewSet(ModelViewSet):
         return Response('Unauthorized', status=403)
 
 
-class TopicAnswersTableViewSet(ModelViewSet):
+class QuestionSetAnswersTableViewSet(ModelViewSet):
     """
-    Assessment topics per student's answers table viewset
+    Question sets per student's answers table viewset
     """
 
-    serializer_class = TopicAnswerTableSerializer
+    serializer_class = QuestionSetAnswerTableSerializer
 
     def get_queryset(self):
         """
-        Queryset to get assessment topics per student's answers.
+        Queryset to get assessment question_sets per student's answers.
         """
         student_pk = int(self.kwargs.get('student_pk', None))
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
 
-        return AssessmentTopic.objects.filter(
-            assessmenttopicaccess__student=student_pk,
+        return QuestionSet.objects.filter(
+            questionsetaccess__student=student_pk,
             assessment=assessment_pk
         )
 
     def list(self, request, *args, **kwargs):
 
-        serializer = TopicAnswerTableSerializer(
+        serializer = QuestionSetAnswerTableSerializer(
             self.get_queryset(), many=True,
             context={
                 'assessment_pk': int(self.kwargs.get('assessment_pk', None)),
@@ -343,10 +339,10 @@ class TopicAnswersTableViewSet(ModelViewSet):
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
-        topic_pk = self.kwargs.get('pk', None)
+        question_set_pk = self.kwargs.get('pk', None)
         assessment = get_object_or_404(
-            self.get_queryset(), pk=topic_pk)
-        serializer = TopicAnswerTableSerializer(assessment, many=False, context={
+            self.get_queryset(), pk=question_set_pk)
+        serializer = QuestionSetAnswerTableSerializer(assessment, many=False, context={
             'assessment_pk': int(self.kwargs.get('assessment_pk', None)),
             'student_pk': int(self.kwargs.get('student_pk', None))
         })
@@ -378,12 +374,12 @@ class QuestionAnswersTableViewSet(ModelViewSet):
         """
         student_pk = int(self.kwargs.get('student_pk', None))
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
-        topic_pk = int(self.kwargs.get('topic_pk', None))
+        question_set_pk = int(self.kwargs.get('question_set_pk', None))
 
         return Question.objects.filter(
-            assessment_topic__assessmenttopicaccess__student=student_pk,
-            assessment_topic__assessment=assessment_pk,
-            assessment_topic=topic_pk
+            question_set__questionsetaccess__student=student_pk,
+            question_set__assessment=assessment_pk,
+            question_set=question_set_pk
         )
 
     def list(self, request, *args, **kwargs):
@@ -393,7 +389,7 @@ class QuestionAnswersTableViewSet(ModelViewSet):
             context={
                 'student_pk': int(self.kwargs.get('student_pk', None)),
                 'assessment_pk': int(self.kwargs.get('assessment_pk', None)),
-                'topic_pk': int(self.kwargs.get('topic_pk', None))
+                'question_set_pk': int(self.kwargs.get('question_set_pk', None))
             }
         )
 
@@ -419,11 +415,11 @@ class QuestionAnswersTableViewSet(ModelViewSet):
         return Response('Unauthorized', status=403)
 
 
-class ScoreByTopicViewSet(ModelViewSet):
+class ScoreByQuestionSetViewSet(ModelViewSet):
     """
-    Score By Topic view set. Used on the dashboard (assessments multi-select and select filter)
+    Score By QuestionSet view set. Used on the dashboard (assessments multi-select and select filter)
     """
-    serializer_class = ScoreByTopicSerializer
+    serializer_class = ScoreByQuestionSetSerializer
 
     def get_queryset(self):
 
@@ -434,7 +430,7 @@ class ScoreByTopicViewSet(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
 
-        serializer = ScoreByTopicSerializer(
+        serializer = ScoreByQuestionSetSerializer(
             self.get_queryset(), many=True,
             context={
                 'assessment_pk': int(self.kwargs.get('assessment_pk', None))
@@ -443,12 +439,12 @@ class ScoreByTopicViewSet(ModelViewSet):
 
         return Response(serializer.data)
 
-class GroupScoreByTopicViewSet(ModelViewSet):
+class GroupScoreByQuestionSetViewSet(ModelViewSet):
     """
-    Score By Topic filtering by group view set.
-    TODO evaluate if it is necessary to change the information obtained here or add more information for the dashboard (to do so: create GroupScoreByTopicViewSet own serializer?)
+    Score By QuestionSet filtering by group view set.
+    TODO evaluate if it is necessary to change the information obtained here or add more information for the dashboard (to do so: create GroupScoreByQuestionSetViewSet own serializer?)
     """
-    serializer_class = ScoreByTopicSerializer
+    serializer_class = ScoreByQuestionSetSerializer
 
     def get_queryset(self):
         group_pk = int(self.kwargs.get('group_pk', None))
@@ -458,7 +454,7 @@ class GroupScoreByTopicViewSet(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
 
-        serializer = ScoreByTopicSerializer(
+        serializer = ScoreByQuestionSetSerializer(
             self.get_queryset(), many=True,
             context={
                 'assessment_pk': int(self.kwargs.get('assessment_pk', None))
@@ -489,15 +485,15 @@ class AssessmentListForDashboard(ModelViewSet):
         return Response(serializer.data)
 
 
-class TopicListForDashboard(ModelViewSet):
+class QuestionSetListForDashboard(ModelViewSet):
 
-    serializer_class = TopicLisForDashboardSerializer
+    serializer_class = QuestionSetLisForDashboardSerializer
 
     def get_queryset(self):
 
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
 
-        return AssessmentTopic.objects.filter(assessment=assessment_pk, archived=False)
+        return QuestionSet.objects.filter(assessment=assessment_pk, archived=False)
 
 
 class QuestionOverviewViewSet(ModelViewSet):
@@ -506,16 +502,16 @@ class QuestionOverviewViewSet(ModelViewSet):
 
     def get_queryset(self):
 
-        topic_pk = int(self.kwargs.get('topic_pk', None))
+        question_set_pk = int(self.kwargs.get('question_set_pk', None))
 
         questions = Question.objects.filter(
-            Q(assessment_topic=topic_pk) & ~Q(question_type='SEL')
+            Q(question_set=question_set_pk) & ~Q(question_type='SEL')
         )
 
         groups = self.request.query_params.getlist('groups[]')
         if groups:
             questions = questions.filter(
-                assessment_topic__assessmenttopicaccess__student__group__in=groups
+                question_set__questionsetaccess__student__group__in=groups
             )
         return questions
 
@@ -526,27 +522,27 @@ class QuestionOverviewViewSet(ModelViewSet):
             context={
                 'supervisor': self.request.user,
                 'assessment_pk': int(self.kwargs.get('assessment_pk', None)),
-                'topic_pk': int(self.kwargs.get('topic_pk', None)),
+                'question_set_pk': int(self.kwargs.get('question_set_pk', None)),
             }
         )
 
         return Response(serializer.data)
 
 
-class StudentsByTopicAccessViewSet(ModelViewSet):
+class StudentsByQuestionSetAccessViewSet(ModelViewSet):
 
-    serializer_class = StudentsByTopicAccessSerializer
+    serializer_class = StudentsByQuestionSetAccessSerializer
 
     def get_queryset(self):
 
-        topic_pk = int(self.kwargs.get('topic_pk', None))
+        question_set_pk = int(self.kwargs.get('question_set_pk', None))
         students = User.objects.filter(created_by=self.request.user)
 
         groups = self.request.query_params.getlist('groups[]')
         if groups:
             students = students.filter(group__in=groups)
 
-        return AssessmentTopicAccess.objects.filter(topic=topic_pk, student__in=students)
+        return QuestionSetAccess.objects.filter(question_set=question_set_pk, student__in=students)
 
 
 class StudentAnswersViewSet(ModelViewSet):
@@ -556,11 +552,11 @@ class StudentAnswersViewSet(ModelViewSet):
 
     def get_queryset(self):
 
-        topic_pk = int(self.kwargs.get('topic_pk', None))
-        assessment_topic_answer_pk = int(
-            self.kwargs.get('assessment_topic_answer_pk', None))
+        question_set_pk = int(self.kwargs.get('question_set_pk', None))
+        question_set_answer_pk = int(
+            self.kwargs.get('question_set_answer_pk', None))
 
-        return Answer.objects.filter(question__assessment_topic=topic_pk, topic_answer=assessment_topic_answer_pk).exclude(question__question_type='SEL')
+        return Answer.objects.filter(question__question_set=question_set_pk, question_set_answer=question_set_answer_pk).exclude(question__question_type='SEL')
 
     def retrieve(self, request, *args, **kwargs):
         answer_pk = self.kwargs.get('pk', None)

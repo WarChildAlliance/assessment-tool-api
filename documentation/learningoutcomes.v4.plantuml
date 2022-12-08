@@ -68,30 +68,30 @@ class Assessment {
     private: Boolean
 }
 
-enum TopicFeedback {
+enum QuestionSetFeedback {
     NEVER
     ALWAYS
     SECOND
 }
 
-class AssessmentTopic {
+class QuestionSet {
     id: Integer
     name: String
     description: String
     assessment: Assessment
     'order: Integer'
-    show_feedback: TopicFeedback
+    show_feedback: QuestionSetFeedback
     allow_skip: Boolean
     evaluated: Boolean
     'stop_rule: Integer'
 }
 
-class AssessmentTopicAccess {
+class QuestionSetAccess {
     id: Integer
     start_date: Date
     end_date: Date
     student: Student
-    topic: AssessmentTopic
+    question_set: QuestionSet
 }
 
 enum QuestionType {
@@ -107,7 +107,7 @@ class Question {
     id: Integer
     title: String
     order: Integer
-    assessment_topic: AssessmentTopic
+    question_set: QuestionSet
     question_type: QuestionType
     hint: Hint
 }
@@ -166,7 +166,7 @@ class QuestionDragAndDrop {
 class DraggableOption {
     id: Integer
     area_option: AreaOption[]
-    question_drag_and_drop: QuestionDragAndDrop 
+    question_drag_and_drop: QuestionDragAndDrop
 }
 
 class AreaOption {
@@ -193,7 +193,7 @@ class Attachment {
     id: Integer
     attachment_type: AttachmentType
     file: File
-    topic: AssessmentTopic
+    question_set: QuestionSet
     question: Question
     background_image: Boolean
     hint: Hint
@@ -210,9 +210,9 @@ class AnswerSession {
     duration: duration (@property)
 }
 
-class AssessmentTopicAnswer {
+class QuestionSetAnswer {
     id: Integer
-    topic_access: AssessmentTopicAccess
+    question_set_access: QuestionSetAccess
     complete: Boolean
     start_date: Date
     end_date: Date
@@ -223,7 +223,7 @@ class AssessmentTopicAnswer {
 
 class Answer {
     id: Integer
-    topic_answer: AssessmentTopicAnswer
+    question_set_answer: QuestionSetAnswer
     question: Question
     duration: duration
     valid: Boolean
@@ -280,17 +280,17 @@ Student "0..*" -- "1" Supervisor
 Group "0..*" -- "1" Supervisor
 Group "1" -- "0..*" Student
 
-Assessment "1" *-- "0..*" AssessmentTopic
+Assessment "1" *-- "0..*" QuestionSet
 Assessment "0..*" -- "1" Supervisor
 
-AssessmentTopic "1" *-- "0..*" Question
+QuestionSet "1" *-- "0..*" Question
 
-AnswerSession "1" o-- "1..*" AssessmentTopicAnswer
+AnswerSession "1" o-- "1..*" QuestionSetAnswer
 
-AssessmentTopicAccess "0..*" -- "1" AssessmentTopic
+QuestionSetAccess "0..*" -- "1" QuestionSet
 
 Student "1" -- "0..*" AnswerSession
-Student "1" -- "0..*" AssessmentTopicAccess
+Student "1" -- "0..*" QuestionSetAccess
 
 
 Hint "0..1" -- "0..*" Attachment
@@ -317,8 +317,8 @@ DraggableOption "1" o-- "1" Attachment
 QuestionFindHotspot "1" *-- "1..*" AreaOption
 QuestionDragAndDrop "1" *-- "1..*" AreaOption
 
-AssessmentTopicAnswer "0..*" -- "1" AssessmentTopicAccess
-AssessmentTopicAnswer "1" *-- "0..*" Answer
+QuestionSetAnswer "0..*" -- "1" QuestionSetAccess
+QuestionSetAnswer "1" *-- "0..*" Answer
 
 Question "1" -- "0..*" Answer
 

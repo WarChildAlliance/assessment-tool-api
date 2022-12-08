@@ -74,8 +74,8 @@ class Assessment(models.Model):
         default=True
     )
 
-    subtopic = models.ForeignKey(
-        'Subtopic',
+    topic = models.ForeignKey(
+        'Topic',
         on_delete=models.SET_NULL,
         blank=True,
         null=True
@@ -95,12 +95,12 @@ class Assessment(models.Model):
         super().delete(*args, **kwargs)
 
 
-class AssessmentTopic(models.Model):
+class QuestionSet(models.Model):
     """
-    Assessment topic model.
+    Set of questions model.
     """
 
-    class TopicFeedback(models.IntegerChoices):
+    class QuestionSetFeedback(models.IntegerChoices):
         """
         Feedback options enumeration.
         """
@@ -126,17 +126,17 @@ class AssessmentTopic(models.Model):
     # Define when a feedback should be shown to the user
     # when they answer a question
     show_feedback = models.IntegerField(
-        choices=TopicFeedback.choices,
-        default=TopicFeedback.SECOND
+        choices=QuestionSetFeedback.choices,
+        default=QuestionSetFeedback.SECOND
     )
 
-    # Define if the questions inside this topic can be
+    # Define if the questions inside this question set can be
     # skipped or not
     allow_skip = models.BooleanField(
         default=False
     )
 
-    # Define if the topic is evaluated or not. If it isn't,
+    # Define if the question set is evaluated or not. If it isn't,
     # it will be excluded from datasets concerning, for example,
     # valid answers percentages computation.
     evaluated = models.BooleanField(
@@ -152,19 +152,19 @@ class AssessmentTopic(models.Model):
     )
 
     # Define the maximum number of invalid or skipped answers
-    # an user can submit for a topic. Once exceeded, the active topic answer
+    # an user can submit for a questionn set. Once exceeded, the active question set answer
     # will be closed and the user redirected to homepage.
     max_wrong_answers = models.IntegerField(
         default=0
     )
 
     icon = models.FileField(
-        upload_to='topics_icons',
+        upload_to='question_sets_icons',
         null=True,
         blank=True
     )
 
-    # If an assessment or topic is deleted, we instead want to archive it.
+    # If an assessment or question_set is deleted, we instead want to archive it.
     archived = models.BooleanField(
         default=False
     )
@@ -199,9 +199,9 @@ class AssessmentTopic(models.Model):
         super().delete(*args, **kwargs)
 
 
-class AssessmentTopicAccess(models.Model):
+class QuestionSetAccess(models.Model):
     """
-    Assessment topic access model.
+    Question set access model.
     """
 
     start_date = models.DateField(
@@ -220,22 +220,22 @@ class AssessmentTopicAccess(models.Model):
         on_delete=models.CASCADE,
     )
 
-    topic = models.ForeignKey(
-        'AssessmentTopic',
+    question_set = models.ForeignKey(
+        'QuestionSet',
         on_delete=models.CASCADE,
     )
 
     class Meta:
-        verbose_name_plural = 'Assessment topics access'
+        verbose_name_plural = 'Set of questions accesses'
         constraints = [
             models.constraints.UniqueConstraint(
-                fields=['student', 'topic'],
-                name='unique_access_per_student_and_topic'
+                fields=['student', 'question_set'],
+                name='unique_access_per_student_and_question_set'
             )
         ]
 
     def __str__(self):
-        return f'{self.student} has access to {self.topic} from {self.start_date} to {self.end_date}'
+        return f'{self.student} has access to {self.question_set} from {self.start_date} to {self.end_date}'
 
 
 class Question(models.Model):
@@ -276,8 +276,8 @@ class Question(models.Model):
         validators=[MinValueValidator(1)]
     )
 
-    assessment_topic = models.ForeignKey(
-        'AssessmentTopic',
+    question_set = models.ForeignKey(
+        'QuestionSet',
         on_delete=models.CASCADE
     )
 
@@ -444,7 +444,6 @@ class QuestionNumberLine(Question):
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
-
 class QuestionDragAndDrop(Question):
     """
     Question Drag And Drop (inherits from Question).
@@ -452,7 +451,6 @@ class QuestionDragAndDrop(Question):
 
     def __str__(self):
         return f'{self.title} ({self.question_type})'
-
 
 class QuestionFindHotspot(Question):
     """
@@ -471,7 +469,7 @@ class QuestionCustomizedDragAndDrop(Question):
         SUBTRACTION = 'SUBTRACTION', 'Subtraction'
         DIVISION = 'DIVISION', 'Division'
         MULTIPLICATION = 'MULTIPLICATION', 'Multiplication'
-    
+
     class ShapesType(models.TextChoices):
         PENCIL = 'PENCIL', 'Pencil'
         FRUIT = 'FRUIT', 'Fruit'
@@ -580,7 +578,6 @@ class AreaOption(models.Model):
 
     def __str__(self):
         return f'{self.name} ({self.id})'
-
 
 class DraggableOption(models.Model):
     """
@@ -694,8 +691,8 @@ class Attachment(models.Model):
         null=True
     )
 
-    topic = models.ForeignKey(
-        'AssessmentTopic',
+    question_set = models.ForeignKey(
+        'QuestionSet',
         related_name='attachments',
         on_delete=models.CASCADE,
         null=True,
@@ -762,9 +759,9 @@ class Attachment(models.Model):
         super().delete(*args, **kwargs)
 
 
-class Subtopic(models.Model):
+class Topic(models.Model):
     """
-    Subtopic model.
+    Topic model.
     """
     subject = models.CharField(
         max_length=32,
@@ -810,8 +807,8 @@ class LearningObjective(models.Model):
         max_length=32
     )
 
-    subtopic = models.ForeignKey(
-        'Subtopic',
+    topic = models.ForeignKey(
+        'Topic',
         on_delete=models.CASCADE,
     )
 

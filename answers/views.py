@@ -1,24 +1,24 @@
 from datetime import date
 
 from django.db.models.signals import post_save
-from gamification.signals import on_topic_answer_submission
+from gamification.signals import on_question_set_answer_submission
 
-from assessments.models import AssessmentTopicAccess, Question
+from assessments.models import QuestionSetAccess, Question
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from users.permissions import HasAccess, IsStudent
-from gamification.models import Profile, TopicCompetency
+from gamification.models import Profile, QuestionSetCompetency
 
 from admin.lib.viewsets import ModelViewSet
 
-from .models import Answer, AnswerSession, AssessmentTopicAnswer
+from .models import Answer, AnswerSession, QuestionSetAnswer
 from .serializers import (AnswerSerializer, AnswerSessionFullSerializer,
                           AnswerSessionSerializer,
-                          AssessmentTopicAnswerFullSerializer,
-                          AssessmentTopicAnswerSerializer)
+                          QuestionSetAnswerFullSerializer,
+                          QuestionSetAnswerSerializer)
 
 
 class AnswersViewSet(ModelViewSet):
@@ -48,12 +48,12 @@ class AnswersViewSet(ModelViewSet):
 
         if user.is_student() and user.id == student_id:
             return Answer.objects.filter(
-                topic_answer__session__student=student_id
+                question_set_answer__session__student=student_id
             ).select_subclasses()
         elif user.is_supervisor():
             return Answer.objects.filter(
-                topic_answer__session__student=student_id,
-                topic_answer__session__student__created_by=user
+                question_set_answer__session__student=student_id,
+                question_set_answer__session__student__created_by=user
             ).select_subclasses()
         else:
             return Answer.objects.none()
@@ -63,12 +63,12 @@ class AnswersViewSet(ModelViewSet):
         Create a new answer.
         """
         student_id = self.kwargs.get('student_id', None)
-        topic_answer = request.data.get('topic_answer')
-        if topic_answer is not None:
-            has_access = AssessmentTopicAnswer.objects.filter(
-                session__student__id=student_id, id=topic_answer).exists()
+        question_set_answer = request.data.get('question_set_answer')
+        if question_set_answer is not None:
+            has_access = QuestionSetAnswer.objects.filter(
+                session__student__id=student_id, id=question_set_answer).exists()
             if not has_access:
-                return Response('Invalid topic answer', status=400)
+                return Response('Invalid question_set answer', status=400)
 
         return super().create(request, **kwargs)
 
@@ -120,40 +120,40 @@ class AnswerSessionsViewSet(ModelViewSet):
     @action(detail=False, methods=['post'], serializer_class=AnswerSessionFullSerializer)
     def create_all(self, request, **kwargs):
         """
-        Create a session, its topic answers and its answers.
+        Create a session, its question_set answers and its answers.
         """
         student_id = int(self.kwargs.get('student_id', None))
         request_data = request.data.copy()
 
-        for topic_answer in request_data.get('assessment_topic_answers', []):
-            topic_id = None
+        for question_set_answer in request_data.get('question_set_answers', []):
+            question_set_id = None
 
-            # Get topic_access
-            if topic_answer.get('topic', None):
-                topic_id = topic_answer.get('topic')
+            # Get question_set_access
+            if question_set_answer.get('question_set', None):
+                question_set_id = question_set_answer.get('question_set')
                 try:
-                    topic_access = AssessmentTopicAccess.objects.get(
-                        Q(topic=topic_id),
+                    question_set_access = QuestionSetAccess.objects.get(
+                        Q(question_set=question_set_id),
                         Q(student=student_id),
                         Q(start_date__lte=date.today()) | Q(
                             start_date__isnull=True),
                         Q(end_date__gte=date.today()) | Q(end_date__isnull=True)
                     )
-                    topic_answer['topic_access'] = topic_access
-                    topic_answer.pop('topic')
+                    question_set_answer['question_set_access'] = question_set_access
+                    question_set_answer.pop('question_set')
                 except ObjectDoesNotExist:
-                    return Response('Student does not have access to this topic', status=400)
+                    return Response('Student does not have access to this question_set', status=400)
 
-            if not topic_answer['topic_access']:
-                return Response('No topic access defined', status=400)
-            
-            # Check if topic answer is complete
-            if topic_id is None:
-                topic_id = AssessmentTopicAccess.objects.values_list(
-                    'topic__id', flat=True).get(id=topic_answer.get('topic_access'))
-            count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
-            count_questions_answered = len(topic_answer['answers'])
-            topic_answer['complete'] = (count_questions_answered == count_questions_in_topic)
+            if not question_set_answer['question_set_access']:
+                return Response('No question_set access defined', status=400)
+
+            # Check if question_set answer is complete
+            if question_set_id is None:
+                question_set_id = QuestionSetAccess.objects.values_list(
+                    'question_set__id', flat=True).get(id=question_set_answer.get('question_set_access'))
+            count_questions_in_question_set = Question.objects.filter(question_set=question_set_id).count()
+            count_questions_answered = len(question_set_answer['answers'])
+            question_set_answer['complete'] = (count_questions_answered == count_questions_in_question_set)
 
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
@@ -161,14 +161,14 @@ class AnswerSessionsViewSet(ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
 
-class AssessmentTopicAnswersViewSet(ModelViewSet):
+class QuestionSetAnswersViewSet(ModelViewSet):
     """
-    Topic answers viewset.
+    QuestionSet answers viewset.
     """
 
-    filterset_fields = ['topic_access__topic', 'complete']
+    filterset_fields = ['question_set_access__question_set', 'complete']
 
-    serializer_class = AssessmentTopicAnswerSerializer
+    serializer_class = QuestionSetAnswerSerializer
 
     def get_permissions(self):
         """
@@ -183,45 +183,45 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
 
     def get_queryset(self):
         """
-        Queryset to get allowed topic answers.
+        Queryset to get allowed question_set answers.
         """
         user = self.request.user
         student_id = int(self.kwargs.get('student_id', None))
 
         if user.is_student() and user.id == student_id:
-            return AssessmentTopicAnswer.objects.filter(
+            return QuestionSetAnswer.objects.filter(
                 session__student=student_id
             )
         elif user.is_supervisor():
-            return AssessmentTopicAnswer.objects.filter(
+            return QuestionSetAnswer.objects.filter(
                 session__student=student_id,
                 session__student__created_by=user
             )
         else:
-            return AssessmentTopicAnswer.objects.none()
+            return QuestionSetAnswer.objects.none()
 
     def create(self, request, **kwargs):
         """
-        Create a new topic answer.
+        Create a new question_set answer.
         """
         request_data = request.data.copy()
         student_id = int(kwargs.get('student_id', None))
 
-        if request_data.get('topic', None):
+        if request_data.get('question_set', None):
             try:
-                topic_access = AssessmentTopicAccess.objects.get(
-                    Q(topic=request_data.get('topic')),
+                question_set_access = QuestionSetAccess.objects.get(
+                    Q(question_set=request_data.get('question_set')),
                     Q(student=student_id),
                     Q(start_date__isnull=True) | Q(start_date__lte=date.today()),
                     Q(end_date__isnull=True) | Q(end_date__gte=date.today())
                 )
-                request_data['topic_access'] = topic_access.id
-                request_data.pop('topic')
+                request_data['question_set_access'] = question_set_access.id
+                request_data.pop('question_set')
             except ObjectDoesNotExist:
-                return Response('Student does not have access to this topic', status=400)
+                return Response('Student does not have access to this question_set', status=400)
 
-        if not request_data['topic_access']:
-            return Response('No topic access defined', status=400)
+        if not request_data['question_set_access']:
+            return Response('No question_set access defined', status=400)
 
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
@@ -231,95 +231,95 @@ class AssessmentTopicAnswersViewSet(ModelViewSet):
 
     def update(self, request, pk=None, **kwargs):
         """
-        Update a topic answer.
+        Update a question_set answer.
         """
         partial = True
         instance = self.get_object()
 
         request_data = request.data.copy()
-        new_amount = request_data.get('topic_competency', None)
+        new_amount = request_data.get('question_set_competency', None)
 
 
-        topic_id = instance.topic_access.topic.id
-        count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
-        count_questions_answered = Answer.objects.filter(topic_answer=instance.id).count()
-        request_data['complete'] = (count_questions_answered == count_questions_in_topic)
+        question_set_id = instance.question_set_access.question_set.id
+        count_questions_in_question_set = Question.objects.filter(question_set=question_set_id).count()
+        count_questions_answered = Answer.objects.filter(question_set_answer=instance.id).count()
+        request_data['complete'] = (count_questions_answered == count_questions_in_question_set)
 
-        profile = Profile.objects.get(student = instance.topic_access.student.id)
+        profile = Profile.objects.get(student = instance.question_set_access.student.id)
 
-        # Updating the topic competency from the front
-        if (TopicCompetency.objects.filter(profile=profile, topic=instance.topic_access.topic).exists()):
+        # Updating the question_set competency from the front
+        if (QuestionSetCompetency.objects.filter(profile=profile, question_set=instance.question_set_access.question_set).exists()):
 
-            current_competency = TopicCompetency.objects.get(profile=profile, topic=instance.topic_access.topic)
+            current_competency = QuestionSetCompetency.objects.get(profile=profile, question_set=instance.question_set_access.question_set)
 
             if (new_amount > current_competency.competency):
                 current_competency.competency = new_amount
                 current_competency.save()
 
-        # If no matching topic competency exists, create a new one with the new value
+        # If no matching question_set competency exists, create a new one with the new value
         else:
 
-            TopicCompetency.objects.create(profile=profile, topic=instance.topic_access.topic, competency=new_amount)
+            QuestionSetCompetency.objects.create(profile=profile, question_set=instance.question_set_access.question_set, competency=new_amount)
 
         serializer = self.get_serializer(instance, data=request_data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['post'], serializer_class=AssessmentTopicAnswerFullSerializer)
+    @action(detail=False, methods=['post'], serializer_class=QuestionSetAnswerFullSerializer)
     def create_all(self, request, **kwargs):
         """
-        Create a topic answer and its answers.
+        Create a question_set answer and its answers.
         """
         request_data = request.data.get('cachedAnswers').copy()
         student_id = int(self.kwargs.get('student_id', None))
-        topic_id = None
+        question_set_id = None
 
-        new_amount = request_data.get('topic_competency')
+        new_amount = request_data.get('question_set_competency')
         if (new_amount is None):
             new_amount = 0
-        
-        topic_access = None
 
-        if request_data.get('topic', None):
-            topic_id = request_data.get('topic')
+        question_set_access = None
+
+        if request_data.get('question_set', None):
+            question_set_id = request_data.get('question_set')
             try:
-                topic_access = AssessmentTopicAccess.objects.get(
-                    Q(topic=topic_id),
+                question_set_access = QuestionSetAccess.objects.get(
+                    Q(question_set=question_set_id),
                     Q(student=student_id),
                     Q(start_date__lte=date.today()) | Q(start_date__isnull=True),
                     Q(end_date__gte=date.today()) | Q(end_date__isnull=True)
                 )
-                request_data['topic_access'] = topic_access.id
-                request_data.pop('topic')
+                request_data['question_set_access'] = question_set_access.id
+                request_data.pop('question_set')
             except ObjectDoesNotExist:
-                return Response('Student does not have access to this topic', status=400)
+                return Response('Student does not have access to this question_set', status=400)
 
-        #if not request_data.get('topic_access', None):
-        #    return Response('No topic access defined', status=400)
+        #if not request_data.get('question_set_access', None):
+        #    return Response('No question_set access defined', status=400)
 
 
-        # Check if topic answer is complete
-        if topic_id is None:
-            topic_id = AssessmentTopicAccess.objects.values_list(
-                'topic__id', flat=True).get(id=request_data.get('topic_access'))
-        count_questions_in_topic = Question.objects.filter(assessment_topic=topic_id).count()
+        # Check if question_set answer is complete
+        if question_set_id is None:
+            question_set_id = QuestionSetAccess.objects.values_list(
+                'question_set__id', flat=True).get(id=request_data.get('question_set_access'))
+        count_questions_in_question_set = Question.objects.filter(question_set=question_set_id).count()
         count_questions_answered = len(request_data['answers'])
-        request_data['complete'] = (count_questions_answered == count_questions_in_topic)
+        request_data['complete'] = (count_questions_answered == count_questions_in_question_set)
 
         profile = Profile.objects.get(student = student_id)
-        # Updating the topic competency from the front
-        if (TopicCompetency.objects.filter(profile=profile, topic=topic_access.topic).exists()):
+        # Updating the question_set competency from the front
+        if (QuestionSetCompetency.objects.filter(profile=profile, question_set=question_set_access.question_set).exists()):
 
-            current_competency = TopicCompetency.objects.get(profile=profile, topic=topic_access.topic)
+            current_competency = QuestionSetCompetency.objects.get(profile=profile, question_set=question_set_access.question_set)
 
             if (new_amount > current_competency.competency):
                 current_competency.competency = new_amount
                 current_competency.save()
 
-        # If no matching topic competency exists, create a new one with the new value
+        # If no matching question_set competency exists, create a new one with the new value
         else:
-            TopicCompetency.objects.create(profile=profile, topic=topic_access.topic, competency=new_amount)
+            QuestionSetCompetency.objects.create(profile=profile, question_set=question_set_access.question_set, competency=new_amount)
 
         serializer = self.get_serializer(data=request_data)
         serializer.is_valid(raise_exception=True)
