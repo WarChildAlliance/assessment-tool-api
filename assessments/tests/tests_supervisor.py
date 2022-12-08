@@ -131,8 +131,6 @@ class AssessmentsSupervisorTests(APITestCase):
         print(self)
         data = {'assessment': 1, 'name': 'New question_set', 'topic': 1}
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.data['show_feedback'], 2)
-        self.assertFalse(response.data['allow_skip'])
         self.assertEqual(response.status_code, 201)
 
     def test_create_question_set_no_access(self):

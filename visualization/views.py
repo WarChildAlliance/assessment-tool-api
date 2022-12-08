@@ -493,7 +493,7 @@ class QuestionSetListForDashboard(ModelViewSet):
 
         assessment_pk = int(self.kwargs.get('assessment_pk', None))
 
-        return QuestionSet.objects.filter(assessment=assessment_pk, archived=False)
+        return QuestionSet.objects.filter(assessment=assessment_pk)
 
 
 class QuestionOverviewViewSet(ModelViewSet):
