@@ -332,6 +332,10 @@ class QuestionSelect(Question):
         default=displayTypes.GRID
     )
 
+    show_options_value = models.BooleanField(
+        default=False
+    )
+
     def __str__(self):
         return f'{self.title} ({self.question_type})'
 
