@@ -3,9 +3,9 @@ from rest_framework.decorators import action
 
 from django.shortcuts import render
 from admin.lib.viewsets import ModelViewSet
-from .serializers import AvatarSerializer, ProfileSerializer, TopicCompetencySerializer
+from .serializers import AvatarSerializer, ProfileSerializer, QuestionSetCompetencySerializer
 
-from .models import Avatar, Profile, TopicCompetency
+from .models import Avatar, Profile, QuestionSetCompetency
 
 
 class ProfileViewSet(ModelViewSet):
@@ -54,23 +54,23 @@ class ProfileViewSet(ModelViewSet):
 
 
 
-class TopicCompetencyViewSet(ModelViewSet):
+class QuestionSetCompetencyViewSet(ModelViewSet):
 
-    serializer_class = TopicCompetencySerializer
-    filterset_fields = ['topic']
+    serializer_class = QuestionSetCompetencySerializer
+    filterset_fields = ['question_set']
 
     def get_queryset(self):
-        return TopicCompetency.objects.filter(profile__student=self.request.user)
+        return QuestionSetCompetency.objects.filter(profile__student=self.request.user)
 
     def retrieve(self, request, pk=None):
-        topic_competencies = self.get_queryset().get(
-            topic=pk
+        question_set_competencies = self.get_queryset().get(
+            question_set=pk
         )
-        serializer = self.get_serializer(topic_competencies)
+        serializer = self.get_serializer(question_set_competencies)
         return Response(serializer.data, status=200)
 
     def destroy(self, request, pk=None):
-        return Response('Cannot delete topic competency', status=403)
+        return Response('Cannot delete question set competency', status=403)
 
 
 class AvatarViewSet(ModelViewSet):

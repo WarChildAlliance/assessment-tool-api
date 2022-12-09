@@ -5,12 +5,11 @@ from django.db.models import Q, Avg, ExpressionWrapper, F, fields
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
-from assessments.models import AreaOption, Assessment, AssessmentTopic, AssessmentTopicAccess, Attachment, DominoOption, Question, QuestionCalcul, QuestionDomino, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint, Subtopic, LearningObjective, QuestionCustomizedDragAndDrop
-from answers.models import AnswerCalcul, AnswerDomino, AnswerDragAndDrop, AnswerSEL, AnswerSession, AssessmentTopicAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry, AnswerCustomizedDragAndDrop
-
+from assessments.models import AreaOption, Assessment, QuestionSet, QuestionSetAccess, Attachment, DominoOption, Question, QuestionCalcul, QuestionDomino, QuestionDragAndDrop, QuestionInput, QuestionNumberLine, QuestionSEL, QuestionSelect, QuestionSort, SelectOption, SortOption, Hint, Topic, LearningObjective, QuestionCustomizedDragAndDrop
+from answers.models import AnswerCalcul, AnswerDomino, AnswerDragAndDrop, AnswerSEL, AnswerSession, QuestionSetAnswer, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort, DragAndDropAreaEntry, AnswerCustomizedDragAndDrop
 from answers.serializers import DragAndDropAreaEntrySerializer
 from assessments.serializers import (AreaOptionSerializer, DominoOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
-                                     HintSerializer, AttachmentSerializer, LearningObjectiveSerializer, SubtopicSerializer, LearningObjectiveSerializer)
+                                     HintSerializer, AttachmentSerializer, LearningObjectiveSerializer, TopicSerializer, LearningObjectiveSerializer)
 from users.serializers import GroupSerializer
 
 
@@ -23,8 +22,8 @@ class UserTableSerializer(serializers.ModelSerializer):
     last_session = serializers.SerializerMethodField()
     # Full name
     full_name = serializers.SerializerMethodField()
-    # Number of topics completed by the student
-    completed_topics_count = serializers.SerializerMethodField()
+    # Number of question_sets completed by the student
+    completed_question_sets_count = serializers.SerializerMethodField()
     # Number of assessments that the student is linked to
     assessments_count = serializers.SerializerMethodField()
     # If the student has an assessment that is not done yet
@@ -46,7 +45,7 @@ class UserTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_topics_count', 'active_status_updated_on',
+        fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_question_sets_count', 'active_status_updated_on',
                   'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active', 'can_delete', 'grade', 'assessment_complete')
 
     def get_full_name(self, instance):
@@ -60,39 +59,39 @@ class UserTableSerializer(serializers.ModelSerializer):
         else:
             return last_session.start_date
 
-    def get_completed_topics_count(self, instance):
-        return AssessmentTopic.objects.filter(
-            assessmenttopicaccess__student=instance,
-            assessmenttopicaccess__assessment_topic_answers__complete=True
+    def get_completed_question_sets_count(self, instance):
+        return QuestionSet.objects.filter(
+            questionsetaccess__student=instance,
+            questionsetaccess__question_set_answers__complete=True
         ).distinct().count()
 
     def get_assessments_count(self, instance):
         return Assessment.objects.filter(
-            assessmenttopic__assessmenttopicaccess__student=instance,
-            assessmenttopic__assessmenttopicaccess__start_date__lte=datetime.date.today(),
-            assessmenttopic__assessmenttopicaccess__end_date__gte=datetime.date.today()
+            questionset__questionsetaccess__student=instance,
+            questionset__questionsetaccess__start_date__lte=datetime.date.today(),
+            questionset__questionsetaccess__end_date__gte=datetime.date.today()
         ).distinct().count()
-    
+
     def get_assessment_complete(self, instance):
         assessment_instance = Assessment.objects.filter(
-            assessmenttopic__assessmenttopicaccess__student=instance,
-            assessmenttopic__assessmenttopicaccess__start_date__lte=datetime.date.today(),
-            assessmenttopic__assessmenttopicaccess__end_date__gte=datetime.date.today()
+            questionset__questionsetaccess__student=instance,
+            questionset__questionsetaccess__start_date__lte=datetime.date.today(),
+            questionset__questionsetaccess__end_date__gte=datetime.date.today()
         ).distinct().first()
 
-        completed_assessment_topics = AssessmentTopic.objects.filter(
+        completed_question_sets = QuestionSet.objects.filter(
             assessment=assessment_instance,
-            assessmenttopicaccess__student=instance,
-            assessmenttopicaccess__assessment_topic_answers__complete=True,
-            assessmenttopicaccess__assessment_topic_answers__session__student=instance
+            questionsetaccess__student=instance,
+            questionsetaccess__question_set_answers__complete=True,
+            questionsetaccess__question_set_answers__session__student=instance
         ).distinct().count()
 
-        total_assessment_topics = AssessmentTopic.objects.filter(
+        total_question_sets = QuestionSet.objects.filter(
             assessment=assessment_instance,
-            assessmenttopicaccess__student=instance,
+            questionsetaccess__student=instance,
         ).distinct().count()
 
-        return (completed_assessment_topics == total_assessment_topics)
+        return (completed_question_sets == total_question_sets)
 
     def get_language_name(self, instance):
         return instance.language.name_en
@@ -125,35 +124,35 @@ class UserTableSerializer(serializers.ModelSerializer):
 
 class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 
-    topic_access = serializers.SerializerMethodField()
+    question_set_access = serializers.SerializerMethodField()
 
     class Meta:
         model = Assessment
-        fields = ('id', 'title', 'topic_access')
+        fields = ('id', 'title', 'question_set_access')
 
-    def get_topic_access(self, instance):
+    def get_question_set_access(self, instance):
 
         student_pk = self.context['student_pk']
 
-        topic_list = AssessmentTopic.objects.filter(assessment=instance)
-        topic_access_list = []
+        question_set_list = QuestionSet.objects.filter(assessment=instance)
+        question_set_access_list = []
 
-        for topic in topic_list:
-            topic_access = list(AssessmentTopicAccess.objects.filter(
-                topic=topic, student=student_pk).values())
+        for question_set in question_set_list:
+            question_set_access = list(QuestionSetAccess.objects.filter(
+                question_set=question_set, student=student_pk).values())
 
-            if topic_access:
+            if question_set_access:
                 access_dict = {
-                    'topic_id': topic.id,
-                    'topic_name': topic.name,
-                    'topic_access_id': topic_access[0]['id'],
-                    'start_date': topic_access[0]['start_date'],
-                    'end_date': topic_access[0]['end_date']
+                    'question_set_id': question_set.id,
+                    'question_set_name': question_set.name,
+                    'question_set_access_id': question_set_access[0]['id'],
+                    'start_date': question_set_access[0]['start_date'],
+                    'end_date': question_set_access[0]['end_date']
                 }
 
-                topic_access_list.append(access_dict)
+                question_set_access_list.append(access_dict)
 
-        return topic_access_list
+        return question_set_access_list
 
 
 class AssessmentTableSerializer(serializers.ModelSerializer):
@@ -161,12 +160,12 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
     Assessment serializer for table.
     """
 
-    # Total number of topics for this assessment
-    topics_count = serializers.SerializerMethodField()
+    # Total number of question_sets for this assessment
+    question_sets_count = serializers.SerializerMethodField()
     # Total number of students who have an active access to this assessment
-    topics = serializers.SerializerMethodField()
-    subtopic = NestedRelatedField(
-        model=Subtopic, serializer_class=SubtopicSerializer, allow_null=True)
+    question_sets = serializers.SerializerMethodField()
+    topic = NestedRelatedField(
+        model=Topic, serializer_class=TopicSerializer, allow_null=True)
     students_count = serializers.SerializerMethodField()
     subject = serializers.SerializerMethodField()
     can_edit = serializers.SerializerMethodField()
@@ -187,64 +186,63 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessment
         fields = ('id', 'title', 'language_name', 'language_code', 'invites',
-                  'country_name', 'country_code', 'topics_count', 'topics', 'subtopic',
+                  'country_name', 'country_code', 'question_sets_count', 'question_sets', 'topic',
                   'plays', 'students_count', 'grade', 'subject', 'private', 'can_edit',
                   'icon', 'archived', 'downloadable', 'sel_question', 'score')
 
-    def __get_topic_correct_answers_percentage(self, topic):
+    def __get_question_set_correct_answers_percentage(self, question_set):
         """
-        Get the percentage of correct answers for the given topic
+        Get the percentage of correct answers for the given question_set
         """
         correct_answers_percentage = 0
-        topic_total_answers = Question.objects.filter(assessment_topic=topic).exclude(question_type='SEL').count()
-        topic_answers = AssessmentTopicAnswer.objects.filter(topic_access__topic=topic)
-        if not topic_total_answers or not topic_answers:
+        question_set_total_answers = Question.objects.filter(question_set=question_set).exclude(question_type='SEL').count()
+        question_set_answers = QuestionSetAnswer.objects.filter(question_set_access__question_set=question_set)
+        if not question_set_total_answers or not question_set_answers:
             return None
-        topic_total_correct_answers = Answer.objects.filter(
-                topic_answer__in=topic_answers,
+        question_set_total_correct_answers = Answer.objects.filter(
+                question_set_answer__in=question_set_answers,
                 valid=True
             ).exclude(question__question_type='SEL').count()
-        topic_total_wrong_answers = 0
-        if topic_total_correct_answers == 0:
-            topic_total_wrong_answers = Answer.objects.filter(
-                topic_answer__in=topic_answers,
+        question_set_total_wrong_answers = 0
+        if question_set_total_correct_answers == 0:
+            question_set_total_wrong_answers = Answer.objects.filter(
+                question_set_answer__in=question_set_answers,
                 valid=False
             ).exclude(question__question_type='SEL').count()
-        if (topic_total_answers != 0):
-            if topic_total_correct_answers != 0:
-                correct_answers_percentage = round((topic_total_correct_answers / topic_total_answers) * 100, 1)
-            elif topic_total_wrong_answers != 0:
+        if (question_set_total_answers != 0):
+            if question_set_total_correct_answers != 0:
+                correct_answers_percentage = round((question_set_total_correct_answers / question_set_total_answers) * 100, 1)
+            elif question_set_total_wrong_answers != 0:
                 correct_answers_percentage = 0
 
         return min(correct_answers_percentage, 100.0)
 
+    def get_question_sets_count(self, instance):
+        return QuestionSet.objects.filter(assessment=instance).count()
 
-    def get_topics_count(self, instance):
-        return AssessmentTopic.objects.filter(assessment=instance).count()
-    
-    def get_topics(self, instance):
-        topics = AssessmentTopic.objects.filter(assessment=instance).values_list('id', 'name', 'description', 'icon', 'archived', 'order', 'learning_objective')
+    def get_question_sets(self, instance):
+        question_sets = QuestionSet.objects.filter(assessment=instance).values_list('id', 'name', 'description', 'icon', 'order', 'learning_objective')
 
-        topics_res = []
-        for topic in topics:
+        question_sets_res = []
+        for question_set in question_sets:
             learning_objective_data = None
-            if topic[6]:
-                learning_objective = LearningObjective.objects.get(code=topic[6])
+            if question_set[5]:
+                learning_objective = LearningObjective.objects.get(code=question_set[5])
                 learning_objective_data = LearningObjectiveSerializer(learning_objective).data
-            question_count = Question.objects.filter(assessment_topic=topic[0]).exclude(
-                Q(question_type='SEL') & (~Q(assessment_topic__order=1) | Q(assessment_topic__assessment__sel_question=False))
+            question_count = Question.objects.filter(question_set=question_set[0]).exclude(
+                Q(question_type='SEL') & (~Q(question_set__order=1) | Q(question_set__assessment__sel_question=False))
             ).count()
-            correct_answers_percentage = self.__get_topic_correct_answers_percentage(topic)
-            topics_res.append({"id": topic[0], "title": topic[1], "description": topic[2], "icon": topic[3], "archived": topic[4], "order": topic[5], "learning_objective": learning_objective_data,
+            correct_answers_percentage = self.__get_question_set_correct_answers_percentage(question_set)
+            question_sets_res.append({"id": question_set[0], "title": question_set[1], "description": question_set[2], "icon": question_set[3], "order": question_set[4], "learning_objective": learning_objective_data,
                     "questionsCount": question_count, "score": correct_answers_percentage})
 
-        return topics_res
+        return question_sets_res
 
     def get_students_count(self, instance):
         return User.objects.filter(
-            assessmenttopicaccess__topic__assessment=instance,
-            assessmenttopicaccess__start_date__lte=datetime.date.today(),
-            assessmenttopicaccess__end_date__gte=datetime.date.today()
+            questionsetaccess__question_set__assessment=instance,
+            questionsetaccess__start_date__lte=datetime.date.today(),
+            questionsetaccess__end_date__gte=datetime.date.today()
         ).distinct().count()
 
     def get_language_name(self, instance):
@@ -261,11 +259,11 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
 
     def get_subject(self, instance):
         return instance.get_subject_display()
-    
+
     def get_can_edit(self, instance):
         if not ('supervisor' in self.context):
             return None
-        
+
         supervisor = self.context['supervisor']
         if instance.created_by == supervisor:
             return True
@@ -273,73 +271,73 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
             return False
 
     def get_invites(self, instance):
-        topics = AssessmentTopic.objects.filter(assessment=instance)
-        return User.objects.filter(assessmenttopicaccess__topic__in=topics).distinct().count()
+        question_sets = QuestionSet.objects.filter(assessment=instance)
+        return User.objects.filter(questionsetaccess__question_set__in=question_sets).distinct().count()
 
     def get_plays(self, instance):
-        topics = AssessmentTopic.objects.filter(assessment=instance)
-        return AssessmentTopicAnswer.objects.filter(topic_access__topic__in=topics).distinct('session').count()
+        question_sets = QuestionSet.objects.filter(assessment=instance)
+        return QuestionSetAnswer.objects.filter(question_set_access__question_set__in=question_sets).distinct('session').count()
 
     def get_score(self, instance):
-        topics = AssessmentTopic.objects.filter(assessment=instance, archived=False)
-        assessment_topics_answers = []
+        question_sets = QuestionSet.objects.filter(assessment=instance)
+        question_sets_answers = []
 
-        for topic in topics:
-            if topic.evaluated:
-                correct_answers_percentage = self.__get_topic_correct_answers_percentage(topic)
+        for question_set in question_sets:
+            if question_set.evaluated:
+                correct_answers_percentage = self.__get_question_set_correct_answers_percentage(question_set)
                 if correct_answers_percentage is not None:
-                    assessment_topics_answers.append(correct_answers_percentage)
+                    question_sets_answers.append(correct_answers_percentage)
 
         score = None
-        if assessment_topics_answers:
-            score = sum(assessment_topics_answers) / float(len(assessment_topics_answers))
+        if question_sets_answers:
+            score = sum(question_sets_answers) / float(len(question_sets_answers))
 
         return score
 
-class AssessmentTopicTableSerializer(serializers.ModelSerializer):
+class QuestionSetTableSerializer(serializers.ModelSerializer):
     """
-    Assessment topics table serializer.
+    Question sets table serializer.
     """
 
-    # Total of students with active access to this topic
+    # Total of students with active access to this question_set
     students_count = serializers.SerializerMethodField()
-    # Total of students with active access to this topic and who completed it
+    # Total of students with active access to this question_set and who completed it
     students_completed_count = serializers.SerializerMethodField()
-    # Total of students who completed this topic
+    # Total of students who completed this question_set
     overall_students_completed_count = serializers.SerializerMethodField()
-    # Total of questions in this topic
+    # Total of questions in this question_set
     questions_count = serializers.SerializerMethodField()
     # Assesment id
     assessment_id = serializers.SerializerMethodField()
-    # AssessmentTopic learning objective
+    # QuerySet learning objective
     learning_objective = NestedRelatedField(
         model=LearningObjective, serializer_class=LearningObjectiveSerializer, allow_null=True)
 
     class Meta:
-        model = AssessmentTopic
+        model = QuestionSet
         fields = ('id', 'assessment_id', 'name', 'students_count', 'students_completed_count', 'order',
-                  'overall_students_completed_count', 'questions_count', 'archived', 'learning_objective')
+                  'overall_students_completed_count', 'questions_count', 'learning_objective')
 
     def get_students_count(self, instance):
         return User.objects.filter(
-            assessmenttopicaccess__topic=instance,
-            assessmenttopicaccess__start_date__lte=datetime.date.today(),
-            assessmenttopicaccess__end_date__gte=datetime.date.today()
+            questionsetaccess__question_set=instance,
+            questionsetaccess__start_date__lte=datetime.date.today(),
+            questionsetaccess__end_date__gte=datetime.date.today()
         ).distinct().count()
 
     def get_students_completed_count(self, instance):
         return User.objects.filter(
-            assessmenttopicaccess__topic=instance,
-            assessmenttopicaccess__start_date__lte=datetime.date.today(),
-            assessmenttopicaccess__end_date__gte=datetime.date.today(),
-            assessmenttopicaccess__assessment_topic_answers__complete=True,
+            questionsetaccess__question_set=instance,
+            questionsetaccess__start_date__lte=datetime.date.today(),
+            questionsetaccess__end_date__gte=datetime.date.today(),
+            questionsetaccess__question_set_answers__complete=True,
         ).distinct().count()
 
     def get_overall_students_completed_count(self, instance):
-        return User.objects.filter(assessmenttopicaccess__topic=instance).distinct().count()
+        return User.objects.filter(questionsetaccess__question_set=instance).distinct().count()
 
     def get_questions_count(self, instance):
-        return Question.objects.filter(assessment_topic=instance).count()
+        return Question.objects.filter(question_set=instance).count()
 
     def get_assessment_id(self, instance):
         return Assessment.objects.filter(id=instance.assessment.id).values_list('id', flat=True)[0]
@@ -351,28 +349,28 @@ class QuestionTableSerializer(serializers.ModelSerializer):
 
     has_attachment = serializers.SerializerMethodField()
     question_type = serializers.SerializerMethodField()
-    topic = serializers.SerializerMethodField()
-    learning_objective = serializers.SerializerMethodField()
 
     # Parent assessment grade
     grade = serializers.SerializerMethodField()
     # Parent assessment subject
     subject = serializers.SerializerMethodField()
-    # Parent assessment subtopic
-    subtopic = serializers.SerializerMethodField()
+    # Parent assessment topic
+    topic = serializers.SerializerMethodField()
     # Number of time the assessment has been played by a student
     plays = serializers.SerializerMethodField()
-    # Number of students invited with AssessmentTopicAccess to the question topic
+    # Number of students invited with QuestionSetAccess to the question topic
     invites = serializers.SerializerMethodField()
     # Speed is the average speed of all students to answer this question
     speed = serializers.SerializerMethodField()
     # Score is the global average score for this question amongst all the students
     score = serializers.SerializerMethodField()
+    learning_objective = NestedRelatedField(
+        model=LearningObjective, serializer_class=LearningObjectiveSerializer, allow_null=True)
 
     class Meta:
         model = Question
         fields = ('id', 'title', 'order', 'created_at', 'topic', 'question_type', 'plays', 'invites',
-                  'has_attachment', 'speed', 'score', 'grade', 'subject', 'subtopic', 'learning_objective')
+                  'has_attachment', 'speed', 'score', 'grade', 'subject', 'topic', 'learning_objective')
 
     def __get_all_answers(self, instance):
         return Answer.objects.filter(question=instance)
@@ -386,7 +384,7 @@ class QuestionTableSerializer(serializers.ModelSerializer):
         return instance.get_question_type_display()
 
     def get_learning_objective(self, instance):
-        learning_objective = instance.assessment_topic.learning_objective
+        learning_objective = instance.question_set.learning_objective
         serializer = LearningObjectiveSerializer(learning_objective)
         return serializer.data
 
@@ -400,18 +398,18 @@ class QuestionTableSerializer(serializers.ModelSerializer):
 
         for student in accessible_students:
 
-            earliest_topic_answers = AssessmentTopicAnswer.objects.filter(
-                topic_access__student=student,
-                topic_access__topic=instance.assessment_topic,
+            earliest_question_set_answers = QuestionSetAnswer.objects.filter(
+                question_set_access__student=student,
+                question_set_access__question_set=instance.question_set,
                 complete=True
             )
 
-            if earliest_topic_answers:
+            if earliest_question_set_answers:
 
-                earliest_topic_answer = earliest_topic_answers.earliest("start_date")
+                earliest_question_set_answer = earliest_question_set_answers.earliest("start_date")
                 answers_list = Answer.objects.filter(
                     question=instance,
-                    topic_answer=earliest_topic_answer
+                    question_set_answer=earliest_question_set_answer
                 )
                 total_answers += answers_list.count()
                 total_correct_answers += answers_list.filter(
@@ -436,18 +434,18 @@ class QuestionTableSerializer(serializers.ModelSerializer):
 
         for student in accessible_students:
 
-            latest_topic_answers = AssessmentTopicAnswer.objects.filter(
-                topic_access__student=student,
-                topic_access__topic=instance.assessment_topic,
+            latest_question_set_answers = QuestionSetAnswer.objects.filter(
+                question_set_access__student=student,
+                question_set_access__question_set=instance.question_set,
                 complete=True
             )
 
-            if latest_topic_answers:
+            if latest_question_set_answers:
 
-                latest_topic_answer = latest_topic_answers.latest("start_date")
+                latest_question_set_answer = latest_question_set_answers.latest("start_date")
                 answers_list = Answer.objects.filter(
                     question=instance,
-                    topic_answer=latest_topic_answer
+                    question_set_answer=latest_question_set_answer
                 )
 
                 total_answers += answers_list.count()
@@ -464,24 +462,24 @@ class QuestionTableSerializer(serializers.ModelSerializer):
         return correct_answers_percentage
 
     def get_grade(self, instance):
-        return Assessment.objects.get(id=instance.assessment_topic.assessment.id).grade
+        return Assessment.objects.get(id=instance.question_set.assessment.id).grade
 
     def get_subject(self, instance):
-        return Assessment.objects.get(id=instance.assessment_topic.assessment.id).subject
+        return Assessment.objects.get(id=instance.question_set.assessment.id).subject
 
-    def get_subtopic(self, instance):
-        subtopic = Assessment.objects.get(id=instance.assessment_topic.assessment.id).subtopic
-        serializer = SubtopicSerializer(subtopic)
+    def get_topic(self, instance):
+        topic = Assessment.objects.get(id=instance.question_set.assessment.id).topic
+        serializer = TopicSerializer(topic)
         return serializer.data
 
     def get_topic(self, instance):
-        return instance.assessment_topic.name
+        return instance.question_set.name
 
     def get_plays(self, instance):
         return self.__get_all_answers(instance).count()
 
     def get_invites(self, instance):
-        return AssessmentTopicAccess.objects.filter(topic=instance.assessment_topic).count()
+        return QuestionSetAccess.objects.filter(question_set=instance.question_set).count()
 
     def get_speed(self, instance):
         answers = self.__get_all_answers(instance)
@@ -626,37 +624,37 @@ class QuestionDragAndDropTableSerializer(AbstractQuestionDetailsTableSerializer)
 
 class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     """
-    Assessment answers serializer 
+    Assessment answers serializer
     """
 
     # Subject of the assessment in a readable format
     subject = serializers.SerializerMethodField()
-    # Total of topics completed per assessment
-    completed_topics_count = serializers.SerializerMethodField()
-    # Total of topics accessible by the student
-    accessible_topics_count = serializers.SerializerMethodField()
+    # Total of question_sets completed per assessment
+    completed_question_sets_count = serializers.SerializerMethodField()
+    # Total of question_sets accessible by the student
+    accessible_question_sets_count = serializers.SerializerMethodField()
     # Last session datetime
     last_session = serializers.SerializerMethodField()
 
     class Meta:
         model = Assessment
-        fields = ('id', 'title', 'subject', 'completed_topics_count',
-                  'accessible_topics_count', 'last_session')
+        fields = ('id', 'title', 'subject', 'completed_question_sets_count',
+                  'accessible_question_sets_count', 'last_session')
 
-    def get_completed_topics_count(self, instance):
+    def get_completed_question_sets_count(self, instance):
         student_pk = self.context['student_pk']
 
-        return AssessmentTopic.objects.filter(
+        return QuestionSet.objects.filter(
             assessment=instance,
-            assessmenttopicaccess__student=student_pk,
-            assessmenttopicaccess__assessment_topic_answers__complete=True
+            questionsetaccess__student=student_pk,
+            questionsetaccess__question_set_answers__complete=True
         ).distinct().count()
 
-    def get_accessible_topics_count(self, instance):
+    def get_accessible_question_sets_count(self, instance):
         student_pk = self.context['student_pk']
 
-        return AssessmentTopic.objects.filter(
-            assessmenttopicaccess__student=student_pk,
+        return QuestionSet.objects.filter(
+            questionsetaccess__student=student_pk,
             assessment=instance
         ).distinct().count()
 
@@ -667,16 +665,16 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
         student_pk = self.context['student_pk']
 
         last_session = AnswerSession.objects.filter(
-            assessment_topic_answers__topic_access__topic__assessment=instance,
+            question_set_answers__question_set_access__question_set__assessment=instance,
             student=student_pk,
         ).latest('start_date')
 
         return last_session.start_date
 
 
-class TopicAnswerTableSerializer(serializers.ModelSerializer):
+class QuestionSetAnswerTableSerializer(serializers.ModelSerializer):
     """
-    Topic answer serializer
+    QuestionSet answer serializer
     """
 
     # Total number of questions
@@ -691,46 +689,46 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
     last_submission = serializers.SerializerMethodField()
 
     class Meta:
-        model = AssessmentTopic
+        model = QuestionSet
         fields = ('id', 'name', 'questions_count', 'student_tries_count',
                   'correct_answers_percentage_first_try',
                   'correct_answers_percentage_last_try',
                   'last_submission')
 
     def get_questions_count(self, instance):
-        return Question.objects.filter(assessment_topic=instance).count()
+        return Question.objects.filter(question_set=instance).count()
 
     def get_student_tries_count(self, instance):
         student_pk = self.context['student_pk']
 
-        return AssessmentTopicAnswer.objects.filter(
-            topic_access__topic=instance,
+        return QuestionSetAnswer.objects.filter(
+            question_set_access__question_set=instance,
             session__student=student_pk
         ).distinct().count()
 
     def get_correct_answers_percentage_first_try(self, instance):
         student_pk = self.context['student_pk']
 
-        first_topic_answer = AssessmentTopicAnswer.objects.filter(
-            topic_access__topic=instance,
+        first_question_set_answer = QuestionSetAnswer.objects.filter(
+            question_set_access__question_set=instance,
             session__student=student_pk,
             complete=True
         )
 
-        if not first_topic_answer.exists():
+        if not first_question_set_answer.exists():
             return None
 
         if (instance.evaluated != True):
             return None
 
-        first_topic_answer = first_topic_answer.earliest('end_date')
+        first_question_set_answer = first_question_set_answer.earliest('end_date')
 
         total_answers = Answer.objects.filter(
-            topic_answer=first_topic_answer
+            question_set_answer=first_question_set_answer
         ).exclude(question__question_type='SEL').distinct().count()
 
         total_valid_answers = Answer.objects.filter(
-            topic_answer=first_topic_answer,
+            question_set_answer=first_question_set_answer,
             valid=True
         ).exclude(question__question_type='SEL').distinct().count()
 
@@ -746,26 +744,26 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
 
         student_pk = self.context['student_pk']
 
-        last_topic_answer = AssessmentTopicAnswer.objects.filter(
-            topic_access__topic=instance,
+        last_question_set_answer = QuestionSetAnswer.objects.filter(
+            question_set_access__question_set=instance,
             session__student=student_pk,
             complete=True
         )
 
-        if not last_topic_answer.exists():
+        if not last_question_set_answer.exists():
             return None
 
         if (instance.evaluated != True):
             return None
 
-        last_topic_answer = last_topic_answer.latest('end_date')
+        last_question_set_answer = last_question_set_answer.latest('end_date')
 
         total_answers = Answer.objects.filter(
-            topic_answer=last_topic_answer
+            question_set_answer=last_question_set_answer
         ).exclude(question__question_type='SEL').distinct().count()
 
         total_valid_answers = Answer.objects.filter(
-            topic_answer=last_topic_answer,
+            question_set_answer=last_question_set_answer,
             valid=True
         ).exclude(question__question_type='SEL').distinct().count()
 
@@ -780,15 +778,15 @@ class TopicAnswerTableSerializer(serializers.ModelSerializer):
     def get_last_submission(self, instance):
         student_pk = self.context['student_pk']
 
-        last_topic_answer = AssessmentTopicAnswer.objects.filter(
-            topic_access__topic=instance,
+        last_question_set_answer = QuestionSetAnswer.objects.filter(
+            question_set_access__question_set=instance,
             session__student=student_pk
         )
 
-        if not last_topic_answer.exists():
+        if not last_question_set_answer.exists():
             return None
 
-        return last_topic_answer.latest('end_date').end_date
+        return last_question_set_answer.latest('end_date').end_date
 
 
 class QuestionAnswerTableSerializer(serializers.ModelSerializer):
@@ -815,8 +813,8 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
 
         all_answers = Answer.objects.filter(
             question=instance,
-            topic_answer__complete=True,
-            topic_answer__session__student=student_pk
+            question_set_answer__complete=True,
+            question_set_answer__session__student=student_pk
         ).distinct()
 
         if not all_answers:
@@ -833,38 +831,38 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
     def get_correctly_answered_first_try(self, instance):
         student_pk = self.context['student_pk']
 
-        first_topic_answer = AssessmentTopicAnswer.objects.filter(
-            topic_access__topic__question=instance,
+        first_question_set_answer = QuestionSetAnswer.objects.filter(
+            question_set_access__question_set__question=instance,
             session__student=student_pk,
             complete=True
         )
 
-        if not first_topic_answer:
+        if not first_question_set_answer:
             return None
 
-        first_topic_answer = first_topic_answer.earliest('end_date')
+        first_question_set_answer = first_question_set_answer.earliest('end_date')
 
         return Answer.objects.get(
-            topic_answer=first_topic_answer,
+            question_set_answer=first_question_set_answer,
             question=instance
         ).valid
 
     def get_correctly_answered_last_try(self, instance):
         student_pk = self.context['student_pk']
 
-        last_topic_answer = AssessmentTopicAnswer.objects.filter(
-            topic_access__topic__question=instance,
+        last_question_set_answer = QuestionSetAnswer.objects.filter(
+            question_set_access__question_set__question=instance,
             session__student=student_pk,
             complete=True
         )
 
-        if not last_topic_answer:
+        if not last_question_set_answer:
             return None
 
-        last_topic_answer = last_topic_answer.latest('end_date')
+        last_question_set_answer = last_question_set_answer.latest('end_date')
 
         return Answer.objects.get(
-            topic_answer=last_topic_answer,
+            question_set_answer=last_question_set_answer,
             question=instance
         ).valid
 
@@ -1005,16 +1003,16 @@ class AnswerDominoTableSerializer(AbstractAnswerTableSerializer):
         fields = AbstractAnswerTableSerializer.Meta.fields + \
             ('selected_domino', 'question',)
 
-class ScoreByTopicSerializer(serializers.ModelSerializer):
+class ScoreByQuestionSetSerializer(serializers.ModelSerializer):
 
     full_name = serializers.SerializerMethodField()
-    topics = serializers.SerializerMethodField()
+    question_sets = serializers.SerializerMethodField()
     student_access = serializers.SerializerMethodField()
     group = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'full_name', 'topics', 'student_access', 'group')
+        fields = ('id', 'full_name', 'question_sets', 'student_access', 'group')
 
     def get_group(self, instance):
         group = Group.objects.filter(student_group=instance)
@@ -1023,35 +1021,35 @@ class ScoreByTopicSerializer(serializers.ModelSerializer):
 
     def get_full_name(self, instance):
         return (instance.first_name + ' ' + instance.last_name)
-    
+
     def get_student_access(self, instance):
         assessment_pk = self.context['assessment_pk']
 
-        topics = AssessmentTopic.objects.filter(assessment=assessment_pk)
-        for access in AssessmentTopicAccess.objects.filter(student=instance, topic__in=topics):
-            if AssessmentTopicAnswer.objects.filter(topic_access=access, session__student=instance, complete=True):
+        question_sets = QuestionSet.objects.filter(assessment=assessment_pk)
+        for access in QuestionSetAccess.objects.filter(student=instance, question_set__in=question_sets):
+            if QuestionSetAnswer.objects.filter(question_set_access=access, session__student=instance, complete=True):
                 return True
         return False
-    
-    def get_topics(self, instance):
+
+    def get_question_sets(self, instance):
         assessment_pk = self.context['assessment_pk']
-        topic_score = []
+        question_set_score = []
 
-        for topic in AssessmentTopic.objects.filter(assessment=assessment_pk, archived=False):
+        for question_set in QuestionSet.objects.filter(assessment=assessment_pk):
 
-            if topic.evaluated:
-                total_answers = Question.objects.filter(assessment_topic=topic).exclude(question_type='SEL').count()
-                access = AssessmentTopicAccess.objects.filter(topic=topic, student=instance)
+            if question_set.evaluated:
+                total_answers = Question.objects.filter(question_set=question_set).exclude(question_type='SEL').count()
+                access = QuestionSetAccess.objects.filter(question_set=question_set, student=instance)
 
                 if access:
-                    if AssessmentTopicAnswer.objects.filter(topic_access=access.first(), complete=True):
-                        earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
-                            topic_access=access.first(),
+                    if QuestionSetAnswer.objects.filter(question_set_access=access.first(), complete=True):
+                        earliest_question_set_answer = QuestionSetAnswer.objects.filter(
+                            question_set_access=access.first(),
                             complete=True
                         ).earliest('start_date')
 
                         total_correct_answers = Answer.objects.filter(
-                            topic_answer=earliest_topic_answer,
+                            question_set_answer=earliest_question_set_answer,
                             valid=True
                         ).exclude(question__question_type='SEL').count()
 
@@ -1060,43 +1058,43 @@ class ScoreByTopicSerializer(serializers.ModelSerializer):
                         if (total_answers != 0):
                             correct_answers_percentage = round((total_correct_answers / total_answers) * 100, 1)
 
-                        topic_score_dict = {
-                            topic.name: correct_answers_percentage
+                        question_set_score_dict = {
+                            question_set.name: correct_answers_percentage
                         }
-                        topic_score.append(topic_score_dict)
+                        question_set_score.append(question_set_score_dict)
                     else:
-                        topic_score_dict = {
-                            topic.name: 'not_started'
+                        question_set_score_dict = {
+                            question_set.name: 'not_started'
                         }
-                        topic_score.append(topic_score_dict)
-                
+                        question_set_score.append(question_set_score_dict)
+
                 else:
-                    topic_score_dict = {
-                        topic.name: None
+                    question_set_score_dict = {
+                        question_set.name: None
                     }
-                    topic_score.append(topic_score_dict)
+                    question_set_score.append(question_set_score_dict)
             else:
-                topic_score_dict = {
-                    topic.name: 'not_evaluated'
+                question_set_score_dict = {
+                    question_set.name: 'not_evaluated'
                 }
-                topic_score.append(topic_score_dict)
-       
-        return topic_score
+                question_set_score.append(question_set_score_dict)
+
+        return question_set_score
 
 
-class TopicLisForDashboardSerializer(serializers.ModelSerializer):
+class QuestionSetLisForDashboardSerializer(serializers.ModelSerializer):
 
     started = serializers.SerializerMethodField()
 
     class Meta:
-        model = AssessmentTopic
+        model = QuestionSet
         fields = ('id', 'name', 'evaluated', 'started')
-    
+
     def get_started(self, instance):
 
         started = False
-        
-        if AssessmentTopicAnswer.objects.filter(topic_access__topic=instance, complete=True):
+
+        if QuestionSetAnswer.objects.filter(question_set_access__question_set=instance, complete=True):
             started = True
 
         return started
@@ -1104,39 +1102,39 @@ class TopicLisForDashboardSerializer(serializers.ModelSerializer):
 
 class AssessmentListForDashboardSerializer(serializers.ModelSerializer):
 
-    topics = serializers.SerializerMethodField()
+    question_sets = serializers.SerializerMethodField()
     evaluated = serializers.SerializerMethodField()
     started = serializers.SerializerMethodField()
 
     class Meta:
         model = Assessment
-        fields = ('id', 'title', 'evaluated', 'topics', 'started')
-    
-    def get_topics(self, instance):
+        fields = ('id', 'title', 'evaluated', 'question_sets', 'started')
+
+    def get_question_sets(self, instance):
 
         supervisor = self.context['supervisor']
         students = User.objects.filter(created_by=supervisor)
-        topics = []
+        question_sets = []
 
-        #Iterate through topics
-        for topic in AssessmentTopic.objects.filter(assessment=instance, evaluated=True):
-            accesses = AssessmentTopicAccess.objects.filter(topic=topic, student__in=students)
-            total_answers = Question.objects.filter(assessment_topic=topic).exclude(question_type='SEL').count()
+        #Iterate through question_sets
+        for question_set in QuestionSet.objects.filter(assessment=instance, evaluated=True):
+            accesses = QuestionSetAccess.objects.filter(question_set=question_set, student__in=students)
+            total_answers = Question.objects.filter(question_set=question_set).exclude(question_type='SEL').count()
             students_average = []
 
-            #Iterate through the supervisors student to get topic accesses
+            #Iterate through the supervisors student to get question_set accesses
             for access in accesses:
-                #For each topic access, check for completed topic answers
-                if AssessmentTopicAnswer.objects.filter(topic_access=access, complete=True):
+                #For each question_set access, check for completed question_set answers
+                if QuestionSetAnswer.objects.filter(question_set_access=access, complete=True):
                     #Get the first try
-                    earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
-                        topic_access=access,
+                    earliest_question_set_answer = QuestionSetAnswer.objects.filter(
+                        question_set_access=access,
                         complete=True
                     ).earliest('start_date')
 
                     #Get correct answers for this first try
                     total_correct_answers = Answer.objects.filter(
-                        topic_answer=earliest_topic_answer,
+                        question_set_answer=earliest_question_set_answer,
                         valid=True
                     ).exclude(question__question_type='SEL').count()
 
@@ -1146,39 +1144,39 @@ class AssessmentListForDashboardSerializer(serializers.ModelSerializer):
                         percentage = round((total_correct_answers / total_answers) * 100, 1)
 
                     students_average.append(percentage)
-            
+
             if len(students_average) != 0:
-                topic_dict = {
-                    'id': topic.id,
-                    'name': topic.name,
+                question_set_dict = {
+                    'id': question_set.id,
+                    'name': question_set.name,
                     'average': round(sum(students_average)/len(students_average), 1)
                 }
             else :
-                topic_dict = {
-                    'id': topic.id,
-                    'name': topic.name,
+                question_set_dict = {
+                    'id': question_set.id,
+                    'name': question_set.name,
                     'average': None
                 }
-            topics.append(topic_dict)
-    
-        return topics
+            question_sets.append(question_set_dict)
+
+        return question_sets
 
 
     def get_evaluated(self, instance):
 
         evaluated = False
 
-        for topic in AssessmentTopic.objects.filter(assessment=instance):
+        for question_set in QuestionSet.objects.filter(assessment=instance):
 
-            if topic.evaluated == True:
+            if question_set.evaluated == True:
                 evaluated = True
 
         return evaluated
-    
+
     def get_started(self, instance):
         started = False
-        for topic in self.get_topics(instance):
-            if topic['average'] != None:
+        for question_set in self.get_question_sets(instance):
+            if question_set['average'] != None:
                 started = True
         return started
 
@@ -1197,43 +1195,43 @@ class QuestionOverviewSerializer(serializers.ModelSerializer):
     def get_total_of_first_try_answers(self, instance):
 
         supervisor = self.context['supervisor']
-        topic_pk = self.context['topic_pk']
+        question_set_pk = self.context['question_set_pk']
         total_answers = 0
         students = User.objects.filter(created_by=supervisor)
 
-        for access in AssessmentTopicAccess.objects.filter(topic=topic_pk, student__in=students):
+        for access in QuestionSetAccess.objects.filter(question_set=question_set_pk, student__in=students):
 
-            if AssessmentTopicAnswer.objects.filter(topic_access=access, session__student__in=students, complete=True):
-                earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
-                    topic_access=access,
+            if QuestionSetAnswer.objects.filter(question_set_access=access, session__student__in=students, complete=True):
+                earliest_question_set_answer = QuestionSetAnswer.objects.filter(
+                    question_set_access=access,
                     session__student__in=students,
                     complete=True
                 ).earliest('start_date')
 
                 total_answers = total_answers + \
                     Answer.objects.filter(
-                        topic_answer=earliest_topic_answer, question=instance).count()
+                        question_set_answer=earliest_question_set_answer, question=instance).count()
 
         return total_answers
 
     def get_correct_answers_count(self,  instance):
 
         supervisor = self.context['supervisor']
-        topic_pk = self.context['topic_pk']
+        question_set_pk = self.context['question_set_pk']
         total_correct_answers = 0
         students = User.objects.filter(created_by=supervisor)
 
-        for access in AssessmentTopicAccess.objects.filter(topic=topic_pk, student__in=students):
+        for access in QuestionSetAccess.objects.filter(question_set=question_set_pk, student__in=students):
 
-            if AssessmentTopicAnswer.objects.filter(topic_access=access, session__student__in=students, complete=True):
-                earliest_topic_answer = AssessmentTopicAnswer.objects.filter(
-                    topic_access=access,
+            if QuestionSetAnswer.objects.filter(question_set_access=access, session__student__in=students, complete=True):
+                earliest_question_set_answer = QuestionSetAnswer.objects.filter(
+                    question_set_access=access,
                     session__student__in=students,
                     complete=True
                 ).earliest('start_date')
 
                 total_correct_answers = total_correct_answers + Answer.objects.filter(
-                    topic_answer=earliest_topic_answer, question=instance, valid=True).count()
+                    question_set_answer=earliest_question_set_answer, question=instance, valid=True).count()
 
         return total_correct_answers
 
@@ -1257,20 +1255,20 @@ class UserFullNameSerializer(serializers.ModelSerializer):
         return (instance.first_name + ' ' + instance.last_name)
 
 
-class StudentsByTopicAccessSerializer(serializers.ModelSerializer):
+class StudentsByQuestionSetAccessSerializer(serializers.ModelSerializer):
 
     student = NestedRelatedField(
         model=User, serializer_class=UserFullNameSerializer, many=False)
-    topic_first_try = serializers.SerializerMethodField()
+    question_set_first_try = serializers.SerializerMethodField()
 
     class Meta:
-        model = AssessmentTopicAccess
-        fields = ('id', 'student', 'topic_first_try')
+        model = QuestionSetAccess
+        fields = ('id', 'student', 'question_set_first_try')
 
-    def get_topic_first_try(self, instance):
+    def get_question_set_first_try(self, instance):
 
-        if AssessmentTopicAnswer.objects.filter(topic_access=instance, complete=True):
-            return AssessmentTopicAnswer.objects.filter(topic_access=instance, complete=True).values().earliest('start_date')
+        if QuestionSetAnswer.objects.filter(question_set_access=instance, complete=True):
+            return QuestionSetAnswer.objects.filter(question_set_access=instance, complete=True).values().earliest('start_date')
         else:
             return None
 
@@ -1319,22 +1317,22 @@ class GroupTableSerializer(serializers.ModelSerializer):
         model = Group
         fields = '__all__'
 
-    def __get_topics(self, instance):
+    def __get_question_sets(self, instance):
         students = User.objects.filter(group=instance)
-        return AssessmentTopicAccess.objects.filter(student_id__in=students).values_list('topic', flat=True)
+        return QuestionSetAccess.objects.filter(student_id__in=students).values_list('question_set', flat=True)
     
     def get_students_count(self, instance):
         return User.objects.filter(group=instance).count()
         
     def get_questions_count(self, instance):
-        topics = self.__get_topics(instance)
-        questions = Question.objects.filter(assessment_topic__in=topics, assessment_topic__assessmenttopicaccess__student__group=instance).distinct()
+        question_sets = self.__get_question_sets(instance)
+        questions = Question.objects.filter(question_set__in=question_sets, question_set__questionsetaccess__student__group=instance).distinct()
         return questions.count()
 
     def get_assessments_average(self, instance):
-        topics = self.__get_topics(instance)
-        if topics:
-            assessments = AssessmentTopic.objects.filter(pk__in=topics).values_list('assessment', flat=True).distinct()
+        question_sets = self.__get_question_sets(instance)
+        if question_sets:
+            assessments = QuestionSet.objects.filter(pk__in=question_sets).values_list('assessment', flat=True).distinct()
             assessments_average = []
             for assessment in assessments:
                 assessment_object = Assessment.objects.get(id=assessment)
@@ -1362,7 +1360,7 @@ class GroupTableSerializer(serializers.ModelSerializer):
         students_average = []
         # get the average speed of each student
         for student in students:
-            student_answers = Answer.objects.filter(topic_answer__session__student=student)
+            student_answers = Answer.objects.filter(question_set_answer__session__student=student)
             if student_answers:
                 student_result = student_answers.annotate(
                     durations = ExpressionWrapper(F('end_datetime') - F('start_datetime'), output_field=fields.DurationField()),
