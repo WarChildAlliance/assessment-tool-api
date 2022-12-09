@@ -70,13 +70,8 @@
             "name": "Number sense",
             "description": null,
             "assessment": 1,
-            "show_feedback": 0,
-            "allow_skip": true,
             "evaluated": true,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -87,13 +82,8 @@
             "name": "Addition",
             "description": null,
             "assessment": 1,
-            "show_feedback": 0,
-            "allow_skip": true,
             "evaluated": true,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -104,13 +94,8 @@
             "name": "Number ID",
             "description": "Identify a number in a numeral form after it is verbalized",
             "assessment": 1,
-            "show_feedback": 1,
-            "allow_skip": false,
             "evaluated": true,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -121,13 +106,8 @@
             "name": "Word Reading 1",
             "description": null,
             "assessment": 2,
-            "show_feedback": 1,
-            "allow_skip": false,
             "evaluated": true,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -138,13 +118,8 @@
             "name": "Word Reading 2",
             "description": null,
             "assessment": 2,
-            "show_feedback": 1,
-            "allow_skip": false,
             "evaluated": true,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -155,13 +130,8 @@
             "name": "Letters and sounds",
             "description": null,
             "assessment": 2,
-            "show_feedback": 1,
-            "allow_skip": false,
             "evaluated": true,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -172,13 +142,8 @@
             "name": "Numeracy",
             "description": null,
             "assessment": 5,
-            "show_feedback": 0,
-            "allow_skip": false,
             "evaluated": false,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -189,13 +154,8 @@
             "name": "Literacy",
             "description": null,
             "assessment": 5,
-            "show_feedback": 0,
-            "allow_skip": false,
             "evaluated": false,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -206,13 +166,8 @@
             "name": "Growth Mindset",
             "description": null,
             "assessment": 5,
-            "show_feedback": 0,
-            "allow_skip": false,
             "evaluated": false,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -223,13 +178,8 @@
             "name": "Growth Mindset",
             "description": null,
             "assessment": 6,
-            "show_feedback": 0,
-            "allow_skip": false,
             "evaluated": false,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -240,13 +190,8 @@
             "name": "Literacy",
             "description": null,
             "assessment": 6,
-            "show_feedback": 0,
-            "allow_skip": false,
             "evaluated": false,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -257,13 +202,8 @@
             "name": "Numeracy",
             "description": null,
             "assessment": 6,
-            "show_feedback": 0,
-            "allow_skip": false,
             "evaluated": false,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },

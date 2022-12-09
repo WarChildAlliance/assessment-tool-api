@@ -54,13 +54,8 @@
             "name": "Addition",
             "description": null,
             "assessment": 1,
-            "show_feedback": 2,
-            "allow_skip": false,
             "evaluated": true,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -71,13 +66,8 @@
             "name": "Substraction",
             "description": "This is the question_set description!",
             "assessment": 1,
-            "show_feedback": 2,
-            "allow_skip": false,
             "evaluated": true,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },
@@ -88,13 +78,8 @@
             "name": "Reading comprehension",
             "description": null,
             "assessment": 2,
-            "show_feedback": 2,
-            "allow_skip": false,
             "evaluated": true,
-            "praise": 0,
-            "max_wrong_answers": 0,
             "icon": "",
-            "archived": false,
             "order": null
         }
     },

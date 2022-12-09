@@ -221,19 +221,19 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
         return QuestionSet.objects.filter(assessment=instance).count()
 
     def get_question_sets(self, instance):
-        question_sets = QuestionSet.objects.filter(assessment=instance).values_list('id', 'name', 'description', 'icon', 'archived', 'order', 'learning_objective')
+        question_sets = QuestionSet.objects.filter(assessment=instance).values_list('id', 'name', 'description', 'icon', 'order', 'learning_objective')
 
         question_sets_res = []
         for question_set in question_sets:
             learning_objective_data = None
-            if question_set[6]:
-                learning_objective = LearningObjective.objects.get(code=question_set[6])
+            if question_set[5]:
+                learning_objective = LearningObjective.objects.get(code=question_set[5])
                 learning_objective_data = LearningObjectiveSerializer(learning_objective).data
             question_count = Question.objects.filter(question_set=question_set[0]).exclude(
                 Q(question_type='SEL') & (~Q(question_set__order=1) | Q(question_set__assessment__sel_question=False))
             ).count()
             correct_answers_percentage = self.__get_question_set_correct_answers_percentage(question_set)
-            question_sets_res.append({"id": question_set[0], "title": question_set[1], "description": question_set[2], "icon": question_set[3], "archived": question_set[4], "order": question_set[5], "learning_objective": learning_objective_data,
+            question_sets_res.append({"id": question_set[0], "title": question_set[1], "description": question_set[2], "icon": question_set[3], "order": question_set[4], "learning_objective": learning_objective_data,
                     "questionsCount": question_count, "score": correct_answers_percentage})
 
         return question_sets_res
@@ -279,7 +279,7 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
         return QuestionSetAnswer.objects.filter(question_set_access__question_set__in=question_sets).distinct('session').count()
 
     def get_score(self, instance):
-        question_sets = QuestionSet.objects.filter(assessment=instance, archived=False)
+        question_sets = QuestionSet.objects.filter(assessment=instance)
         question_sets_answers = []
 
         for question_set in question_sets:
@@ -316,7 +316,7 @@ class QuestionSetTableSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionSet
         fields = ('id', 'assessment_id', 'name', 'students_count', 'students_completed_count', 'order',
-                  'overall_students_completed_count', 'questions_count', 'archived', 'learning_objective')
+                  'overall_students_completed_count', 'questions_count', 'learning_objective')
 
     def get_students_count(self, instance):
         return User.objects.filter(
@@ -981,7 +981,7 @@ class ScoreByQuestionSetSerializer(serializers.ModelSerializer):
         assessment_pk = self.context['assessment_pk']
         question_set_score = []
 
-        for question_set in QuestionSet.objects.filter(assessment=assessment_pk, archived=False):
+        for question_set in QuestionSet.objects.filter(assessment=assessment_pk):
 
             if question_set.evaluated:
                 total_answers = Question.objects.filter(question_set=question_set).exclude(question_type='SEL').count()
