@@ -213,17 +213,37 @@ class QuestionsTableViewset(ModelViewSet):
         """
         Queryset to get allowed assessment question_sets table.
         """
+        accessible_assessments = AssessmentTableViewSet.get_queryset(self)
+        questions = Question.objects.filter(question_set__assessment__in=accessible_assessments)
 
-        accessible_question_sets = QuestionSetsTableViewset.get_queryset(self)
+        topic_pk = self.kwargs.get('topic_pk', None)
+        assessment_pk = self.kwargs.get('assessment_pk', None)
+        if topic_pk and assessment_pk:
+            topic_pk = int(topic_pk)
+            assessment_pk = int(assessment_pk)
+            questions = questions.filter(question_set=topic_pk, question_set__assessment=assessment_pk )
 
-        question_set_pk = int(self.kwargs.get('question_set_pk', None))
-        assessment_pk = int(self.kwargs.get('assessment_pk', None))
+        grade = self.request.query_params.get('grade')
+        if grade:
+            questions = questions.filter(question_set__assessment__grade=grade)
+        
+        topic = self.request.query_params.get('topic')
+        if topic:
+            assessments = assessments.filter(topic=topic)
 
-        return Question.objects.filter(
-            question_set=question_set_pk,
-            question_set__in=accessible_question_sets,
-            question_set__assessment=assessment_pk
-        )
+        number_range = self.request.query_params.get('number_range')
+        if number_range:
+            questions = questions.filter(number_range=number_range)
+
+        question_types = self.request.query_params.getlist('question_types[]', None)
+        if question_types:
+            questions = questions.filter(question_type__in=question_types)
+
+        learning_objectives = self.request.query_params.getlist('learning_objectives[]', None)
+        if learning_objectives:
+            assessments = assessments.filter(questionset__learning_objective__in=learning_objectives).distinct()
+
+        return questions
 
     def list(self, request, *args, **kwargs):
 
@@ -244,6 +264,12 @@ class QuestionsTableViewset(ModelViewSet):
             self.get_queryset().select_subclasses(), pk=question_pk)
         serializer = QuestionDetailsTableSerializer(question, many=False)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='all')
+    def get_all(self, request):
+        questions = QuestionsTableViewset.get_queryset(self)
+        serializer = QuestionTableSerializer(questions, many=True)
+        return Response(serializer.data, status=200)
 
     def create(self, request):
         return Response('Unauthorized', status=403)

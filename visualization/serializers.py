@@ -349,25 +349,31 @@ class QuestionTableSerializer(serializers.ModelSerializer):
 
     has_attachment = serializers.SerializerMethodField()
     question_type = serializers.SerializerMethodField()
-    # Overall percentage of correct answers on this question on first students' try
-    correct_answers_percentage_first = serializers.SerializerMethodField()
-    # Overall percentage of correct answers on this question on last students' try
-    correct_answers_percentage_last = serializers.SerializerMethodField()
+
     # Parent assessment grade
     grade = serializers.SerializerMethodField()
     # Parent assessment subject
     subject = serializers.SerializerMethodField()
-    # Parent question_set topic
+    # Parent assessment topic
     topic = serializers.SerializerMethodField()
+    # Number of time the assessment has been played by a student
+    plays = serializers.SerializerMethodField()
+    # Number of students invited with QuestionSetAccess to the question topic
+    invites = serializers.SerializerMethodField()
+    # Speed is the average speed of all students to answer this question
+    speed = serializers.SerializerMethodField()
+    # Score is the global average score for this question amongst all the students
+    score = serializers.SerializerMethodField()
     learning_objective = NestedRelatedField(
         model=LearningObjective, serializer_class=LearningObjectiveSerializer, allow_null=True)
 
     class Meta:
         model = Question
-        fields = ('id', 'title', 'order', 'question_type',
-                  'has_attachment', 'correct_answers_percentage_first',
-                  'correct_answers_percentage_last', 'grade', 'subject',
-                  'topic', 'learning_objective')
+        fields = ('id', 'title', 'order', 'created_at', 'topic', 'question_type', 'plays', 'invites',
+                  'has_attachment', 'speed', 'score', 'grade', 'subject', 'topic', 'learning_objective')
+
+    def __get_all_answers(self, instance):
+        return Answer.objects.filter(question=instance)
 
     def get_has_attachment(self, instance):
         if(Attachment.objects.filter(question=instance)):
@@ -377,7 +383,13 @@ class QuestionTableSerializer(serializers.ModelSerializer):
     def get_question_type(self, instance):
         return instance.get_question_type_display()
 
-    def get_correct_answers_percentage_first(self, instance):
+    def get_learning_objective(self, instance):
+        learning_objective = instance.question_set.learning_objective
+        serializer = LearningObjectiveSerializer(learning_objective)
+        return serializer.data
+
+    # NO LONGER USED: Overall percentage of correct answers on this question on first students' try
+    def __get_correct_answers_percentage_first(self, instance):
 
         accessible_students = self.context.get("accessible_students")
 
@@ -412,7 +424,8 @@ class QuestionTableSerializer(serializers.ModelSerializer):
 
         return correct_answers_percentage
 
-    def get_correct_answers_percentage_last(self, instance):
+    # NO LONGER USED:: Overall percentage of correct answers on this question on last students' try
+    def __get_correct_answers_percentage_last(self, instance):
 
         accessible_students = self.context.get("accessible_students")
 
@@ -459,6 +472,47 @@ class QuestionTableSerializer(serializers.ModelSerializer):
         serializer = TopicSerializer(topic)
         return serializer.data
 
+    def get_topic(self, instance):
+        return instance.question_set.name
+
+    def get_plays(self, instance):
+        return self.__get_all_answers(instance).count()
+
+    def get_invites(self, instance):
+        return QuestionSetAccess.objects.filter(question_set=instance.question_set).count()
+
+    def get_speed(self, instance):
+        answers = self.__get_all_answers(instance)
+        students_average = []
+        if answers:
+            student_result = answers.annotate(
+                durations = ExpressionWrapper(F('end_datetime') - F('start_datetime'), output_field=fields.DurationField()),
+            ).aggregate(Avg('durations'))['durations__avg']
+            students_average.append(student_result)
+
+        if len(students_average):
+            return sum(students_average, datetime.timedelta()) / len(students_average)
+        else:
+            return None
+        
+    def get_score(self, instance):
+        correct_answers_percentage = 0
+        all_answers = self.__get_all_answers(instance)
+        if not all_answers:
+            return None
+
+        total_answers = all_answers.count()
+        total_correct_answers = all_answers.filter(valid=True).exclude(question__question_type='SEL').count()
+        total_wrong_answers = 0
+        if total_correct_answers == 0:
+            total_wrong_answers = all_answers.filter(valid=False ).exclude(question__question_type='SEL').count()
+
+        if total_correct_answers != 0:
+            correct_answers_percentage = round((total_correct_answers / total_answers) * 100, 1)
+        elif total_wrong_answers != 0:
+            correct_answers_percentage = 0
+
+        return min(correct_answers_percentage, 100.0)
 
 class QuestionDetailsTableSerializer(PolymorphicSerializer):
 
