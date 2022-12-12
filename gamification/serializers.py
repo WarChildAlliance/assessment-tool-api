@@ -1,14 +1,14 @@
 from admin.lib.serializers import NestedRelatedField
 from rest_framework import serializers
-from .models import Avatar, Profile, TopicCompetency
+from .models import Avatar, Profile, QuestionSetCompetency
 
 from django.db.models import Sum
 
 
-class TopicCompetencySerializer(serializers.ModelSerializer):
+class QuestionSetCompetencySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = TopicCompetency
+        model = QuestionSetCompetency
         fields = '__all__'
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -46,12 +46,12 @@ class ProfileSerializer(serializers.ModelSerializer):
     """
     Profile serializer.
     """
-    topics_competencies = NestedRelatedField(
-        model=TopicCompetency, serializer_class=TopicCompetencySerializer, many=True, required=False, source='topiccompetency_set')
+    question_sets_competencies = NestedRelatedField(
+        model=QuestionSetCompetency, serializer_class=QuestionSetCompetencySerializer, many=True, required=False, source='questionsetcompetency_set')
 
     current_avatar = NestedRelatedField(
         model=Avatar, serializer_class=AvatarSerializer, many=False, required=False)
 
     class Meta:
         model = Profile
-        fields = ('id', 'student', 'effort', 'current_avatar', 'unlocked_avatars', 'topics_competencies')
+        fields = ('id', 'student', 'effort', 'current_avatar', 'unlocked_avatars', 'question_sets_competencies')

@@ -11,12 +11,12 @@ from datetime import date
 
 from admin.lib.viewsets import ModelViewSet
 
-from .models import (Assessment, AssessmentTopic, AssessmentTopicAccess, NumberRange,
-                     Attachment, DraggableOption, LearningObjective, Question, Subtopic)
+from .models import (Assessment, QuestionSet, QuestionSetAccess, NumberRange,
+                     Attachment, DraggableOption, LearningObjective, Question, Topic)
 from .serializers import (AssessmentDeepSerializer, AssessmentSerializer,
-                          AssessmentTopicAccessSerializer,
-                          AssessmentTopicSerializer, AttachmentSerializer, DraggableOptionSerializer,
-                          QuestionSerializer, SubtopicSerializer, LearningObjectiveSerializer, NumberRangeSerializer)
+                          QuestionSetAccessSerializer,
+                          QuestionSetSerializer, AttachmentSerializer, DraggableOptionSerializer,
+                          QuestionSerializer, TopicSerializer, LearningObjectiveSerializer, NumberRangeSerializer)
 
 
 class AssessmentsViewSet(ModelViewSet):
@@ -53,11 +53,11 @@ class AssessmentsViewSet(ModelViewSet):
             return Assessment.objects.filter(Q(created_by=user) | Q(private=False))
 
 
-        # Students can access assessments if they're linked to at least one of its topic
+        # Students can access assessments if they're linked to at least one of its question_set
         return Assessment.objects.filter(
-            assessmenttopic__assessmenttopicaccess__student=user,
-            assessmenttopic__assessmenttopicaccess__start_date__lte=date.today(),
-            assessmenttopic__assessmenttopicaccess__end_date__gte=date.today()
+            questionset__questionsetaccess__student=user,
+            questionset__questionsetaccess__start_date__lte=date.today(),
+            questionset__questionsetaccess__end_date__gte=date.today()
         ).distinct()
 
 
@@ -92,7 +92,7 @@ class AssessmentsViewSet(ModelViewSet):
     def get_assessments(self, request):
 
         serializer = AssessmentDeepSerializer(
-            self.get_queryset().order_by('-assessmenttopic__assessmenttopicaccess__start_date'), many=True,
+            self.get_queryset().order_by('-questionset__questionsetaccess__start_date'), many=True,
             context={
                 'student_pk': int(self.request.user.id)
             }
@@ -101,12 +101,12 @@ class AssessmentsViewSet(ModelViewSet):
         return Response(serializer.data, status=201)
 
 
-class AssessmentTopicsViewSet(ModelViewSet):
+class QuestionSetsViewSet(ModelViewSet):
     """
-    Assessment topics viewset.
+    Question sets viewset.
     """
 
-    serializer_class = AssessmentTopicSerializer
+    serializer_class = QuestionSetSerializer
     filterset_fields = ['name', 'assessment']
     search_fields = ['name']
 
@@ -121,24 +121,24 @@ class AssessmentTopicsViewSet(ModelViewSet):
 
     def get_queryset(self):
         """
-        Queryset to get allowed assessment topics.
+        Queryset to get allowed assessment question_sets.
         """
         user = self.request.user
         assessment_pk = self.kwargs['assessment_pk']
 
         if user.is_student():
-            return AssessmentTopic.objects.filter(
+            return QuestionSet.objects.filter(
                 assessment=assessment_pk,
-                assessmenttopicaccess__student=user,
-                assessmenttopicaccess__start_date__lte=date.today(),
-                assessmenttopicaccess__end_date__gte=date.today(),
+                questionsetaccess__student=user,
+                questionsetaccess__start_date__lte=date.today(),
+                questionsetaccess__end_date__gte=date.today(),
             ).distinct()
 
-        return AssessmentTopic.objects.filter(assessment=assessment_pk)
+        return QuestionSet.objects.filter(assessment=assessment_pk)
 
     def create(self, request, *args, **kwargs):
         """
-        Create a new Topic.
+        Create a new QuestionSet.
         """
         request_data = request.data.copy()
 
@@ -147,41 +147,41 @@ class AssessmentTopicsViewSet(ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
-    
+
     def update(self, request, pk=None, **kwargs):
         """
-        Update assessment topic.
+        Update assessment question_set.
         """
         instance = self.get_object()
         request_data = request.data.copy()
         request_order = int(request.data.get('order')) if request.data.get('order') else None
 
-        # Check if topic order changed to reorder all others topics
+        # Check if question_set order changed to reorder all others question_sets
         # (do not enter here if instance.order = None (has not been set before))
         if (instance.order and request_order) and instance.order != request_order:
-            topics = AssessmentTopic.objects.filter(assessment=instance.assessment)
+            question_sets = QuestionSet.objects.filter(assessment=instance.assessment)
 
-            # Create an array with the topics from the QuerySet
-            topics_list = [topic for topic in topics]
+            # Create an array with the question_sets from the QuerySet
+            question_sets_list = [question_set for question_set in question_sets]
 
-            # Places the topic in the position of the array equivalent to its new order
-            topic = topics_list[instance.order - 1]
-            topics_list.remove(topic)
-            topics_list.insert((request_order - 1) if (request_order > 0) else 0, topic)
+            # Places the question_set in the position of the array equivalent to its new order
+            question_set = question_sets_list[instance.order - 1]
+            question_sets_list.remove(question_set)
+            question_sets_list.insert((request_order - 1) if (request_order > 0) else 0, question_set)
 
-            # Order of each topic is its position in the array + 1 (order can't be zero)
-            for index, topic in enumerate(topics_list):
-                topic.order = index + 1
-                topic.save()
+            # Order of each question_set is its position in the array + 1 (order can't be zero)
+            for index, question_set in enumerate(question_sets_list):
+                question_set.order = index + 1
+                question_set.save()
 
-            # If assessment has the “Contains SEL questions” set as true, and if there were SEL questions in the first topic
-            # make sure the questions are in the first topic after reordering the topics
-            sel_questions = Question.objects.filter(question_type='SEL', assessment_topic__assessment=instance.assessment)
+            # If assessment has the “Contains SEL questions” set as true, and if there were SEL questions in the first question_set
+            # make sure the questions are in the first question_set after reordering the question_sets
+            sel_questions = Question.objects.filter(question_type='SEL', question_set__assessment=instance.assessment)
             if instance.assessment.sel_question and sel_questions:
-                first_topic = topics_list[0]
-                sel_questions.update(assessment_topic=first_topic)
-                # order topic's QuerySet all_questions so SEL questions are at the beginning
-                all_questions = Question.objects.filter(assessment_topic=first_topic).order_by(Case(When(question_type='SEL', then=0), default=1))
+                first_question_set = question_sets_list[0]
+                sel_questions.update(question_set=first_question_set)
+                # order question_set's QuerySet all_questions so SEL questions are at the beginning
+                all_questions = Question.objects.filter(question_set=first_question_set).order_by(Case(When(question_type='SEL', then=0), default=1))
                 # Order of each question is its position in the array + 1 (order can't be zero)
                 for index, question in enumerate(all_questions):
                     question.order = index + 1
@@ -193,41 +193,41 @@ class AssessmentTopicsViewSet(ModelViewSet):
         return Response(serializer.data)
 
     @action(detail=False, methods=['put'], url_path='reorder')
-    def reorder_all_topics(self, request, pk=None, **kwargs):
+    def reorder_all_question_sets(self, request, pk=None, **kwargs):
         """
-        Updates the order of all assessment topics.
+        Updates the order of all assessment question_sets.
         """
         # reauest_data = {
-        #   'topics': [array with topics ids, where its index in the array is your new order (+1)], 
+        #   'question_sets': [array with question_sets ids, where its index in the array is your new order (+1)],
         #   'assessment_id': <assessment_id>
         # }
         request_data = request.data.copy()
-        topics = AssessmentTopic.objects.filter(assessment=request_data['assessment_id'])
+        question_sets = QuestionSet.objects.filter(assessment=request_data['assessment_id'])
 
         try:
-            for topic in topics:
-                for index, element in enumerate(request_data['topics']):
-                    if (topic.id == element) and (topic.order != index + 1):
-                        topic.order = index + 1
-                        topic.save()
+            for question_set in question_sets:
+                for index, element in enumerate(request_data['question_sets']):
+                    if (question_set.id == element) and (question_set.order != index + 1):
+                        question_set.order = index + 1
+                        question_set.save()
                         break
 
-            # If assessment has the “Contains SEL questions” set as true, and if there were SEL questions in the first topic
-            # make sure the questions are in the first topic after reordering the topics
-            sel_questions = Question.objects.filter(question_type='SEL', assessment_topic__assessment__id=request_data['assessment_id'])
-            first_topic = request_data['topics'][0]
-            if topics[0].assessment.sel_question and sel_questions:
-                sel_questions.update(assessment_topic_id=first_topic)
-                # order topic's QuerySet all_questions so SEL questions are at the beginning
-                all_questions = Question.objects.filter(assessment_topic_id=first_topic).order_by(Case(When(question_type='SEL', then=0), default=1))
+            # If assessment has the “Contains SEL questions” set as true, and if there were SEL questions in the first question_set
+            # make sure the questions are in the first question_set after reordering the question_sets
+            sel_questions = Question.objects.filter(question_type='SEL', question_set__assessment__id=request_data['assessment_id'])
+            first_question_set = request_data['question_sets'][0]
+            if question_sets[0].assessment.sel_question and sel_questions:
+                sel_questions.update(question_set_id=first_question_set)
+                # order question_set's QuerySet all_questions so SEL questions are at the beginning
+                all_questions = Question.objects.filter(question_set_id=first_question_set).order_by(Case(When(question_type='SEL', then=0), default=1))
                 # Order of each question is its position in the array + 1 (order can't be zero)
                 for index, question in enumerate(all_questions):
                     question.order = index + 1
                     question.save()
         except:
-            return Response('An error occurred while trying to update the order of assessments topics', status=500)
-                
-        return Response('Topics successfully reordered.', status=200)
+            return Response('An error occurred while trying to update the order of assessments question_sets', status=500)
+
+        return Response('QuestionSets successfully reordered.', status=200)
 
 
 class QuestionsViewSet(ModelViewSet):
@@ -251,16 +251,16 @@ class QuestionsViewSet(ModelViewSet):
         Queryset to get allowed questions.
         """
 
-        topic_pk = self.kwargs['topic_pk']
+        question_set_pk = self.kwargs['question_set_pk']
         assessment_pk = self.kwargs['assessment_pk']
 
         return Question.objects.filter(
-            assessment_topic=topic_pk,
-            assessment_topic__assessment=assessment_pk
+            question_set=question_set_pk,
+            question_set__assessment=assessment_pk
         ).exclude(
-            Q(question_type='SEL') & (~Q(assessment_topic__order=1) | Q(assessment_topic__assessment__sel_question=False))
+            Q(question_type='SEL') & (~Q(question_set__order=1) | Q(question_set__assessment__sel_question=False))
         ).select_subclasses()
-    
+
     def create(self, request, *args, **kwargs):
         """
         Create a new Question.
@@ -280,10 +280,10 @@ class QuestionsViewSet(ModelViewSet):
         """
         # reauest_data = {
         #   'questions': [array with questions ids, where its index in the array is your new order (+1)],
-        #   'assessment_topic': <assessment_topic'>
+        #   'question_set': <question_set'>
         # }
         request_data = request.data.copy()
-        questions = Question.objects.filter(assessment_topic=request_data['assessment_topic']).select_subclasses()
+        questions = Question.objects.filter(question_set=request_data['question_set']).select_subclasses()
 
         try:
             for question in questions:
@@ -302,7 +302,7 @@ class QuestionsViewSet(ModelViewSet):
         accessible_assessments = AssessmentsViewSet.get_queryset(self)
         request_question_type = self.request.query_params.get('type').split(',')
 
-        questions = Question.objects.filter(assessment_topic__assessment__in=accessible_assessments, question_type__in=request_question_type).select_subclasses()
+        questions = Question.objects.filter(question_set__assessment__in=accessible_assessments, question_type=request_question_type).select_subclasses()
         serializer = QuestionSerializer(questions, many=True)
 
         return Response(serializer.data, status=200)
@@ -368,28 +368,28 @@ class DraggableOptionsViewSet(ModelViewSet, CreateView):
         return DraggableOption.objects.filter(question_drag_and_drop=question_pk)
 
 
-class AssessmentTopicAccessesViewSets(ModelViewSet):
+class QuestionSetAccessesViewSets(ModelViewSet):
     """
-    Assessment topic accesses viewset.
+    Question set accesses viewset.
     """
 
-    serializer_class = AssessmentTopicAccessSerializer
+    serializer_class = QuestionSetAccessSerializer
     permission_classes = [IsAuthenticated, IsSupervisor]
 
     def get_queryset(self):
         """
-        Queryset to get assessment topic accesses.
+        Queryset to get assessment question_set accesses.
         """
         assessment_pk = self.kwargs['assessment_pk']
         user = self.request.user
 
-        return AssessmentTopicAccess.objects.filter(
-            student__created_by=user, topic__assessment__id=assessment_pk)
+        return QuestionSetAccess.objects.filter(
+            student__created_by=user, question_set__assessment__id=assessment_pk)
 
     @action(detail=False, methods=['post'])
     def bulk_create(self, request, *args, **kwargs):
         """
-        Assign assessment topics to students.
+        Assign assessment question_sets to students.
         """
         assessment_pk = kwargs.get('assessment_pk')
         user = request.user
@@ -403,20 +403,20 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
                 return Response('Cannot create access for unauthorized students', status=400)
             for access in request.data['accesses']:
                 try:
-                    AssessmentTopic.objects.get(
-                        Q(id=access.get('topic')),
+                    QuestionSet.objects.get(
+                        Q(id=access.get('question_set')),
                         Q(assessment__id=assessment_pk),
                         Q(assessment__created_by=user) | Q(assessment__private=False))
                 except:
-                    return Response('Cannot create access for unauthorized topics \
-                        or topics in another assessment', status=400)
+                    return Response('Cannot create access for unauthorized question_sets \
+                        or question_sets in another assessment', status=400)
 
-                if Question.objects.filter(assessment_topic=access.get('topic')).count() == 0:
-                    return Response('Cannot create access for topics without questions', status=400)
+                if Question.objects.filter(question_set=access.get('question_set')).count() == 0:
+                    return Response('Cannot create access for question_sets without questions', status=400)
 
                 formatted_data.append({
                     'student': student,
-                    'topic': access.get('topic'),
+                    'question_set': access.get('question_set'),
                     'start_date': access.get('start_date', None),
                     'end_date': access.get('end_date', None)
                 })
@@ -431,23 +431,23 @@ class AssessmentTopicAccessesViewSets(ModelViewSet):
         return Response(serializer.data, status=201, headers=headers)
 
 
-class SubtopicsViewSet(GenericViewSet, ListModelMixin):
+class TopicsViewSet(GenericViewSet, ListModelMixin):
     """
-    Subtopic viewset
+    Topic viewset
     """
-    serializer_class = SubtopicSerializer
+    serializer_class = TopicSerializer
     permission_classes = [IsAuthenticated, IsSupervisor]
 
     def get_queryset(self):
         """
-        Queryset to get subtopics.
+        Queryset to get topics.
         """
-        subtopics = Subtopic.objects.all()
+        topics = Topic.objects.all()
         subject = self.request.query_params.get('subject', None)
         if subject:
-            subtopics = subtopics.filter(subject=subject)
+            topics = topics.filter(subject=subject)
 
-        return subtopics
+        return topics
 
 
 class LearningObjectivesViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
@@ -466,11 +466,11 @@ class LearningObjectivesViewSet(GenericViewSet, RetrieveModelMixin, ListModelMix
 
         subject = self.request.query_params.get('subject', None)
         if subject:
-            learning_objectives = learning_objectives.filter(subtopic__subject=subject)
+            learning_objectives = learning_objectives.filter(topic__subject=subject)
 
-        subtopic = self.request.query_params.get('subtopic', None)
-        if subtopic:
-            learning_objectives = learning_objectives.filter(subtopic=subtopic)
+        topic = self.request.query_params.get('topic', None)
+        if topic:
+            learning_objectives = learning_objectives.filter(topic=topic)
 
         return learning_objectives
 

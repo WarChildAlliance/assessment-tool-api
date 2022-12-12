@@ -4,9 +4,9 @@
             "end_date": null,
             "start_date": null,
             "student_id": 2,
-            "topic_id": 1
+            "question_set_id": 1
         },
-        "model": "assessments.assessmenttopicaccess",
+        "model": "assessments.questionsetaccess",
         "pk": 1
     },
     {
@@ -14,9 +14,9 @@
             "end_date": null,
             "start_date": null,
             "student_id": 2,
-            "topic_id": 2
+            "question_set_id": 2
         },
-        "model": "assessments.assessmenttopicaccess",
+        "model": "assessments.questionsetaccess",
         "pk": 2
     },
     {
@@ -24,9 +24,9 @@
             "end_date": null,
             "start_date": null,
             "student_id": 2,
-            "topic_id": 3
+            "question_set_id": 3
         },
-        "model": "assessments.assessmenttopicaccess",
+        "model": "assessments.questionsetaccess",
         "pk": 3
     },
     {
@@ -34,9 +34,9 @@
             "end_date": "2023-07-29",
             "start_date": "2021-07-20",
             "student_id": 1,
-            "topic_id": 1
+            "question_set_id": 1
         },
-        "model": "assessments.assessmenttopicaccess",
+        "model": "assessments.questionsetaccess",
         "pk": 4
     },
     {
@@ -44,9 +44,9 @@
             "end_date": "2023-07-29",
             "start_date": "2021-07-20",
             "student_id": 1,
-            "topic_id": 2
+            "question_set_id": 2
         },
-        "model": "assessments.assessmenttopicaccess",
+        "model": "assessments.questionsetaccess",
         "pk": 3
     }
 ]

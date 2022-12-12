@@ -9,10 +9,10 @@ router.register(r'(?P<student_id>\d+)/sessions',
                 views.AnswerSessionsViewSet, basename='answer-session')
 # /answers/<student_id>/sessions/
 # /answers/<student_id>/sessions/{session_pk}/
-router.register(r'(?P<student_id>\d+)/topics',
-                views.AssessmentTopicAnswersViewSet, basename='answer-topic')
-# /answers/<student_id>/topics/
-# /answers/<student_id>/topics/{topic_answer_pk}/
+router.register(r'(?P<student_id>\d+)/question-sets',
+                views.QuestionSetAnswersViewSet, basename='answer-question-set')
+# /answers/<student_id>/question-sets/
+# /answers/<student_id>/question-sets/{question_set_answer_pk}/
 router.register(r'(?P<student_id>\d+)',
                 views.AnswersViewSet, basename='answers')
 # /answers/<student_id>/

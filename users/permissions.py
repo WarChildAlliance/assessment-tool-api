@@ -1,5 +1,5 @@
 from answers.models import Answer
-from assessments.models import Assessment, AssessmentTopic, Question
+from assessments.models import Assessment, QuestionSet, Question
 from rest_framework import permissions
 
 from users.models import User
@@ -48,7 +48,7 @@ class HasAccess(permissions.BasePermission):
         """
         Returns whether the can access the sub-resourc
         """
-        if view.basename == 'assessment-topics':
+        if view.basename == 'assessment-question-sets':
             assessment_pk = view.kwargs['assessment_pk']
             try:
                 assessment = Assessment.objects.get(id=assessment_pk)
@@ -56,11 +56,11 @@ class HasAccess(permissions.BasePermission):
             except:
                 return False
 
-        if view.basename == 'topic-questions':
-            topic_pk = view.kwargs['topic_pk']
+        if view.basename == 'question-sets-questions':
+            question_set_pk = view.kwargs['question_set_pk']
             try:
-                topic = AssessmentTopic.objects.get(id=topic_pk)
-                return self.has_object_permission(request, view, topic)
+                question_set = QuestionSet.objects.get(id=question_set_pk)
+                return self.has_object_permission(request, view, question_set)
             except:
                 return False
 
@@ -79,7 +79,7 @@ class HasAccess(permissions.BasePermission):
         if isinstance(obj, Assessment):
             if request.user and request.user.is_student():
                 return Assessment.objects.filter(
-                    assessmenttopic__assessmenttopicaccess__student=request.user,
+                    questionset__questionsetaccess__student=request.user,
                     id=obj.id
                 ).exists()
             if request.user and request.user.is_supervisor():
@@ -88,10 +88,10 @@ class HasAccess(permissions.BasePermission):
                 else:
                     return obj.created_by == request.user
 
-        if isinstance(obj, AssessmentTopic):
+        if isinstance(obj, QuestionSet):
             if request.user and request.user.is_student():
-                return AssessmentTopic.objects.filter(
-                    assessmenttopicaccess__student=request.user,
+                return QuestionSet.objects.filter(
+                    questionsetaccess__student=request.user,
                     id=obj.id
                 ).exists()
             if request.user and request.user.is_supervisor():
@@ -103,20 +103,20 @@ class HasAccess(permissions.BasePermission):
         if isinstance(obj, Question):
             if request.user and request.user.is_student():
                 return Question.objects.filter(
-                    assessment_topic__assessmenttopicaccess__student=request.user,
+                    question_set__questionsetaccess__student=request.user,
                     id=obj.id
                 ).exists()
             if request.user and request.user.is_supervisor():
                 if request.method in permissions.SAFE_METHODS:
-                    return (not obj.assessment_topic.assessment.private or
-                            obj.assessment_topic.assessment.created_by == request.user)
+                    return (not obj.question_set.assessment.private or
+                            obj.question_set.assessment.created_by == request.user)
                 else:
-                    return obj.assessment_topic.assessment.created_by == request.user
+                    return obj.question_set.assessment.created_by == request.user
 
         if isinstance(obj, Answer):
             if request.user and request.user.is_student():
-                return obj.topic_answer.session.student == request.user
+                return obj.question_set_answer.session.student == request.user
             if request.user and request.user.is_supervisor():
-                return obj.topic_answer.session.student.created_by == request.user
+                return obj.question_set_answer.session.student.created_by == request.user
 
         return True
