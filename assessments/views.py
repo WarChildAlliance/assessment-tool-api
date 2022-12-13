@@ -302,7 +302,7 @@ class QuestionsViewSet(ModelViewSet):
         accessible_assessments = AssessmentsViewSet.get_queryset(self)
         request_question_type = self.request.query_params.get('type').split(',')
 
-        questions = Question.objects.filter(question_set__assessment__in=accessible_assessments, question_type=request_question_type).select_subclasses()
+        questions = Question.objects.filter(question_set__assessment__in=accessible_assessments, question_type__in=request_question_type).select_subclasses()
         serializer = QuestionSerializer(questions, many=True)
 
         return Response(serializer.data, status=200)
