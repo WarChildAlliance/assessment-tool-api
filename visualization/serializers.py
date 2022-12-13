@@ -364,8 +364,7 @@ class QuestionTableSerializer(serializers.ModelSerializer):
     speed = serializers.SerializerMethodField()
     # Score is the global average score for this question amongst all the students
     score = serializers.SerializerMethodField()
-    learning_objective = NestedRelatedField(
-        model=LearningObjective, serializer_class=LearningObjectiveSerializer, allow_null=True)
+    learning_objective = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
