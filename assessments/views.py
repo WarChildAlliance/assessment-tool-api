@@ -283,7 +283,7 @@ class QuestionsViewSet(ModelViewSet):
         #   'question_set': <question_set'>
         # }
         request_data = request.data.copy()
-        questions = Question.objects.filter(question_set=request_data['question_set']).select_subclasses()
+        questions = Question.objects.filter(question_set=request_data['assessment_question_set']).select_subclasses()
 
         try:
             for question in questions:
