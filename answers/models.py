@@ -28,15 +28,15 @@ class AnswerSession(models.Model):
         return f'{self.student} on {self.start_date}'
 
 
-class AssessmentTopicAnswer(models.Model):
+class QuestionSetAnswer(models.Model):
     """
-    Assessment topic answer model.
+    Question set answer model.
     """
 
-    topic_access = models.ForeignKey(
-        'assessments.AssessmentTopicAccess',
+    question_set_access = models.ForeignKey(
+        'assessments.QuestionSetAccess',
         on_delete=models.SET_NULL,
-        related_name='assessment_topic_answers',
+        related_name='question_set_answers',
         null=True,
         blank=True
     )
@@ -57,7 +57,7 @@ class AssessmentTopicAnswer(models.Model):
     session = models.ForeignKey(
         'AnswerSession',
         on_delete=models.CASCADE,
-        related_name='assessment_topic_answers'
+        related_name='question_set_answers'
     )
 
     @property
@@ -72,8 +72,8 @@ class Answer(models.Model):
 
     objects = InheritanceManager()
 
-    topic_answer = models.ForeignKey(
-        'AssessmentTopicAnswer',
+    question_set_answer = models.ForeignKey(
+        'QuestionSetAnswer',
         on_delete=models.CASCADE,
         related_name='answers'
     )
@@ -102,14 +102,14 @@ class Answer(models.Model):
         """
         Answer date
         """
-        return self.topic_answer.date
+        return self.question_set_answer.date
 
     @property
     def student(self):
         """
         Answer student
         """
-        return self.topic_answer.student
+        return self.question_set_answer.student
 
     def __str__(self):
         return f'Answer by {self.student} for {self.question}'
@@ -250,3 +250,14 @@ class AnswerCalcul(Answer):
     """
 
     value = models.IntegerField()
+
+class AnswerCustomizedDragAndDrop(Answer):
+    """
+    Answer Customized Drag And Drop model (inherits Answer).
+    """
+
+    left_value = models.IntegerField()
+
+    right_value = models.IntegerField()
+
+    final_value = models.IntegerField()

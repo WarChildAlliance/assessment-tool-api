@@ -17,11 +17,11 @@ router.register(r'avatars', views.AvatarViewSet,
 # /gamification/avatars/
 # /gamification/avatars/<avatar_pk>/
 
-router.register(r'topic-competencies', views.TopicCompetencyViewSet,
-                basename='topic-competencies')
+router.register(r'question-set-competencies', views.QuestionSetCompetencyViewSet,
+                basename='question-set-competencies')
 # generates :
-# /gamification/topic_competencies/
-# /gamification/topic_competencies/<topic_pk>/
+# /gamification/question-set-competencies/
+# /gamification/question-set-competencies/<question_set_pk>/
 
 urlpatterns = [
     path('', include(router.urls)),

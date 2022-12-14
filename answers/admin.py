@@ -2,12 +2,12 @@ from django.contrib import admin
 from django.http import HttpResponse
 import csv
 
-from .models import (Answer, AnswerCalcul, AnswerDomino, AnswerInput, AnswerNumberLine, AnswerSEL, AnswerSelect, AnswerFindHotspot,
-                    AnswerDragAndDrop, DragAndDropAreaEntry, AnswerSession, AnswerSort, AssessmentTopicAnswer)
+from .models import (AnswerCalcul, AnswerDomino, AnswerInput, AnswerNumberLine, AnswerSEL, AnswerSelect, AnswerFindHotspot,
+                    AnswerDragAndDrop, DragAndDropAreaEntry, AnswerSession, AnswerSort, QuestionSetAnswer, AnswerCustomizedDragAndDrop)
 
 
 class AnswerSelectAnswerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'topic_answer', 'question_value', 'valid')
+    list_display = ('id', 'question_set_answer', 'question_value', 'valid')
     search_fields = ('id',)
     actions = ["export_as_csv"]
 
@@ -29,7 +29,7 @@ class AnswerSelectAnswerAdmin(admin.ModelAdmin):
         return obj.question.value if obj.question else None
 
 class AnswerNumberlineAnswerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'topic_answer', 'question_value', 'valid')
+    list_display = ('id', 'question_set_answer', 'question_value', 'valid')
     search_fields = ('id',)
     actions = ["export_as_csv"]
 
@@ -51,7 +51,7 @@ class AnswerNumberlineAnswerAdmin(admin.ModelAdmin):
         return obj.question.value if obj.question else None
 
 
-class AssessmentTopicAnswerAdmin(admin.ModelAdmin):
+class QuestionSetAnswerAdmin(admin.ModelAdmin):
     list_display = ('id', 'complete', 'student')
     search_fields = ('id',)
     actions = ["export_as_csv"]
@@ -78,10 +78,11 @@ admin.site.register(AnswerInput, admin.ModelAdmin)
 admin.site.register(AnswerNumberLine, AnswerNumberlineAnswerAdmin)
 admin.site.register(AnswerSelect, AnswerSelectAnswerAdmin)
 admin.site.register(AnswerSort, admin.ModelAdmin)
-admin.site.register(AssessmentTopicAnswer, AssessmentTopicAnswerAdmin)
+admin.site.register(QuestionSetAnswer, QuestionSetAnswerAdmin)
 admin.site.register(AnswerDragAndDrop, admin.ModelAdmin)
 admin.site.register(DragAndDropAreaEntry, admin.ModelAdmin)
 admin.site.register(AnswerFindHotspot, admin.ModelAdmin)
 admin.site.register(AnswerSEL, admin.ModelAdmin)
 admin.site.register(AnswerDomino, admin.ModelAdmin)
 admin.site.register(AnswerCalcul, admin.ModelAdmin)
+admin.site.register(AnswerCustomizedDragAndDrop, admin.ModelAdmin)

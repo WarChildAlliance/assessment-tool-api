@@ -1,8 +1,8 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 from model_utils.managers import InheritanceManager
 from users.models import User
+from django.utils import timezone
 
 class AssessmentSubject(models.TextChoices):
     """
@@ -75,6 +75,13 @@ class Assessment(models.Model):
         default=True
     )
 
+    topic = models.ForeignKey(
+        'Topic',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+
     def __str__(self):
         return f'{self.title}' \
             f' ({self.subject} grade {self.grade}, {self.country} - {self.language})'
@@ -89,12 +96,12 @@ class Assessment(models.Model):
         super().delete(*args, **kwargs)
 
 
-class AssessmentTopic(models.Model):
+class QuestionSet(models.Model):
     """
-    Assessment topic model.
+    Set of questions model.
     """
 
-    class TopicFeedback(models.IntegerChoices):
+    class QuestionSetFeedback(models.IntegerChoices):
         """
         Feedback options enumeration.
         """
@@ -117,50 +124,17 @@ class AssessmentTopic(models.Model):
         on_delete=models.CASCADE,
     )
 
-    # Define when a feedback should be shown to the user
-    # when they answer a question
-    show_feedback = models.IntegerField(
-        choices=TopicFeedback.choices,
-        default=TopicFeedback.SECOND
-    )
-
-    # Define if the questions inside this topic can be
-    # skipped or not
-    allow_skip = models.BooleanField(
-        default=False
-    )
-
-    # Define if the topic is evaluated or not. If it isn't,
+    # Define if the question set is evaluated or not. If it isn't,
     # it will be excluded from datasets concerning, for example,
     # valid answers percentages computation.
     evaluated = models.BooleanField(
         default=True
     )
 
-    # Define the average number of valid answers a student
-    # will have to submit before being shown a praise message.
-    # A certain degree of randomness is included in the Frontend so it is
-    # not too repetitive and predictable
-    praise = models.IntegerField(
-        default=0
-    )
-
-    # Define the maximum number of invalid or skipped answers
-    # an user can submit for a topic. Once exceeded, the active topic answer
-    # will be closed and the user redirected to homepage.
-    max_wrong_answers = models.IntegerField(
-        default=0
-    )
-
     icon = models.FileField(
-        upload_to='topics_icons',
+        upload_to='question_sets_icons',
         null=True,
         blank=True
-    )
-
-    # If an assessment or topic is deleted, we instead want to archive it.
-    archived = models.BooleanField(
-        default=False
     )
 
     # Is nullable because the database needs something to populate existing rows.
@@ -170,8 +144,8 @@ class AssessmentTopic(models.Model):
         blank=True
     )
 
-    subtopic = models.ForeignKey(
-        'Subtopic',
+    learning_objective = models.ForeignKey(
+        'LearningObjective',
         on_delete=models.SET_NULL,
         blank=True,
         null=True
@@ -193,9 +167,9 @@ class AssessmentTopic(models.Model):
         super().delete(*args, **kwargs)
 
 
-class AssessmentTopicAccess(models.Model):
+class QuestionSetAccess(models.Model):
     """
-    Assessment topic access model.
+    Question set access model.
     """
 
     start_date = models.DateField(
@@ -214,22 +188,22 @@ class AssessmentTopicAccess(models.Model):
         on_delete=models.CASCADE,
     )
 
-    topic = models.ForeignKey(
-        'AssessmentTopic',
+    question_set = models.ForeignKey(
+        'QuestionSet',
         on_delete=models.CASCADE,
     )
 
     class Meta:
-        verbose_name_plural = 'Assessment topics access'
+        verbose_name_plural = 'Set of questions accesses'
         constraints = [
             models.constraints.UniqueConstraint(
-                fields=['student', 'topic'],
-                name='unique_access_per_student_and_topic'
+                fields=['student', 'question_set'],
+                name='unique_access_per_student_and_question_set'
             )
         ]
 
     def __str__(self):
-        return f'{self.student} has access to {self.topic} from {self.start_date} to {self.end_date}'
+        return f'{self.student} has access to {self.question_set} from {self.start_date} to {self.end_date}'
 
 
 class Question(models.Model):
@@ -250,6 +224,7 @@ class Question(models.Model):
         DOMINO = 'DOMINO', 'Domino'
         NUMBER_LINE = 'NUMBER_LINE', 'Number line'
         DRAG_AND_DROP = 'DRAG_AND_DROP', 'Drag and Drop'
+        CUSTOMIZED_DRAG_AND_DROP = 'CUSTOMIZED_DRAG_AND_DROP', 'Customized Drag and Drop'
         CALCUL = 'CALCUL', 'Calcul'
         FIND_HOTSPOT = 'FIND_HOTSPOT', 'Find hotspot'
 
@@ -269,8 +244,8 @@ class Question(models.Model):
         validators=[MinValueValidator(1)]
     )
 
-    assessment_topic = models.ForeignKey(
-        'AssessmentTopic',
+    question_set = models.ForeignKey(
+        'QuestionSet',
         on_delete=models.CASCADE
     )
 
@@ -279,17 +254,28 @@ class Question(models.Model):
         choices=QuestionType.choices
     )
 
-    # For the teacher to choose if he wants the question in a modal on the student's platform
-    on_popup = models.BooleanField(
-        default=False
-    )
-
-    learning_objective = models.ForeignKey(
-        'LearningObjective',
+    number_range = models.ForeignKey(
+        'NumberRange',
         on_delete=models.SET_NULL,
         blank=True,
         null=True
     )
+
+    created_at = models.DateTimeField(
+        editable=False,
+        null=True
+    )
+
+    updated_at = models.DateTimeField(
+        null=True
+    )
+
+    def save(self, *args, **kwargs):
+        ''' On save, update timestamps'''
+        if not self.id:
+            self.created_at = timezone.now()
+        self.updated_at = timezone.now()
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.title} ({self.question_type})'
@@ -361,6 +347,10 @@ class QuestionSelect(Question):
         max_length=32,
         choices=displayTypes.choices,
         default=displayTypes.GRID
+    )
+
+    show_options_value = models.BooleanField(
+        default=False
     )
 
     def __str__(self):
@@ -449,7 +439,7 @@ class QuestionDragAndDrop(Question):
 
     def __str__(self):
         return f'{self.title} ({self.question_type})'
-    
+
 class QuestionFindHotspot(Question):
     """
     Question Find hotspot (inherits from Question).
@@ -457,7 +447,75 @@ class QuestionFindHotspot(Question):
 
     def __str__(self):
         return f'{self.title} ({self.question_type})'
-    
+
+class QuestionCustomizedDragAndDrop(Question):
+    """
+    Question Customized Drag And Drop (inherits from Question).
+    """
+    class OperatorType(models.TextChoices):
+        ADDITION = 'ADDITION', 'Addition'
+        SUBTRACTION = 'SUBTRACTION', 'Subtraction'
+        DIVISION = 'DIVISION', 'Division'
+        MULTIPLICATION = 'MULTIPLICATION', 'Multiplication'
+
+    class ShapesType(models.TextChoices):
+        PENCIL = 'PENCIL', 'Pencil'
+        FRUIT = 'FRUIT', 'Fruit'
+        BALLON = 'BALLON', 'Ballon'
+        BUTTON = 'BUTTON', 'Button'
+        SOCKS = 'SOCKS', 'Socks'
+        PAINT = 'PAINT', 'Paint'
+        BUG = 'BUG', 'Bug'
+
+    class StyleTypes(models.TextChoices):
+        # Colors
+        RED = 'RED', 'Red'
+        LIGHT_GREEN = 'LIGHT_GREEN', 'Light Green'
+        DARK_GREEN = 'DARK_GREEN', 'Dark Green'
+        YELLOW = 'YELLOW', 'Yellow'
+        ORANGE = 'ORANGE', 'Orange' # Can also be the fruit orange
+        LIGHT_BLUE = 'LIGHT_BLUE', 'Light Blue'
+        DARK_BLUE = 'DARK_BLUE', 'Dark Blue'
+        PINK = 'PINK', 'Pink'
+        PURPLE = 'PURPLE', 'Purple'
+        # Bugs
+        CATERPILLAR = 'CATERPILLAR', 'Caterpillar'
+        ANT = 'ANT', 'Ant'
+        BUTTERFLY = 'BUTTERFLY', 'Butterfly'
+        CENTIPEDE = 'CENTIPEDE', 'Centipede'
+        FLY = 'FLY', 'Fly'
+        #Fruits
+        APPLE = 'APPLE', 'Apple'
+        BANANA = 'BANANA', 'Banana'
+        WATERMELON = 'WATERMELON', 'Watermelon'
+
+    first_value = models.IntegerField()
+
+    first_style = models.CharField(
+        max_length=32,
+        choices=StyleTypes.choices
+    )
+
+    second_value = models.IntegerField()
+
+    second_style = models.CharField(
+        max_length=32,
+        choices=StyleTypes.choices
+    )
+
+    operator = models.CharField(
+        max_length=32,
+        choices=OperatorType.choices,
+    )
+
+    shape = models.CharField(
+        max_length=32,
+        choices=ShapesType.choices,
+    )
+
+    def __str__(self):
+        return f'{self.title} ({self.question_type})'
+
 class AreaOption(models.Model):
     """
     Area option model (used for QuestionFindHotspot and QuestionDragAndDrop).
@@ -486,23 +544,23 @@ class AreaOption(models.Model):
 
     # Initial point: (x, y)
     x = models.DecimalField(
-        max_digits=10, 
+        max_digits=10,
         decimal_places=2
     )
 
     y = models.DecimalField(
-        max_digits=10, 
+        max_digits=10,
         decimal_places=2
     )
 
     # Rectangle measurements (width and height)
     width = models.DecimalField(
-        max_digits=10, 
+        max_digits=10,
         decimal_places=2
     )
 
     height = models.DecimalField(
-        max_digits=10, 
+        max_digits=10,
         decimal_places=2
     )
 
@@ -621,8 +679,8 @@ class Attachment(models.Model):
         null=True
     )
 
-    topic = models.ForeignKey(
-        'AssessmentTopic',
+    question_set = models.ForeignKey(
+        'QuestionSet',
         related_name='attachments',
         on_delete=models.CASCADE,
         null=True,
@@ -689,9 +747,9 @@ class Attachment(models.Model):
         super().delete(*args, **kwargs)
 
 
-class Subtopic(models.Model):
+class Topic(models.Model):
     """
-    Subtopic model.
+    Topic model.
     """
     subject = models.CharField(
         max_length=32,
@@ -704,6 +762,24 @@ class Subtopic(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
+
+class NumberRange(models.Model):
+    """
+    Number range model.
+    """
+    grade = models.CharField(max_length=32)
+
+    min = models.PositiveSmallIntegerField(default=1)
+
+    max = models.PositiveSmallIntegerField()
+
+    @property
+    def handle(self):
+        return f'{self.min}-{self.max}'
+
+    def __str__(self):
+        return f'{self.grade}: {self.handle}'
 
 
 class LearningObjective(models.Model):
@@ -719,8 +795,8 @@ class LearningObjective(models.Model):
         max_length=32
     )
 
-    subtopic = models.ForeignKey(
-        'Subtopic',
+    topic = models.ForeignKey(
+        'Topic',
         on_delete=models.CASCADE,
     )
 

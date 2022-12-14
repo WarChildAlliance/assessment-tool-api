@@ -1,6 +1,6 @@
-from assessments.models import (AssessmentTopicAccess, DraggableOption, Question,
+from assessments.models import (QuestionSetAccess, DraggableOption, Question,
                                 AreaOption, SelectOption, SortOption)
-from assessments.serializers import (AssessmentTopicAccessSerializer,
+from assessments.serializers import (QuestionSetAccessSerializer,
                                      SelectOptionSerializer,
                                      SortOptionSerializer,
                                      DraggableOptionSerializer,
@@ -13,16 +13,16 @@ from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 
 from .models import (Answer, AnswerCalcul, AnswerDomino, AnswerInput, AnswerNumberLine, AnswerSEL,
                      AnswerSelect, AnswerSession, AnswerSort, DragAndDropAreaEntry,
-                     AnswerDragAndDrop, AssessmentTopicAnswer)
+                     AnswerDragAndDrop, QuestionSetAnswer, AnswerCustomizedDragAndDrop)
 
 
-class AssessmentTopicAnswerSerializer(serializers.ModelSerializer):
+class QuestionSetAnswerSerializer(serializers.ModelSerializer):
     """
-    Assessment topic answer serializer.
+    Question set answer serializer.
     """
 
     class Meta:
-        model = AssessmentTopicAnswer
+        model = QuestionSetAnswer
         fields = '__all__'
 
 
@@ -54,7 +54,8 @@ class AnswerSerializer(PolymorphicSerializer):
             'AnswerDragAndDrop': AnswerDragAndDropSerializer,
             'AnswerSEL': AnswerSELSerializer,
             'AnswerDomino': AnswerDominoSerializer,
-            'AnswerCalcul': AnswerCalculSerializer
+            'AnswerCalcul': AnswerCalculSerializer,
+            'AnswerCustomizedDragAndDrop': AnswerCustomizedDragAndDropSerializer
         }
 
     def to_internal_value(self, data):
@@ -77,6 +78,8 @@ class AnswerSerializer(PolymorphicSerializer):
             data['type'] = 'AnswerDomino'
         elif question_type == 'QuestionCalcul':
             data['type'] = 'AnswerCalcul'
+        elif question_type == 'QuestionCustomizedDragAndDrop':
+            data['type'] = 'AnswerCustomizedDragAndDrop'
         return super().to_internal_value(data)
 
 
@@ -92,17 +95,17 @@ class AbstractAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ('topic_answer', 'question', 'valid', 'start_datetime', 'end_datetime')
-        extra_kwargs = {'topic_answer': {'required': False}}
+        fields = ('question_set_answer', 'question', 'valid', 'start_datetime', 'end_datetime')
+        extra_kwargs = {'question_set_answer': {'required': False}}
 
     def create(self, validated_data):
         """
-        Create answer, checking that topic_answer exists
+        Create answer, checking that question_set_answer exists
         """
 
-        if 'topic_answer' not in validated_data or validated_data['topic_answer'] is None:
+        if 'question_set_answer' not in validated_data or validated_data['question_set_answer'] is None:
             raise serializers.ValidationError({
-                'topic_answer': 'This field is required',
+                'question_set_answer': 'This field is required',
             })
 
 
@@ -164,6 +167,15 @@ class AnswerCalculSerializer(AbstractAnswerSerializer):
     class Meta(AbstractAnswerSerializer.Meta):
         model = AnswerCalcul
         fields = AbstractAnswerSerializer.Meta.fields + ('value',)
+
+class AnswerCustomizedDragAndDropSerializer(AbstractAnswerSerializer):
+    """
+    Answer Customized Drag And Drop serializer.
+    """
+
+    class Meta(AbstractAnswerSerializer.Meta):
+        model = AnswerCustomizedDragAndDrop
+        fields = AbstractAnswerSerializer.Meta.fields + ('left_value',  'right_value', 'final_value',)
 
 class DragAndDropAreaEntrySerializer(serializers.ModelSerializer):
     """
@@ -231,46 +243,46 @@ class AnswerDominoSerializer(AbstractAnswerSerializer):
         model = AnswerDomino
         fields = AbstractAnswerSerializer.Meta.fields + ('selected_domino',)
 
-class AssessmentTopicAnswerFullSerializer(serializers.ModelSerializer):
+class QuestionSetAnswerFullSerializer(serializers.ModelSerializer):
     """
-    Assessment topic answer serializer.
+    Question set answer serializer.
     """
 
-    topic_access = NestedRelatedField(
-        model=AssessmentTopicAccess, serializer_class=AssessmentTopicAccessSerializer)
+    question_set_access = NestedRelatedField(
+        model=QuestionSetAccess, serializer_class=QuestionSetAccessSerializer)
     answers = AnswerSerializer(many=True)
 
     class Meta:
-        model = AssessmentTopicAnswer
+        model = QuestionSetAnswer
         fields = '__all__'
         extra_kwargs = {'session': {'required': False}}
 
     def create(self, validated_data):
         """
-        Create assessment topic answer with answers.
+        Create assessment question set answer with answers.
         """
 
         if 'answers' in validated_data:
             validated_data.pop('answers')
             answers = self.initial_data['answers']
 
-        topic_answer = super().create(validated_data)
+        question_set_answer = super().create(validated_data)
 
         if answers is not None:
             for answer in answers:
                 answer_serializer = AnswerSerializer(
-                    data={**answer, 'topic_answer': topic_answer.id})
+                    data={**answer, 'question_set_answer': question_set_answer.id})
                 answer_serializer.is_valid(raise_exception=True)
                 answer_serializer.save()
 
-        return topic_answer
+        return question_set_answer
 
 
 class AnswerSessionFullSerializer(serializers.ModelSerializer):
     """
-    Answer session full serializer (with topic and answers).
+    Answer session full serializer (with question set and answers).
     """
-    assessment_topic_answers = AssessmentTopicAnswerFullSerializer(many=True)
+    question_set_answers = QuestionSetAnswerFullSerializer(many=True)
     student = NestedRelatedField(
         model=User, serializer_class=UserSerializer)
 
@@ -280,20 +292,20 @@ class AnswerSessionFullSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """
-        Create session with assessment topic answers.
+        Create session with assessment question set answers.
         """
-        if 'assessment_topic_answers' in validated_data:
-            validated_data.pop('assessment_topic_answers')
-            assessment_topic_answers = self.initial_data['assessment_topic_answers']
+        if 'question_set_answers' in validated_data:
+            validated_data.pop('question_set_answers')
+            question_set_answers = self.initial_data['question_set_answers']
 
         session = super().create(validated_data)
 
-        if assessment_topic_answers is not None:
-            for topic_answer in assessment_topic_answers:
-                topic_answer_serializer = AssessmentTopicAnswerFullSerializer(
-                    data={**topic_answer, 'session': session.id})
-                topic_answer_serializer.is_valid(raise_exception=True)
-                topic_answer_serializer.save()
+        if question_set_answers is not None:
+            for question_set_answer in question_set_answers:
+                question_set_answer_serializer = QuestionSetAnswerFullSerializer(
+                    data={**question_set_answer, 'session': session.id})
+                question_set_answer_serializer.is_valid(raise_exception=True)
+                question_set_answer_serializer.save()
 
         return session
 

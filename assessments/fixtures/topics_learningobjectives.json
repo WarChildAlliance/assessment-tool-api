@@ -1,6 +1,6 @@
 [
   {
-    "model": "assessments.subtopic",
+    "model": "assessments.topic",
     "pk": 1,
     "fields": {
       "name": "Addition",
@@ -8,7 +8,7 @@
     }
   },
   {
-    "model": "assessments.subtopic",
+    "model": "assessments.topic",
     "pk": 2,
     "fields": {
       "name": "Subtraction",
@@ -16,7 +16,7 @@
     }
   },
   {
-    "model": "assessments.subtopic",
+    "model": "assessments.topic",
     "pk": 3,
     "fields": {
       "name": "Multiplication",
@@ -24,7 +24,7 @@
     }
   },
   {
-    "model": "assessments.subtopic",
+    "model": "assessments.topic",
     "pk": 4,
     "fields": {
       "name": "Division",
@@ -36,7 +36,7 @@
     "fields": {
       "code": "1-ACP-01",
       "grade": "1",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Counting and adding more"
     }
   },
@@ -45,7 +45,7 @@
     "fields": {
       "code": "1-ACP-02",
       "grade": "1",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Part part whole model (1)"
     }
   },
@@ -54,7 +54,7 @@
     "fields": {
       "code": "1-ACP-03",
       "grade": "1",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Part part whole model (2)"
     }
   },
@@ -63,7 +63,7 @@
     "fields": {
       "code": "1-ACP-04",
       "grade": "1",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Represent & use no. bonds within 10"
     }
   },
@@ -72,7 +72,7 @@
     "fields": {
       "code": "1-ACP-05",
       "grade": "1",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "See teens as complete 10 and some more"
     }
   },
@@ -81,7 +81,7 @@
     "fields": {
       "code": "1-ACP-06",
       "grade": "1",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Adding by counting on from the bigger no."
     }
   },
@@ -90,7 +90,7 @@
     "fields": {
       "code": "1-ACP-07",
       "grade": "1",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Known number facts to add 10"
     }
   },
@@ -99,7 +99,7 @@
     "fields": {
       "code": "1-ACP-08",
       "grade": "1",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Regrouping to make 10"
     }
   },
@@ -108,7 +108,7 @@
     "fields": {
       "code": "1-ACP-09",
       "grade": "1",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Bridging the ten using number bonds"
     }
   },
@@ -117,7 +117,7 @@
     "fields": {
       "code": "2-ACP-01",
       "grade": "2",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Understand tens and ones"
     }
   },
@@ -126,7 +126,7 @@
     "fields": {
       "code": "2-ACP-02",
       "grade": "2",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Unitising to add tens using no. bonds to 10"
     }
   },
@@ -135,7 +135,7 @@
     "fields": {
       "code": "2-ACP-03",
       "grade": "2",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Use known number facts to 20"
     }
   },
@@ -144,7 +144,7 @@
     "fields": {
       "code": "2-ACP-04",
       "grade": "2",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Adding 1 digit to 2 digits, no bridging"
     }
   },
@@ -153,7 +153,7 @@
     "fields": {
       "code": "2-ACP-05",
       "grade": "2",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Adding 1 digit to 2 digits with bridging (1)"
     }
   },
@@ -162,7 +162,7 @@
     "fields": {
       "code": "2-ACP-06",
       "grade": "2",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Adding 1 digit to 2 digits with bridging (2)"
     }
   },
@@ -171,7 +171,7 @@
     "fields": {
       "code": "2-ACP-07",
       "grade": "2",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Add 1 digit to 2 digits with carrying"
     }
   },
@@ -180,7 +180,7 @@
     "fields": {
       "code": "2-ACP-08",
       "grade": "2",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Adding a 2 digit no. and a multiple of 10"
     }
   },
@@ -189,7 +189,7 @@
     "fields": {
       "code": "2-ACP-09",
       "grade": "2",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Add two 2 digit no.s"
     }
   },
@@ -198,7 +198,7 @@
     "fields": {
       "code": "2-ACP-10",
       "grade": "2",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Add two 2 digit numbers with carrying"
     }
   },
@@ -207,7 +207,7 @@
     "fields": {
       "code": "3-ACP-01",
       "grade": "3",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Understand 100 and its link to 10"
     }
   },
@@ -216,7 +216,7 @@
     "fields": {
       "code": "3-ACP-02",
       "grade": "3",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Understand ones, tens and hundreds"
     }
   },
@@ -225,7 +225,7 @@
     "fields": {
       "code": "3-ACP-03",
       "grade": "3",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Adding hundreds only"
     }
   },
@@ -234,7 +234,7 @@
     "fields": {
       "code": "3-ACP-04",
       "grade": "3",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Adding 1-digit to 3-digit no.s no bridging"
     }
   },
@@ -243,7 +243,7 @@
     "fields": {
       "code": "3-ACP-05",
       "grade": "3",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Add 1-digit to 3-digit no. with exchange"
     }
   },
@@ -252,7 +252,7 @@
     "fields": {
       "code": "3-ACP-06",
       "grade": "3",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Add 10 to 3-digit no. with no exchange"
     }
   },
@@ -261,7 +261,7 @@
     "fields": {
       "code": "3-ACP-07",
       "grade": "3",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Add 10 to 3-digit no. with exchange"
     }
   },
@@ -270,7 +270,7 @@
     "fields": {
       "code": "3-ACP-08",
       "grade": "3",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Add 3-digit to a 2-digit no., no exchange"
     }
   },
@@ -279,7 +279,7 @@
     "fields": {
       "code": "3-ACP-09",
       "grade": "3",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Add 3-digit to a 2-digit no. with exchange"
     }
   },
@@ -288,7 +288,7 @@
     "fields": {
       "code": "3-ACP-10",
       "grade": "3",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Add 3-digit to a 3-digit no., no exchange"
     }
   },
@@ -297,7 +297,7 @@
     "fields": {
       "code": "3-ACP-11",
       "grade": "3",
-      "subtopic": 1,
+      "topic": 1,
       "name_eng": "Add 3-digit to a 3-digit no. with exchange"
     }
   },
@@ -306,7 +306,7 @@
     "fields": {
       "code": "1-SCP-01",
       "grade": "1",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Taking away ones/counting back"
     }
   },
@@ -315,7 +315,7 @@
     "fields": {
       "code": "1-SCP-02",
       "grade": "1",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtraction with Bar models"
     }
   },
@@ -324,7 +324,7 @@
     "fields": {
       "code": "1-SCP-03",
       "grade": "1",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Find the difference"
     }
   },
@@ -333,7 +333,7 @@
     "fields": {
       "code": "1-SCP-04",
       "grade": "1",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Part-part-whole to support subtraction (1)"
     }
   },
@@ -342,7 +342,7 @@
     "fields": {
       "code": "1-SCP-05",
       "grade": "1",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Part-part-whole to support subtraction (2)"
     }
   },
@@ -351,7 +351,7 @@
     "fields": {
       "code": "1-SCP-06",
       "grade": "1",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract within 20"
     }
   },
@@ -360,7 +360,7 @@
     "fields": {
       "code": "1-SCP-07",
       "grade": "1",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract 10 then 1"
     }
   },
@@ -369,7 +369,7 @@
     "fields": {
       "code": "1-SCP-08",
       "grade": "1",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract bridging 10 using no. bounds"
     }
   },
@@ -378,7 +378,7 @@
     "fields": {
       "code": "2-SCP-01",
       "grade": "2",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Finding the difference"
     }
   },
@@ -387,7 +387,7 @@
     "fields": {
       "code": "2-SCP-02",
       "grade": "2",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract a 1digit from a 2digit no. no borrowing"
     }
   },
@@ -396,7 +396,7 @@
     "fields": {
       "code": "2-SCP-03",
       "grade": "2",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract multiples of 10 with unitising known number bonds to 10"
     }
   },
@@ -405,7 +405,7 @@
     "fields": {
       "code": "2-SCP-04",
       "grade": "2",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract 2 digit numbers"
     }
   },
@@ -414,7 +414,7 @@
     "fields": {
       "code": "2-SCP-05",
       "grade": "2",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract using number bonds to 10"
     }
   },
@@ -423,7 +423,7 @@
     "fields": {
       "code": "2-SCP-06",
       "grade": "2",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "2 digit subtraction using place value"
     }
   },
@@ -432,7 +432,7 @@
     "fields": {
       "code": "2-SCP-07",
       "grade": "2",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract 1digit from 2digits with borrowing"
     }
   },
@@ -441,7 +441,7 @@
     "fields": {
       "code": "2-SCP-08",
       "grade": "2",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract 2digit from 2digits with borrowing"
     }
   },
@@ -450,7 +450,7 @@
     "fields": {
       "code": "3-SCP-01",
       "grade": "3",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract even hundreds only"
     }
   },
@@ -459,7 +459,7 @@
     "fields": {
       "code": "3-SCP-02",
       "grade": "3",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Use number bonds to subtract 1-digit from 3-digits, no exchange"
     }
   },
@@ -468,7 +468,7 @@
     "fields": {
       "code": "3-SCP-03",
       "grade": "3",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract 1-digit from 3-digits, with exchange"
     }
   },
@@ -477,7 +477,7 @@
     "fields": {
       "code": "3-SCP-04",
       "grade": "3",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract tens from 3-digits, no exchange"
     }
   },
@@ -486,7 +486,7 @@
     "fields": {
       "code": "3-SCP-05",
       "grade": "3",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract 10 from 3-digit no.s with exchange"
     }
   },
@@ -495,7 +495,7 @@
     "fields": {
       "code": "3-SCP-06",
       "grade": "3",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract 3-digit from 3-digit, no exchange"
     }
   },
@@ -504,7 +504,7 @@
     "fields": {
       "code": "3-SCP-07",
       "grade": "3",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract 3-digit from 3-digit, with exchange or bridging"
     }
   },
@@ -513,7 +513,7 @@
     "fields": {
       "code": "3-SCP-08",
       "grade": "3",
-      "subtopic": 2,
+      "topic": 2,
       "name_eng": "Subtract 3-digit from 3-digit, with exchange or bridging when second column is zero"
     }
   },
@@ -522,7 +522,7 @@
     "fields": {
       "code": "1-MCP-01",
       "grade": "1",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Recognise and make equal groups"
     }
   },
@@ -531,7 +531,7 @@
     "fields": {
       "code": "1-MCP-02",
       "grade": "1",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Count in 2s, 5s or 10s"
     }
   },
@@ -540,7 +540,7 @@
     "fields": {
       "code": "1-MCP-03",
       "grade": "1",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Doubling"
     }
   },
@@ -549,7 +549,7 @@
     "fields": {
       "code": "1-MCP-04",
       "grade": "1",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Multiplying as repeated addition"
     }
   },
@@ -558,7 +558,7 @@
     "fields": {
       "code": "1-MCP-05",
       "grade": "1",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Introduce arrays"
     }
   },
@@ -567,7 +567,7 @@
     "fields": {
       "code": "2-MCP-01",
       "grade": "2",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Repeated addition with equal groups"
     }
   },
@@ -576,7 +576,7 @@
     "fields": {
       "code": "2-MCP-02",
       "grade": "2",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Using arrays to multiply"
     }
   },
@@ -585,7 +585,7 @@
     "fields": {
       "code": "2-MCP-03",
       "grade": "2",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Commutative law- numbers can be swapped but still get the same answer"
     }
   },
@@ -594,7 +594,7 @@
     "fields": {
       "code": "2-MCP-04",
       "grade": "2",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Times table facts for 2, 5 and 10 times table"
     }
   },
@@ -603,7 +603,7 @@
     "fields": {
       "code": "3-MCP-01",
       "grade": "3",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Recognise link between equal grouping and repeated addition"
     }
   },
@@ -612,7 +612,7 @@
     "fields": {
       "code": "3-MCP-02",
       "grade": "3",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Explore commutativity for times tables"
     }
   },
@@ -621,7 +621,7 @@
     "fields": {
       "code": "3-MCP-03",
       "grade": "3",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Times table connections"
     }
   },
@@ -630,7 +630,7 @@
     "fields": {
       "code": "3-MCP-04",
       "grade": "3",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Use number facts to multiply by 10"
     }
   },
@@ -639,7 +639,7 @@
     "fields": {
       "code": "3-MCP-05",
       "grade": "3",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Multiply a 2-digit by a 1-digit number"
     }
   },
@@ -648,7 +648,7 @@
     "fields": {
       "code": "3-MCP-06",
       "grade": "3",
-      "subtopic": 3,
+      "topic": 3,
       "name_eng": "Expanded method to multiply a 2-digit by a 1-digit number"
     }
   },
@@ -657,7 +657,7 @@
     "fields": {
       "code": "1-DCP-01",
       "grade": "1",
-      "subtopic": 4,
+      "topic": 4,
       "name_eng": "Grouping"
     }
   },
@@ -666,7 +666,7 @@
     "fields": {
       "code": "1-DCP-02",
       "grade": "1",
-      "subtopic": 4,
+      "topic": 4,
       "name_eng": "Sharing"
     }
   },
@@ -675,7 +675,7 @@
     "fields": {
       "code": "2-DCP-01",
       "grade": "2",
-      "subtopic": 4,
+      "topic": 4,
       "name_eng": "Division as equal sharing"
     }
   },
@@ -684,7 +684,7 @@
     "fields": {
       "code": "2-DCP-02",
       "grade": "2",
-      "subtopic": 4,
+      "topic": 4,
       "name_eng": "Equal grouping"
     }
   },
@@ -693,7 +693,7 @@
     "fields": {
       "code": "2-DCP-03",
       "grade": "2",
-      "subtopic": 4,
+      "topic": 4,
       "name_eng": "Division using time table facts"
     }
   },
@@ -702,7 +702,7 @@
     "fields": {
       "code": "3-DCP-01",
       "grade": "3",
-      "subtopic": 4,
+      "topic": 4,
       "name_eng": "Using times-tables knowledge to divide"
     }
   },
@@ -711,7 +711,7 @@
     "fields": {
       "code": "3-DCP-02",
       "grade": "3",
-      "subtopic": 4,
+      "topic": 4,
       "name_eng": "Understanding remainders"
     }
   },
@@ -720,7 +720,7 @@
     "fields": {
       "code": "3-DCP-03",
       "grade": "3",
-      "subtopic": 4,
+      "topic": 4,
       "name_eng": "Using known facts to divide multiples of 10"
     }
   },
@@ -729,7 +729,7 @@
     "fields": {
       "code": "3-DCP-04",
       "grade": "3",
-      "subtopic": 4,
+      "topic": 4,
       "name_eng": "Divide 2-digit no. by 1-digit, no remainder"
     }
   },
@@ -738,8 +738,56 @@
     "fields": {
       "code": "3-DCP-05",
       "grade": "3",
-      "subtopic": 4,
+      "topic": 4,
       "name_eng": "Divide 2-digit no. by 1-digit, with remainders"
+    }
+  },
+  {
+    "model": "assessments.numberrange",
+    "pk": 1,
+    "fields": {
+      "grade": "1",
+      "max": "10"
+    }
+  },
+  {
+    "model": "assessments.numberrange",
+    "pk": 2,
+    "fields": {
+      "grade": "1",
+      "max": "20"
+    }
+  },
+  {
+    "model": "assessments.numberrange",
+    "pk": 3,
+    "fields": {
+      "grade": "1",
+      "max": "50"
+    }
+  },
+  {
+    "model": "assessments.numberrange",
+    "pk": 4,
+    "fields": {
+      "grade": "1",
+      "max": "100"
+    }
+  },
+  {
+    "model": "assessments.numberrange",
+    "pk": 5,
+    "fields": {
+      "grade": "2",
+      "max": "1000"
+    }
+  },
+  {
+    "model": "assessments.numberrange",
+    "pk": 6,
+    "fields": {
+      "grade": "3",
+      "max": "10000"
     }
   }
 ]
