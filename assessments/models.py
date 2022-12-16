@@ -270,6 +270,10 @@ class Question(models.Model):
         null=True
     )
 
+    shuffle = models.BooleanField(
+        default=False
+    )
+
     def save(self, *args, **kwargs):
         ''' On save, update timestamps'''
         if not self.id:
@@ -423,10 +427,6 @@ class QuestionNumberLine(Question):
 
     step = models.IntegerField(
         default=1
-    )
-
-    shuffle = models.BooleanField(
-        default=False
     )
 
     def __str__(self):
