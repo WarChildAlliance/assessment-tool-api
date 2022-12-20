@@ -216,12 +216,12 @@ class QuestionsTableViewset(ModelViewSet):
         accessible_assessments = AssessmentTableViewSet.get_queryset(self)
         questions = Question.objects.filter(question_set__assessment__in=accessible_assessments)
 
-        topic_pk = self.kwargs.get('topic_pk', None)
+        question_set_pk = self.kwargs.get('question_set_pk', None)
         assessment_pk = self.kwargs.get('assessment_pk', None)
-        if topic_pk and assessment_pk:
-            topic_pk = int(topic_pk)
+        if question_set_pk and assessment_pk:
+            question_set_pk = int(question_set_pk)
             assessment_pk = int(assessment_pk)
-            questions = questions.filter(question_set=topic_pk, question_set__assessment=assessment_pk )
+            questions = questions.filter(question_set=question_set_pk, question_set__assessment=assessment_pk)
 
         grade = self.request.query_params.get('grade')
         if grade:
