@@ -365,14 +365,22 @@ class QuestionTableSerializer(serializers.ModelSerializer):
     # Score is the global average score for this question amongst all the students
     score = serializers.SerializerMethodField()
     learning_objective = serializers.SerializerMethodField()
+    assessment = serializers.SerializerMethodField()
+    question_set = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
-        fields = ('id', 'title', 'order', 'created_at', 'topic', 'question_type', 'plays', 'invites',
-                  'has_attachment', 'speed', 'score', 'grade', 'subject', 'topic', 'learning_objective')
+        fields = ('id', 'title', 'order', 'created_at', 'topic', 'question_type', 'plays', 'invites', 'question_set',
+                  'has_attachment', 'speed', 'score', 'grade', 'subject', 'topic', 'learning_objective', 'assessment')
 
     def __get_all_answers(self, instance):
         return Answer.objects.filter(question=instance)
+
+    def get_assessment(self, instance):
+        return instance.question_set.assessment.id
+
+    def get_question_set(self, instance):
+        return instance.question_set.id
 
     def get_has_attachment(self, instance):
         if(Attachment.objects.filter(question=instance)):
