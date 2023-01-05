@@ -1,7 +1,7 @@
 from gamification.models import Profile
 from rest_framework import serializers
 import datetime
-from django.db.models import Q, Avg, ExpressionWrapper, F, fields
+from django.db.models import Q, Avg, ExpressionWrapper, F, fields, Min, Max
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
@@ -11,148 +11,6 @@ from answers.serializers import DragAndDropAreaEntrySerializer
 from assessments.serializers import (AreaOptionSerializer, DominoOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
                                      HintSerializer, AttachmentSerializer, LearningObjectiveSerializer, TopicSerializer, LearningObjectiveSerializer)
 from users.serializers import GroupSerializer
-
-
-class UserTableSerializer(serializers.ModelSerializer):
-    """
-    Users table serializer.
-    """
-
-    # Last session
-    last_session = serializers.SerializerMethodField()
-    # Full name
-    full_name = serializers.SerializerMethodField()
-    # Number of question_sets completed by the student
-    completed_question_sets_count = serializers.SerializerMethodField()
-    # Number of assessments that the student is linked to
-    assessments_count = serializers.SerializerMethodField()
-    # If the student has an assessment that is not done yet
-    assessment_complete = serializers.SerializerMethodField()
-
-    # Languages and countries formatted information
-    language_name = serializers.SerializerMethodField()
-    language_code = serializers.SerializerMethodField()
-    country_name = serializers.SerializerMethodField()
-    country_code = serializers.SerializerMethodField()
-
-    # Group that the student is linked to
-    group = serializers.SerializerMethodField()
-
-    grade = serializers.SerializerMethodField()
-
-    # Students can only be deleted after more than 1 year of inactivity
-    can_delete = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_question_sets_count', 'active_status_updated_on',
-                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active', 'can_delete', 'grade', 'assessment_complete')
-
-    def get_full_name(self, instance):
-        return (instance.first_name + ' ' + instance.last_name)
-
-    def get_last_session(self, instance):
-
-        last_session = AnswerSession.objects.filter(student=instance).last()
-        if not last_session:
-            return None
-        else:
-            return last_session.start_date
-
-    def get_completed_question_sets_count(self, instance):
-        return QuestionSet.objects.filter(
-            questionsetaccess__student=instance,
-            questionsetaccess__question_set_answers__complete=True
-        ).distinct().count()
-
-    def get_assessments_count(self, instance):
-        return Assessment.objects.filter(
-            questionset__questionsetaccess__student=instance,
-            questionset__questionsetaccess__start_date__lte=datetime.date.today(),
-            questionset__questionsetaccess__end_date__gte=datetime.date.today()
-        ).distinct().count()
-
-    def get_assessment_complete(self, instance):
-        assessment_instance = Assessment.objects.filter(
-            questionset__questionsetaccess__student=instance,
-            questionset__questionsetaccess__start_date__lte=datetime.date.today(),
-            questionset__questionsetaccess__end_date__gte=datetime.date.today()
-        ).distinct().first()
-
-        completed_question_sets = QuestionSet.objects.filter(
-            assessment=assessment_instance,
-            questionsetaccess__student=instance,
-            questionsetaccess__question_set_answers__complete=True,
-            questionsetaccess__question_set_answers__session__student=instance
-        ).distinct().count()
-
-        total_question_sets = QuestionSet.objects.filter(
-            assessment=assessment_instance,
-            questionsetaccess__student=instance,
-        ).distinct().count()
-
-        return (completed_question_sets == total_question_sets)
-
-    def get_language_name(self, instance):
-        return instance.language.name_en
-
-    def get_language_code(self, instance):
-        return instance.language.code
-
-    def get_country_name(self, instance):
-        return instance.country.name_en
-
-    def get_country_code(self, instance):
-        return instance.country.code
-
-    def get_grade(self, instance):
-        return instance.grade
-
-    def get_group(self, instance):
-        group = Group.objects.filter(student_group=instance).values_list('name', flat=True)
-        return group
-
-    def get_can_delete(self, instance):
-        if instance.is_active == False and instance.active_status_updated_on:
-            if abs((instance.active_status_updated_on - instance.date_joined).total_seconds()) < 1:
-                return True
-
-            return (timezone.now() - instance.active_status_updated_on).days > 365
-
-        return False
-
-
-class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
-
-    question_set_access = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Assessment
-        fields = ('id', 'title', 'question_set_access')
-
-    def get_question_set_access(self, instance):
-
-        student_pk = self.context['student_pk']
-
-        question_set_list = QuestionSet.objects.filter(assessment=instance)
-        question_set_access_list = []
-
-        for question_set in question_set_list:
-            question_set_access = list(QuestionSetAccess.objects.filter(
-                question_set=question_set, student=student_pk).values())
-
-            if question_set_access:
-                access_dict = {
-                    'question_set_id': question_set.id,
-                    'question_set_name': question_set.name,
-                    'question_set_access_id': question_set_access[0]['id'],
-                    'start_date': question_set_access[0]['start_date'],
-                    'end_date': question_set_access[0]['end_date']
-                }
-
-                question_set_access_list.append(access_dict)
-
-        return question_set_access_list
 
 
 class AssessmentTableSerializer(serializers.ModelSerializer):
@@ -294,6 +152,309 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
 
         return score
 
+class UserTableSerializer(serializers.ModelSerializer):
+    """
+    Users table serializer.
+    """
+
+    # Last session
+    last_session = serializers.SerializerMethodField()
+    # Full name
+    full_name = serializers.SerializerMethodField()
+    # Number of question_sets completed by the student
+    completed_question_sets_count = serializers.SerializerMethodField()
+    # Number of questions completed by the student
+    completed_questions_count = serializers.SerializerMethodField()
+    # Number of assessments that the student is linked to
+    assessments_count = serializers.SerializerMethodField()
+    # If the student has an assessment that is not done yet
+    assessment_complete = serializers.SerializerMethodField()
+    # All assessments assigned to the student
+    assessments = serializers.SerializerMethodField()
+
+    # Languages and countries formatted information
+    language_name = serializers.SerializerMethodField()
+    language_code = serializers.SerializerMethodField()
+    country_name = serializers.SerializerMethodField()
+    country_code = serializers.SerializerMethodField()
+
+    # Group that the student is linked to
+    group = serializers.SerializerMethodField()
+    grade = serializers.SerializerMethodField()
+    # Average speed of all questions answered by the student
+    speed = serializers.SerializerMethodField()
+    # Students can only be deleted after more than 1 year of inactivity
+    can_delete = serializers.SerializerMethodField()
+    # Global sel data of the student
+    sel_overview = serializers.SerializerMethodField()
+    # Average score of the student for all the completed assessments
+    average_score = serializers.SerializerMethodField()
+    # Effort of the student
+    honey = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'full_name', 'first_name', 'last_name', 'last_session', 'completed_question_sets_count', 'active_status_updated_on',
+                  'assessments_count', 'language_name', 'language_code', 'country_name', 'country_code', 'group', 'is_active', 'can_delete', 'grade', 'assessment_complete',
+                  'assessments', 'speed', 'sel_overview', 'average_score', 'completed_questions_count', 'honey')
+
+    def get_full_name(self, instance):
+        return (instance.first_name + ' ' + instance.last_name)
+
+    def get_last_session(self, instance):
+
+        last_session = AnswerSession.objects.filter(student=instance).last()
+        if not last_session:
+            return None
+        else:
+            return last_session.start_date
+
+    def get_completed_question_sets_count(self, instance):
+        return QuestionSet.objects.filter(
+            questionsetaccess__student=instance,
+            questionsetaccess__question_set_answers__complete=True
+        ).distinct().count()
+
+    def get_completed_questions_count(self, instance):
+        return Answer.objects.filter(
+            question_set_answer__question_set_access__student=instance,
+        ).distinct('question').count()
+
+    def get_assessments_count(self, instance):
+        return Assessment.objects.filter(
+            questionset__questionsetaccess__student=instance,
+            questionset__questionsetaccess__start_date__lte=datetime.date.today(),
+            questionset__questionsetaccess__end_date__gte=datetime.date.today()
+        ).distinct().count()
+
+    def get_assessment_complete(self, instance):
+        assessment_instance = Assessment.objects.filter(
+            questionset__questionsetaccess__student=instance,
+            questionset__questionsetaccess__start_date__lte=datetime.date.today(),
+            questionset__questionsetaccess__end_date__gte=datetime.date.today()
+        ).distinct().first()
+
+        completed_question_sets = QuestionSet.objects.filter(
+            assessment=assessment_instance,
+            questionsetaccess__student=instance,
+            questionsetaccess__question_set_answers__complete=True,
+            questionsetaccess__question_set_answers__session__student=instance
+        ).distinct().count()
+
+        total_question_sets = QuestionSet.objects.filter(
+            assessment=assessment_instance,
+            questionsetaccess__student=instance,
+        ).distinct().count()
+
+        return (completed_question_sets == total_question_sets)
+
+    def get_assessments(self, instance):
+        assessments = Assessment.objects.filter(
+            questionset__questionsetaccess__student=instance,
+            questionset__questionsetaccess__start_date__lte=datetime.date.today(),
+            questionset__questionsetaccess__end_date__gte=datetime.date.today()
+        ).distinct().order_by('pk')
+
+        assessments_data = AssessmentTableSerializer(assessments, many=True).data
+        for assessment_data in assessments_data:
+            assessment = assessments.get(pk=assessment_data['id'])
+            assessments_user_data = StudentLinkedAssessmentsSerializer(
+                assessment, many=False,
+                context={'student_pk': int(instance.id)}
+            ).data
+            assessment_data['score'] = assessments_user_data['student_score']
+
+        return assessments_data
+
+    def get_language_name(self, instance):
+        return instance.language.name_en
+
+    def get_language_code(self, instance):
+        return instance.language.code
+
+    def get_country_name(self, instance):
+        return instance.country.name_en
+
+    def get_country_code(self, instance):
+        return instance.country.code
+
+    def get_grade(self, instance):
+        return instance.grade
+
+    def get_group(self, instance):
+        group = Group.objects.filter(student_group=instance).values_list('name', flat=True)
+        return group
+
+    def get_speed(self, instance):
+        student_speed = None
+        student_answers = Answer.objects.filter(
+            question_set_answer__session__student=instance
+        ).exclude(question__question_type__exact='SEL')
+
+        if student_answers:
+            student_speed = student_answers.annotate(
+                durations = ExpressionWrapper(F('end_datetime') - F('start_datetime'), output_field=fields.DurationField()),
+            ).aggregate(Avg('durations'))['durations__avg'].total_seconds()
+
+        return student_speed
+
+    def get_can_delete(self, instance):
+        if instance.is_active == False and instance.active_status_updated_on:
+            if abs((instance.active_status_updated_on - instance.date_joined).total_seconds()) < 1:
+                return True
+
+            return (timezone.now() - instance.active_status_updated_on).days > 365
+
+        return False
+
+    def get_sel_overview(self, instance):
+        sel_data = {}
+        choices = ['NOT_REALLY', 'A_LITTLE', 'A_LOT']
+        answers = AnswerSEL.objects.filter(question_set_answer__session__student=instance).order_by('id')
+
+        if answers:
+            last_sel_answer = answers.latest('end_datetime')
+            last_session_pk = last_sel_answer.question_set_answer.session.pk
+            last_session_answers = answers.filter(question_set_answer__session=last_session_pk).order_by('id')
+            vals = [choices.index(answer.statement) for answer in answers]
+            last_session_vals = [choices.index(answer.statement) for answer in last_session_answers]
+            average = round(sum(vals) / len(vals))
+            last_session_average = round(sum(last_session_vals) / len(last_session_vals))
+            progress = 0 if len(vals) == 1 or average == last_session_average else -1 if average > last_session_average else 1
+            sel_data['average_statement'] = choices[average]
+            sel_data['progress'] = progress
+
+        return sel_data
+
+    def __get_question_set_correct_answers_percentage(self, question_set, student):
+        """
+        Get the percentage of correct answers for the given question_set and student
+        """
+        correct_answers_percentage = 0
+        question_set_total_answers = Question.objects.filter(question_set=question_set).exclude(question_type='SEL').count()
+        question_set_answers = QuestionSetAnswer.objects.filter(
+            question_set_access__question_set=question_set,
+            question_set_access__student=student
+        )
+        if not question_set_total_answers or not question_set_answers:
+            return None
+        question_set_total_correct_answers = Answer.objects.filter(
+                question_set_answer__in=question_set_answers,
+                valid=True
+            ).exclude(question__question_type='SEL').count()
+        question_set_total_wrong_answers = 0
+        if question_set_total_correct_answers == 0:
+            question_set_total_wrong_answers = Answer.objects.filter(
+                question_set_answer__in=question_set_answers,
+                valid=False
+            ).exclude(question__question_type='SEL').count()
+        if (question_set_total_answers != 0):
+            if question_set_total_correct_answers != 0:
+                correct_answers_percentage = round((question_set_total_correct_answers / question_set_total_answers) * 100, 1)
+            elif question_set_total_wrong_answers != 0:
+                correct_answers_percentage = 0
+
+        return min(correct_answers_percentage, 100.0)
+
+    def get_average_score(self, instance):
+        question_sets = QuestionSet.objects.filter(
+            questionsetaccess__student=instance,
+        ).distinct()
+        question_set_scores = []
+        for question_set in question_sets:
+            question_set_score = self.__get_question_set_correct_answers_percentage(question_set, instance)
+            if question_set_score is not None:
+                question_set_scores.append(question_set_score)
+        if len(question_set_scores) == 0:
+            return None
+
+        return sum(question_set_scores) / len(question_set_scores)
+
+    def get_honey(self, instance):
+        return Profile.objects.get(student=instance).effort
+
+
+class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
+
+    question_set_access = serializers.SerializerMethodField()
+    student_score = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Assessment
+        fields = ('id', 'title', 'question_set_access', 'student_score')
+
+    def get_question_set_access(self, instance):
+
+        student_pk = self.context['student_pk']
+
+        question_set_list = QuestionSet.objects.filter(assessment=instance)
+        question_set_access_list = []
+
+        for question_set in question_set_list:
+            question_set_access = list(QuestionSetAccess.objects.filter(
+                question_set=question_set, student=student_pk).values())
+
+            if question_set_access:
+                access_dict = {
+                    'question_set_id': question_set.id,
+                    'question_set_name': question_set.name,
+                    'question_set_access_id': question_set_access[0]['id'],
+                    'start_date': question_set_access[0]['start_date'],
+                    'end_date': question_set_access[0]['end_date']
+                }
+
+                question_set_access_list.append(access_dict)
+
+        return question_set_access_list
+
+    def __get_question_set_correct_answers_percentage(self, question_set, student):
+        """
+        Get the percentage of correct answers for the given question_set and student
+        """
+        correct_answers_percentage = 0
+        question_set_total_answers = Question.objects.filter(question_set=question_set).exclude(question_type='SEL').count()
+        question_set_answers = QuestionSetAnswer.objects.filter(
+            question_set_access__question_set=question_set,
+            question_set_access__student=student
+        )
+        if not question_set_total_answers or not question_set_answers:
+            return None
+        question_set_total_correct_answers = Answer.objects.filter(
+                question_set_answer__in=question_set_answers,
+                valid=True
+            ).exclude(question__question_type='SEL').count()
+        question_set_total_wrong_answers = 0
+        if question_set_total_correct_answers == 0:
+            question_set_total_wrong_answers = Answer.objects.filter(
+                question_set_answer__in=question_set_answers,
+                valid=False
+            ).exclude(question__question_type='SEL').count()
+        if (question_set_total_answers != 0):
+            if question_set_total_correct_answers != 0:
+                correct_answers_percentage = round((question_set_total_correct_answers / question_set_total_answers) * 100, 1)
+            elif question_set_total_wrong_answers != 0:
+                correct_answers_percentage = 0
+
+        return min(correct_answers_percentage, 100.0)
+
+    def get_student_score(self, instance):
+        student_pk = self.context['student_pk']
+        student = User.objects.get(pk=student_pk)
+        question_sets = QuestionSet.objects.filter(
+            assessment=instance,
+            questionsetaccess__student=student,
+        ).distinct()
+        question_set_scores = []
+        for question_set in question_sets:
+            question_set_score = self.__get_question_set_correct_answers_percentage(question_set, student)
+            if question_set_score is not None:
+                question_set_scores.append(question_set_score)
+        if len(question_set_scores) == 0:
+            return None
+
+        return sum(question_set_scores) / len(question_set_scores)
+
+
 class QuestionSetTableSerializer(serializers.ModelSerializer):
     """
     Question sets table serializer.
@@ -316,7 +477,7 @@ class QuestionSetTableSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionSet
         fields = ('id', 'assessment_id', 'name', 'students_count', 'students_completed_count', 'order',
-                  'overall_students_completed_count', 'questions_count', 'learning_objective')
+                  'overall_students_completed_count', 'questions_count', 'learning_objective', 'icon',)
 
     def get_students_count(self, instance):
         return User.objects.filter(
@@ -342,6 +503,7 @@ class QuestionSetTableSerializer(serializers.ModelSerializer):
     def get_assessment_id(self, instance):
         return Assessment.objects.filter(id=instance.assessment.id).values_list('id', flat=True)[0]
 
+
 class QuestionTableSerializer(serializers.ModelSerializer):
     """
     Questions table serializer.
@@ -356,12 +518,12 @@ class QuestionTableSerializer(serializers.ModelSerializer):
     subject = serializers.SerializerMethodField()
     # Parent assessment topic
     topic = serializers.SerializerMethodField()
+    # Lowest, average and highest answer times in milliseconds
+    speeds = serializers.SerializerMethodField()
     # Number of time the assessment has been played by a student
     plays = serializers.SerializerMethodField()
     # Number of students invited with QuestionSetAccess to the question topic
     invites = serializers.SerializerMethodField()
-    # Speed is the average speed of all students to answer this question
-    speed = serializers.SerializerMethodField()
     # Score is the global average score for this question amongst all the students
     score = serializers.SerializerMethodField()
     learning_objective = serializers.SerializerMethodField()
@@ -371,7 +533,7 @@ class QuestionTableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ('id', 'title', 'order', 'created_at', 'topic', 'question_type', 'plays', 'invites', 'question_set',
-                  'has_attachment', 'speed', 'score', 'grade', 'subject', 'topic', 'learning_objective', 'assessment')
+                  'has_attachment', 'score', 'grade', 'subject', 'topic', 'learning_objective', 'assessment', 'speeds')
 
     def __get_all_answers(self, instance):
         return Answer.objects.filter(question=instance)
@@ -479,6 +641,17 @@ class QuestionTableSerializer(serializers.ModelSerializer):
         serializer = TopicSerializer(topic)
         return serializer.data
 
+    def get_speeds(self, instance):
+        speeds = {}
+        answers = Answer.objects.filter(question=instance)
+        if answers:
+            durations = answers.annotate(
+                durations = ExpressionWrapper(F('end_datetime') - F('start_datetime'), output_field=fields.DurationField()))
+            speeds['slowest'] = round(durations.aggregate(Max('durations'))['durations__max'].total_seconds(), 3) * 1000
+            speeds['fastest'] = round(durations.aggregate(Min('durations'))['durations__min'].total_seconds(), 3) * 1000
+            speeds['average'] = round(durations.aggregate(Avg('durations'))['durations__avg'].total_seconds(), 3) * 1000
+        return speeds
+
     def get_topic(self, instance):
         return instance.question_set.name
 
@@ -488,20 +661,6 @@ class QuestionTableSerializer(serializers.ModelSerializer):
     def get_invites(self, instance):
         return QuestionSetAccess.objects.filter(question_set=instance.question_set).count()
 
-    def get_speed(self, instance):
-        answers = self.__get_all_answers(instance)
-        students_average = []
-        if answers:
-            student_result = answers.annotate(
-                durations = ExpressionWrapper(F('end_datetime') - F('start_datetime'), output_field=fields.DurationField()),
-            ).aggregate(Avg('durations'))['durations__avg']
-            students_average.append(student_result)
-
-        if len(students_average):
-            return sum(students_average, datetime.timedelta()) / len(students_average)
-        else:
-            return None
-        
     def get_score(self, instance):
         correct_answers_percentage = 0
         all_answers = self.__get_all_answers(instance)
@@ -642,11 +801,14 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
     accessible_question_sets_count = serializers.SerializerMethodField()
     # Last session datetime
     last_session = serializers.SerializerMethodField()
+    # Answers of the assessment (can be filtered via query params)
+    answers = serializers.SerializerMethodField()
 
     class Meta:
         model = Assessment
         fields = ('id', 'title', 'subject', 'completed_question_sets_count',
-                  'accessible_question_sets_count', 'last_session')
+                  'accessible_question_sets_count', 'last_session', 'answers',
+                  'icon')
 
     def get_completed_question_sets_count(self, instance):
         student_pk = self.context['student_pk']
@@ -677,6 +839,17 @@ class AssessmentAnswerTableSerializer(serializers.ModelSerializer):
         ).latest('start_date')
 
         return last_session.start_date
+
+    def get_answers(self, instance):
+        student_pk = self.context['student_pk']
+        answers = Answer.objects.filter(
+            question_set_answer__question_set_access__question_set__assessment=instance,
+            question_set_answer__question_set_access__student=student_pk
+        ).distinct()
+
+        answers_data = AnswerTableSerializer(answers, many=True).data
+
+        return answers_data
 
 
 class QuestionSetAnswerTableSerializer(serializers.ModelSerializer):
@@ -807,13 +980,15 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
     correctly_answered_first_try = serializers.SerializerMethodField()
     # Overall percentage of correct answers on last try
     correctly_answered_last_try = serializers.SerializerMethodField()
+    student_speed = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
         fields = ('id', 'title', 'order',
                   'question_type', 'average_duration',
                   'correctly_answered_first_try',
-                  'correctly_answered_last_try')
+                  'correctly_answered_last_try',
+                  'student_speed')
 
     def get_average_duration(self, instance):
         student_pk = self.context['student_pk']
@@ -873,6 +1048,18 @@ class QuestionAnswerTableSerializer(serializers.ModelSerializer):
             question=instance
         ).valid
 
+    def get_student_speed(self, instance):
+        student_pk = self.context['student_pk']
+        try:
+            answer = Answer.objects.annotate(
+                duration = ExpressionWrapper(F('end_datetime') - F('start_datetime'), output_field=fields.DurationField())
+            ).get(
+                question_set_answer__session__student=student_pk,
+                question=instance
+            )
+            return answer.duration.total_seconds() * 1000
+        except:
+            return None
 
 class AnswerTableSerializer(PolymorphicSerializer):
 
@@ -892,6 +1079,10 @@ class AnswerTableSerializer(PolymorphicSerializer):
             'AnswerCalcul': AnswerCalculTableSerializer,
             'AnswerCustomizedDragAndDrop': AnswerCustomizedDragAndDropTableSerializer
         }
+
+    def to_representation(self, obj):
+        sub_obj = Answer.objects.get_subclass(id=obj.id)
+        return super().to_representation(sub_obj)
 
 
 class AbstractAnswerTableSerializer(serializers.ModelSerializer):
@@ -1315,6 +1506,10 @@ class GroupTableSerializer(serializers.ModelSerializer):
     average = serializers.SerializerMethodField()
     # Average of each assessment to which students in this group are assigned
     assessments_average = serializers.SerializerMethodField()
+    # Group average is the average score of all the students of the same group
+    group_average = serializers.SerializerMethodField()
+    # Score average of all the students of the same grade
+    grade_average = serializers.SerializerMethodField()
     # Speed is the average speed of all students of the groups to answer questions
     speed = serializers.SerializerMethodField()
     # Honey is the average of effort amongst all the students
@@ -1361,6 +1556,53 @@ class GroupTableSerializer(serializers.ModelSerializer):
                 return sum(filtered_assessments_average) / len(filtered_assessments_average)
         else:
             return None
+
+
+    def get_group_average(self, instance):
+        students = User.objects.filter(group=instance)
+        score_list = []
+        for student in students:
+            assessments = Assessment.objects.filter(
+                questionset__questionsetaccess__student=student
+            ).distinct()
+            for assessment in assessments:
+                assessments_user_data = StudentLinkedAssessmentsSerializer(
+                    assessment, many=False,
+                    context={'student_pk': int(student.id)}
+                ).data
+                assessment_result = assessments_user_data['student_score']
+                if assessment_result and assessment_result > 0:
+                    score_list.append(assessment_result)
+        if len(score_list):
+            return sum(score_list) / len(score_list)
+
+        return None
+
+
+    def get_grade_average(self, instance):
+        student_grades = [grade for grade in User.objects.filter(group=instance).values_list('grade', flat=True).distinct()]
+        if len(student_grades) and student_grades.count(student_grades[0]) == len(student_grades):
+            grade = student_grades[0]
+            students = User.objects.filter(grade=grade)
+            score_list = []
+            for student in students:
+                assessments = Assessment.objects.filter(
+                    grade=grade,
+                    questionset__questionsetaccess__student=student
+                ).distinct()
+                for assessment in assessments:
+                    assessments_user_data = StudentLinkedAssessmentsSerializer(
+                        assessment, many=False,
+                        context={'student_pk': int(student.id)}
+                    ).data
+                    assessment_result = assessments_user_data['student_score']
+                    if assessment_result and assessment_result > 0:
+                        score_list.append(assessment_result)
+            if len(score_list) > 0:
+                return sum(score_list) / len(score_list)
+
+        return None
+
 
     def get_speed(self, instance):
         students = User.objects.filter(group=instance)
