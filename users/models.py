@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 
 class User(AbstractUser):
@@ -67,6 +68,13 @@ class User(AbstractUser):
         default=True
     )
     
+    # Define an array of assessment ids for which the user has already played the intro.
+    skip_intro_for_assessments = ArrayField(
+        models.IntegerField(),
+        null=True,
+        blank=True
+    )
+
     grade = models.CharField(
         max_length=32,
         null=True,

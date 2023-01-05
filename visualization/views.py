@@ -425,7 +425,13 @@ class QuestionAnswersTableViewSet(ModelViewSet):
         question_pk = self.kwargs.get('pk', None)
         question = get_object_or_404(
             self.get_queryset().select_subclasses(), pk=question_pk)
-        serializer = QuestionAnswerTableSerializer(question, many=False)
+        serializer = QuestionAnswerTableSerializer(question, many=False,
+            context={
+                'student_pk': int(self.kwargs.get('student_pk', None)),
+                'assessment_pk': int(self.kwargs.get('assessment_pk', None)),
+                'question_set_pk': int(self.kwargs.get('question_set_pk', None))
+            }
+        )
         return Response(serializer.data)
 
     def create(self, request):

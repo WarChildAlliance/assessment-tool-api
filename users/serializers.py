@@ -1,6 +1,7 @@
 from django.utils import timezone
 
 from rest_framework import serializers
+from rest_framework.fields import ListField
 
 from admin.lib.serializers import NestedRelatedField
 
@@ -51,12 +52,14 @@ class UserSerializer(serializers.ModelSerializer):
         model=Country, serializer_class=CountrySerializer)
     group = NestedRelatedField(
         model=Group, allow_null=True, serializer_class=GroupSerializer)
+    skip_intro_for_assessments = ListField(
+        child=serializers.IntegerField(), allow_empty=True, allow_null=True, required=False)
 
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'group',
                   'password', 'last_login', 'role', 'language', 'country', 'created_by',
-                  'is_active', 'see_intro','grade']
+                  'is_active', 'see_intro', 'skip_intro_for_assessments', 'grade']
         extra_kwargs = {'created_by': {
             'default': serializers.CurrentUserDefault(),
             'write_only': True
@@ -114,6 +117,8 @@ class UserSerializer(serializers.ModelSerializer):
         if instance.is_student():
             instance.group = validated_data.get('group', instance.group)
             instance.grade = validated_data.get('grade', instance.grade)
+            instance.skip_intro_for_assessments = validated_data.get(
+                'skip_intro_for_assessments', instance.skip_intro_for_assessments)
             is_active = validated_data.get('is_active', instance.is_active)
             if is_active != instance.is_active:
                 instance.is_active = is_active
