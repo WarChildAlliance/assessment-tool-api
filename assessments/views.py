@@ -10,7 +10,7 @@ from django.views.generic import CreateView
 from datetime import date
 from django.db.models.functions import Coalesce
 from admin.lib.viewsets import ModelViewSet
-import operator
+
 from .models import (Assessment, QuestionSet, QuestionSetAccess, NumberRange,
                      Attachment, DraggableOption, LearningObjective, Question, Topic)
 from .serializers import (AssessmentDeepSerializer, AssessmentSerializer,
@@ -92,12 +92,16 @@ class AssessmentsViewSet(ModelViewSet):
     def get_assessments(self, request):
         # Get assessments ordering by updated_at, but if it's null then use start_date
         # This duplicates the assessments because each questionsetaccess__updated_at has it own value
-        # So the .distinct('id') removes the duplicates
         queryset = self.get_queryset().annotate(date=Coalesce(
             'questionset__questionsetaccess__updated_at', 'questionset__questionsetaccess__start_date'
-        )).order_by('id', '-date').distinct('id')
-        # But using the 'id' compromise the order by dates so we need to reorder
-        assessments = sorted(queryset, key=operator.attrgetter('date'), reverse=True)
+        )).order_by('-date')
+        # So is necessary remove the duplicates
+        set_order = set()
+        # Get assessments correct order
+        assessments_order = [a for a in queryset.values_list('id', flat=True) if not (a in set_order or set_order.add(a))]
+        assessments = []
+        for assessment in assessments_order:
+            assessments.append(queryset.filter(id=assessment).first())
 
         serializer = AssessmentDeepSerializer(
             assessments, many=True,
