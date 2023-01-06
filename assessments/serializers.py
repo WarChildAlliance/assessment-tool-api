@@ -1,4 +1,5 @@
 from datetime import date
+from django.utils import timezone
 
 from django.db.models.query_utils import RegisterLookupMixin
 from answers.models import Answer, QuestionSetAnswer
@@ -767,13 +768,13 @@ class QuestionSetAccessListSerializer(serializers.ListSerializer):
                     student=item['student'], question_set=item['question_set'])
                 obj.start_date = item['start_date']
                 obj.end_date = item['end_date']
+                obj.updated_at = timezone.now()
                 to_update.append(obj)
             except QuestionSetAccess.DoesNotExist:
-                to_create.append(QuestionSetAccess(**item))
-
+                to_create.append(QuestionSetAccess(**item, created_at = timezone.now(), updated_at = timezone.now()))
         created = QuestionSetAccess.objects.bulk_create(to_create)
         QuestionSetAccess.objects.bulk_update(
-            to_update, ['start_date', 'end_date'])
+            to_update, ['start_date', 'end_date', 'updated_at'])
         return (created if created is not None else []) + to_update
 
 

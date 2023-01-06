@@ -8,9 +8,9 @@ from rest_framework.viewsets import GenericViewSet
 from users.permissions import HasAccess, IsSupervisor
 from django.views.generic import CreateView
 from datetime import date
-
+from django.db.models.functions import Coalesce
 from admin.lib.viewsets import ModelViewSet
-
+import operator
 from .models import (Assessment, QuestionSet, QuestionSetAccess, NumberRange,
                      Attachment, DraggableOption, LearningObjective, Question, Topic)
 from .serializers import (AssessmentDeepSerializer, AssessmentSerializer,
@@ -90,9 +90,17 @@ class AssessmentsViewSet(ModelViewSet):
 
     @action(detail=False, methods=['get'], serializer_class=AssessmentDeepSerializer)
     def get_assessments(self, request):
+        # Get assessments ordering by updated_at, but if it's null then use start_date
+        # This duplicates the assessments because each questionsetaccess__updated_at has it own value
+        # So the .distinct('id') removes the duplicates
+        queryset = self.get_queryset().annotate(date=Coalesce(
+            'questionset__questionsetaccess__updated_at', 'questionset__questionsetaccess__start_date'
+        )).order_by('id', '-date').distinct('id')
+        # But using the 'id' compromise the order by dates so we need to reorder
+        assessments = sorted(queryset, key=operator.attrgetter('date'), reverse=True)
 
         serializer = AssessmentDeepSerializer(
-            self.get_queryset().order_by('-questionset__questionsetaccess__start_date'), many=True,
+            assessments, many=True,
             context={
                 'student_pk': int(self.request.user.id)
             }
