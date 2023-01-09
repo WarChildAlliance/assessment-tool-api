@@ -193,6 +193,22 @@ class QuestionSetAccess(models.Model):
         on_delete=models.CASCADE,
     )
 
+    created_at = models.DateTimeField(
+        editable=False,
+        null=True
+    )
+
+    updated_at = models.DateTimeField(
+        null=True
+    )
+
+    def save(self, *args, **kwargs):
+        ''' On save, update timestamps'''
+        if not self.id:
+            self.created_at = timezone.now()
+        self.updated_at = timezone.now()
+        return super().save(*args, **kwargs)
+
     class Meta:
         verbose_name_plural = 'Set of questions accesses'
         constraints = [
