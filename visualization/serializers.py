@@ -1,7 +1,7 @@
 from gamification.models import Profile
 from rest_framework import serializers
 import datetime
-from django.db.models import Q, Avg, ExpressionWrapper, F, fields, Min, Max
+from django.db.models import Q, Avg, ExpressionWrapper, F, fields, Min, Max, Count
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
@@ -75,6 +75,17 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
 
         return min(correct_answers_percentage, 100.0)
 
+    def __get_question_set_SEL_average(self, question_set):
+        choices = ['NOT_REALLY', 'A_LITTLE', 'A_LOT']
+        answers = AnswerSEL.objects.filter(question__question_set=question_set).distinct()
+
+        if answers:
+            vals = [choices.index(answer.statement) for answer in answers]
+            average = round(sum(vals) / len(vals))
+            return choices[average]
+
+        return None
+
     def get_question_sets_count(self, instance):
         return QuestionSet.objects.filter(assessment=instance).count()
 
@@ -91,8 +102,9 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
                 Q(question_type='SEL') & (~Q(question_set__order=1) | Q(question_set__assessment__sel_question=False))
             ).count()
             correct_answers_percentage = self.__get_question_set_correct_answers_percentage(question_set)
+            sel_average = self.__get_question_set_SEL_average(question_set)
             question_sets_res.append({"id": question_set[0], "title": question_set[1], "description": question_set[2], "icon": question_set[3], "order": question_set[4], "learning_objective": learning_objective_data,
-                    "questionsCount": question_count, "score": correct_answers_percentage})
+                    "questionsCount": question_count, "score": correct_answers_percentage, "sel_average": sel_average})
 
         return question_sets_res
 
@@ -310,12 +322,12 @@ class UserTableSerializer(serializers.ModelSerializer):
     def get_sel_overview(self, instance):
         sel_data = {}
         choices = ['NOT_REALLY', 'A_LITTLE', 'A_LOT']
-        answers = AnswerSEL.objects.filter(question_set_answer__session__student=instance).order_by('id')
+        answers = AnswerSEL.objects.filter(question_set_answer__session__student=instance)
 
         if answers:
             last_sel_answer = answers.latest('end_datetime')
             last_session_pk = last_sel_answer.question_set_answer.session.pk
-            last_session_answers = answers.filter(question_set_answer__session=last_session_pk).order_by('id')
+            last_session_answers = answers.filter(question_set_answer__session=last_session_pk)
             vals = [choices.index(answer.statement) for answer in answers]
             last_session_vals = [choices.index(answer.statement) for answer in last_session_answers]
             average = round(sum(vals) / len(vals))
@@ -754,10 +766,19 @@ class QuestionSelectTableSerializer(AbstractQuestionDetailsTableSerializer):
 
 class QuestionSELTableSerializer(AbstractQuestionDetailsTableSerializer):
 
+    median_statement = serializers.SerializerMethodField()
     class Meta(AbstractQuestionDetailsTableSerializer.Meta):
         model = QuestionSEL
         fields = AbstractQuestionDetailsTableSerializer.Meta.fields + \
-            ('sel_type', )
+            ('sel_type', 'median_statement')
+
+    def get_median_statement(self, instance):
+        answers = AnswerSEL.objects.filter(question=instance)
+        if answers:
+            most_common_answer = answers.annotate(most_common=Count('statement')).order_by('-most_common').first()
+            return most_common_answer.statement
+        return None
+
 
 class QuestionDominoTableSerializer(AbstractQuestionDetailsTableSerializer):
     options = NestedRelatedField(
