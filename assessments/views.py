@@ -8,7 +8,7 @@ from rest_framework.viewsets import GenericViewSet
 from users.permissions import HasAccess, IsSupervisor
 from django.views.generic import CreateView
 from datetime import date
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Lower
 from admin.lib.viewsets import ModelViewSet
 
 from .models import (Assessment, QuestionSet, QuestionSetAccess, NumberRange,
@@ -314,7 +314,9 @@ class QuestionsViewSet(ModelViewSet):
         accessible_assessments = AssessmentsViewSet.get_queryset(self)
         request_question_type = self.request.query_params.get('type').split(',')
 
-        questions = Question.objects.filter(question_set__assessment__in=accessible_assessments, question_type__in=request_question_type).select_subclasses()
+        questions = Question.objects.filter(
+            question_set__assessment__in=accessible_assessments, question_type__in=request_question_type
+        ).select_subclasses().order_by(Lower('title'))
         serializer = QuestionSerializer(questions, many=True)
 
         return Response(serializer.data, status=200)

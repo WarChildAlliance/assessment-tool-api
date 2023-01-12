@@ -4,6 +4,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import action
 
 from django.shortcuts import get_object_or_404
+from django.db.models.functions import Lower
 from django.db.models import Q
 
 from users.models import User, Group
@@ -196,7 +197,7 @@ class QuestionSetsTableViewset(ModelViewSet):
     @action(detail=False, methods=['get'], url_path='all')
     def get_all(self, request):
         accessible_assessments = AssessmentTableViewSet.get_queryset(self)
-        question_sets = QuestionSet.objects.filter(assessment__in=accessible_assessments)
+        question_sets = QuestionSet.objects.filter(assessment__in=accessible_assessments).order_by(Lower('name'))
 
         serializer = QuestionSetTableSerializer(question_sets, many=True)
 
