@@ -112,6 +112,14 @@ class Group(models.Model):
         related_name='group_supervisor'
     )
 
+    class Meta:
+        constraints = [
+            models.constraints.UniqueConstraint(
+                fields=['name', 'supervisor'],
+                name='unique_group_name_per_supervisor'
+            )
+        ]
+
     def __str__(self):
         return f'{self.name}'
 
