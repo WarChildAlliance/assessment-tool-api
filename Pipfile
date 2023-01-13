@@ -15,6 +15,10 @@ drf-nested-routers = "*"
 django-model-utils = "*"
 reportlab = "*"
 svglib = "*"
+python-memcached = "*"
+pymemcache = "*"
+memcached = "*"
+memcache = "*"
 
 [dev-packages]
 pylint = "*"

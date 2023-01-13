@@ -116,6 +116,16 @@ REST_FRAMEWORK = {
     ]
 }
 
+#Cache
+# https://docs.djangoproject.com/en/4.1/topics/cache/
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 

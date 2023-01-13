@@ -18,6 +18,9 @@ from .serializers import (AssessmentDeepSerializer, AssessmentSerializer,
                           QuestionSetSerializer, AttachmentSerializer, DraggableOptionSerializer,
                           QuestionSerializer, TopicSerializer, LearningObjectiveSerializer, NumberRangeSerializer)
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_control
+from django.core.cache import cache
 
 class AssessmentsViewSet(ModelViewSet):
     """
@@ -112,7 +115,8 @@ class AssessmentsViewSet(ModelViewSet):
 
         return Response(serializer.data, status=201)
 
-
+# Work in progress (check if must_revalidate really always check for newer versions of data or if is waiting for the max_age expires)
+@method_decorator(cache_control(must_revalidate=True, max_age=30), name='dispatch')
 class QuestionSetsViewSet(ModelViewSet):
     """
     Question sets viewset.
@@ -135,6 +139,8 @@ class QuestionSetsViewSet(ModelViewSet):
         """
         Queryset to get allowed assessment question_sets.
         """
+        print('QuestionSetsViewSet get_queryset')
+
         user = self.request.user
         assessment_pk = self.kwargs['assessment_pk']
 
