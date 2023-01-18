@@ -222,7 +222,8 @@ class UserTableSerializer(serializers.ModelSerializer):
             return last_session.start_date
 
     def get_completed_question_sets_count(self, instance):
-        return QuestionSet.objects.filter(
+        question_sets = self.context['question_sets']
+        return question_sets.filter(
             questionsetaccess__student=instance,
             questionsetaccess__question_set_answers__complete=True
         ).distinct().count()
@@ -233,27 +234,26 @@ class UserTableSerializer(serializers.ModelSerializer):
         ).distinct('question').count()
 
     def get_assessments_count(self, instance):
-        return Assessment.objects.filter(
-            questionset__questionsetaccess__student=instance,
-            questionset__questionsetaccess__start_date__lte=datetime.date.today(),
-            questionset__questionsetaccess__end_date__gte=datetime.date.today()
-        ).distinct().count()
+        assessments = self.context['assessments']
+        return assessments.filter(
+            questionset__questionsetaccess__student=instance
+        ).count()
 
     def get_assessment_complete(self, instance):
-        assessment_instance = Assessment.objects.filter(
-            questionset__questionsetaccess__student=instance,
-            questionset__questionsetaccess__start_date__lte=datetime.date.today(),
-            questionset__questionsetaccess__end_date__gte=datetime.date.today()
-        ).distinct().first()
+        assessments = self.context['assessments']
+        assessment_instance = assessments.filter(
+            questionset__questionsetaccess__student=instance
+        ).first()
 
-        completed_question_sets = QuestionSet.objects.filter(
+        question_sets = self.context['question_sets']
+        completed_question_sets = question_sets.filter(
             assessment=assessment_instance,
             questionsetaccess__student=instance,
             questionsetaccess__question_set_answers__complete=True,
             questionsetaccess__question_set_answers__session__student=instance
         ).distinct().count()
 
-        total_question_sets = QuestionSet.objects.filter(
+        total_question_sets = question_sets.filter(
             assessment=assessment_instance,
             questionsetaccess__student=instance,
         ).distinct().count()
@@ -261,11 +261,8 @@ class UserTableSerializer(serializers.ModelSerializer):
         return (completed_question_sets == total_question_sets)
 
     def get_assessments(self, instance):
-        assessments = Assessment.objects.filter(
-            questionset__questionsetaccess__student=instance,
-            questionset__questionsetaccess__start_date__lte=datetime.date.today(),
-            questionset__questionsetaccess__end_date__gte=datetime.date.today()
-        ).distinct().order_by('pk')
+        assessments = self.context['assessments']
+        assessments = assessments.filter(questionset__questionsetaccess__student=instance)
 
         assessments_data = AssessmentTableSerializer(assessments, many=True).data
         for assessment_data in assessments_data:
@@ -369,7 +366,8 @@ class UserTableSerializer(serializers.ModelSerializer):
         return min(correct_answers_percentage, 100.0)
 
     def get_average_score(self, instance):
-        question_sets = QuestionSet.objects.filter(
+        question_sets = self.context['question_sets']
+        question_sets = question_sets.filter(
             questionsetaccess__student=instance,
         ).distinct()
         question_set_scores = []

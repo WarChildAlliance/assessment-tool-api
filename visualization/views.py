@@ -13,6 +13,7 @@ from assessments.models import Assessment, QuestionSet, Question, QuestionSetAcc
 from answers.models import QuestionSetAnswer, AnswerSession, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
 from admin.lib.viewsets import ModelViewSet
 
+import datetime
 
 class UserTableViewSet(ModelViewSet):
     """
@@ -29,8 +30,7 @@ class UserTableViewSet(ModelViewSet):
         """
         Queryset to get allowed users.
         """
-        users = User.objects.filter(created_by=self.request.user, role=User.UserRole.STUDENT)
-
+        users = self.__get_students()
         language = self.request.query_params.get('language')
         if language:
             users = users.filter(language__code=language)
@@ -44,6 +44,29 @@ class UserTableViewSet(ModelViewSet):
             users = users.filter(group=group)
 
         return users
+
+    def list(self, request, *args, **kwargs):
+        serializer = UserTableSerializer(
+            self.get_queryset(), many=True,
+            context={
+                'assessments': self.__get_assessments(),
+                'question_sets': self.__get_question_sets()
+            }
+        )
+        return Response(serializer.data)
+
+    def __get_assessments(self):
+        return Assessment.objects.filter(
+            questionset__questionsetaccess__student__in=self.__get_students(),
+            questionset__questionsetaccess__start_date__lte=datetime.date.today(),
+            questionset__questionsetaccess__end_date__gte=datetime.date.today()
+        ).distinct()
+
+    def __get_question_sets(self):
+        return QuestionSet.objects.filter(questionsetaccess__student__in=self.__get_students()).distinct()
+
+    def __get_students(self):
+        return User.objects.filter(created_by=self.request.user, role=User.UserRole.STUDENT)
 
     def create(self, request):
         return Response('Unauthorized', status=403)
