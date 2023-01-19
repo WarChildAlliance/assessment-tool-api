@@ -29,7 +29,13 @@ class UserTableViewSet(ModelViewSet):
         """
         Queryset to get allowed users.
         """
-        users = User.objects.filter(created_by=self.request.user, role=User.UserRole.STUDENT)
+        users = User.objects.filter(
+            created_by=self.request.user, role=User.UserRole.STUDENT
+        ).select_related(
+            'group', 'country', 'language'
+        ).prefetch_related(
+            'answersession_set', 'profile_set'
+        )
 
         language = self.request.query_params.get('language')
         if language:
@@ -605,4 +611,6 @@ class GroupTableViewSet(ModelViewSet):
     serializer_class = GroupTableSerializer
 
     def get_queryset(self):
-        return Group.objects.filter(supervisor=self.request.user)
+        return Group.objects.filter(
+            supervisor=self.request.user
+        ).prefetch_related('student_group')

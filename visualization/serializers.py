@@ -214,8 +214,7 @@ class UserTableSerializer(serializers.ModelSerializer):
         return (instance.first_name + ' ' + instance.last_name)
 
     def get_last_session(self, instance):
-
-        last_session = AnswerSession.objects.filter(student=instance).last()
+        last_session = instance.answersession_set.last()
         if not last_session:
             return None
         else:
@@ -294,8 +293,7 @@ class UserTableSerializer(serializers.ModelSerializer):
         return instance.grade
 
     def get_group(self, instance):
-        group = Group.objects.filter(student_group=instance).values_list('name', flat=True)
-        return group
+        return [instance.group.name] if instance.group else []
 
     def get_speed(self, instance):
         student_speed = None
@@ -383,7 +381,7 @@ class UserTableSerializer(serializers.ModelSerializer):
         return sum(question_set_scores) / len(question_set_scores)
 
     def get_honey(self, instance):
-        return Profile.objects.get(student=instance).effort
+        return instance.profile_set.first().effort
 
 
 class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
@@ -1541,11 +1539,11 @@ class GroupTableSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def __get_question_sets(self, instance):
-        students = User.objects.filter(group=instance)
+        students = instance.student_group.all()
         return QuestionSetAccess.objects.filter(student_id__in=students).values_list('question_set', flat=True)
     
     def get_students_count(self, instance):
-        return User.objects.filter(group=instance).count()
+        return instance.student_group.count()
         
     def get_questions_count(self, instance):
         question_sets = self.__get_question_sets(instance)
@@ -1580,7 +1578,7 @@ class GroupTableSerializer(serializers.ModelSerializer):
 
 
     def get_group_average(self, instance):
-        students = User.objects.filter(group=instance)
+        students = instance.student_group.all()
         score_list = []
         for student in students:
             assessments = Assessment.objects.filter(
@@ -1601,7 +1599,7 @@ class GroupTableSerializer(serializers.ModelSerializer):
 
 
     def get_grade_average(self, instance):
-        student_grades = [grade for grade in User.objects.filter(group=instance).values_list('grade', flat=True).distinct()]
+        student_grades = [grade for grade in instance.student_group.values_list('grade', flat=True).distinct()]
         if len(student_grades) and student_grades.count(student_grades[0]) == len(student_grades):
             grade = student_grades[0]
             students = User.objects.filter(grade=grade)
@@ -1626,7 +1624,7 @@ class GroupTableSerializer(serializers.ModelSerializer):
 
 
     def get_speed(self, instance):
-        students = User.objects.filter(group=instance)
+        students = instance.student_group.all()
         students_average = []
         # get the average speed of each student
         for student in students:
@@ -1643,7 +1641,7 @@ class GroupTableSerializer(serializers.ModelSerializer):
             return None
 
     def get_honey(self, instance):
-        students = User.objects.filter(group=instance)
+        students = instance.student_group.all()
         effort_average = 0
         students_effort = Profile.objects.filter(student__in=students)
         if students_effort:
