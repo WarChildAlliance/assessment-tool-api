@@ -1,7 +1,9 @@
 from gamification.models import Profile
 from rest_framework import serializers
 import datetime
-from django.db.models import Q, Avg, ExpressionWrapper, F, fields, Min, Max, Count
+import time
+from django.db.models.functions import Round
+from django.db.models import Q, Avg, ExpressionWrapper, F, fields, Min, Max, ExpressionWrapper, Count, Sum, Case, When, FloatField, IntegerField
 from django.utils import timezone
 from admin.lib.serializers import NestedRelatedField, PolymorphicSerializer
 from users.models import User, Group
@@ -259,21 +261,42 @@ class UserTableSerializer(serializers.ModelSerializer):
 
         return (completed_question_sets == total_question_sets)
 
+    # 0.15s to load, to optimize
     def get_assessments(self, instance):
+        start_time = time.perf_counter()
+        # assessments = Assessment.objects.filter(
+        #     questionset__questionsetaccess__student=instance,
+        #     questionset__questionsetaccess__start_date__lte=datetime.date.today(),
+        #     questionset__questionsetaccess__end_date__gte=datetime.date.today()
+        # ).distinct().order_by('pk')
+
+        # assessments_data = AssessmentTableSerializer(assessments, many=True).data
+        # for assessment_data in assessments_data:
+        #     assessment = assessments.get(pk=assessment_data['id'])
+        #     assessments_user_data = StudentLinkedAssessmentsSerializer(
+        #         assessment, many=False,
+        #         context={'student_pk': int(instance.id)}
+        #     ).data
+        #     assessment_data['score'] = assessments_user_data['student_score']
+
         assessments = Assessment.objects.filter(
-            questionset__questionsetaccess__student=instance,
-            questionset__questionsetaccess__start_date__lte=datetime.date.today(),
-            questionset__questionsetaccess__end_date__gte=datetime.date.today()
+        questionset__questionsetaccess__student=instance,
+        questionset__questionsetaccess__start_date__lte=datetime.date.today(),
+        questionset__questionsetaccess__end_date__gte=datetime.date.today()
+        ).annotate(
+            student_score=Round(
+                Sum(
+                    Case(When(questionset__questionsetaccess__question_set_answers__answers__valid=True, then=1), output_field=IntegerField()),
+                    output_field=IntegerField()
+                ) / Count('questionset__questionsetaccess__question_set_answers__answers', output_field=IntegerField()),
+                1
+            )
         ).distinct().order_by('pk')
 
-        assessments_data = AssessmentTableSerializer(assessments, many=True).data
-        for assessment_data in assessments_data:
-            assessment = assessments.get(pk=assessment_data['id'])
-            assessments_user_data = StudentLinkedAssessmentsSerializer(
-                assessment, many=False,
-                context={'student_pk': int(instance.id)}
-            ).data
-            assessment_data['score'] = assessments_user_data['student_score']
+        assessments_data = AssessmentTableSerializer(assessments, many=True, context={'student_pk': int(instance.id)}).data
+        end_time = time.perf_counter()
+        execution_time = end_time - start_time
+        print(f"The execution time of get_assessments is: {execution_time}")
 
         return assessments_data
 
@@ -336,49 +359,27 @@ class UserTableSerializer(serializers.ModelSerializer):
 
         return sel_data
 
-    def __get_question_set_correct_answers_percentage(self, question_set, student):
-        """
-        Get the percentage of correct answers for the given question_set and student
-        """
-        correct_answers_percentage = 0
-        question_set_total_answers = Question.objects.filter(question_set=question_set).exclude(question_type='SEL').count()
-        question_set_answers = QuestionSetAnswer.objects.filter(
-            question_set_access__question_set=question_set,
-            question_set_access__student=student
-        )
-        if not question_set_total_answers or not question_set_answers:
-            return None
-        question_set_total_correct_answers = Answer.objects.filter(
-                question_set_answer__in=question_set_answers,
-                valid=True
-            ).exclude(question__question_type='SEL').count()
-        question_set_total_wrong_answers = 0
-        if question_set_total_correct_answers == 0:
-            question_set_total_wrong_answers = Answer.objects.filter(
-                question_set_answer__in=question_set_answers,
-                valid=False
-            ).exclude(question__question_type='SEL').count()
-        if (question_set_total_answers != 0):
-            if question_set_total_correct_answers != 0:
-                correct_answers_percentage = round((question_set_total_correct_answers / question_set_total_answers) * 100, 1)
-            elif question_set_total_wrong_answers != 0:
-                correct_answers_percentage = 0
-
-        return min(correct_answers_percentage, 100.0)
-
     def get_average_score(self, instance):
         question_sets = QuestionSet.objects.filter(
-            questionsetaccess__student=instance,
-        ).distinct()
-        question_set_scores = []
-        for question_set in question_sets:
-            question_set_score = self.__get_question_set_correct_answers_percentage(question_set, instance)
-            if question_set_score is not None:
-                question_set_scores.append(question_set_score)
-        if len(question_set_scores) == 0:
-            return None
+        questionsetaccess__student=instance,
+        ).annotate(
+        correct_answers=Sum(
+            Case(
+                When(questionsetaccess__question_set_answers__answers__valid=True, then=1),
+                output_field=IntegerField()
+            )
+        ),
+        total_answers=Count('questionsetaccess__question_set_answers__answers')
+        ).annotate(
+            percentage=ExpressionWrapper(
+                F('correct_answers') / F('total_answers'),
+                output_field=FloatField()
+            ) * 100
+        ).values('percentage')
 
-        return sum(question_set_scores) / len(question_set_scores)
+        average = question_sets.filter(percentage__isnull=False).aggregate(Avg('percentage'))
+
+        return average['percentage__avg'] if average['percentage__avg'] else None
 
     def get_honey(self, instance):
         return instance.profile_set.first().effort

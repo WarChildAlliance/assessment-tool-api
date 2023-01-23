@@ -10,6 +10,8 @@ services:
       - POSTGRES_DB=main
       - POSTGRES_USER=tester
       - POSTGRES_PASSWORD=dD4567891
+    ports:
+      - 5432:5432
   web:
     build:
       context: .
