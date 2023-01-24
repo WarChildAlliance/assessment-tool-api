@@ -13,6 +13,7 @@ from answers.serializers import DragAndDropAreaEntrySerializer
 from assessments.serializers import (AreaOptionSerializer, DominoOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
                                      HintSerializer, AttachmentSerializer, LearningObjectiveSerializer, TopicSerializer, LearningObjectiveSerializer)
 from users.serializers import GroupSerializer
+from .utils import calculate_student_score
 
 
 class AssessmentTableSerializer(serializers.ModelSerializer):
@@ -166,6 +167,12 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
 
         return score
 
+    def get_student_score(self, obj):
+        student_scores = self.context.get('student_scores', {})
+        assessment_pk = obj.pk
+        student_score = next((score['student_score'] for score in student_scores if score['question_set_access__question_set'] == assessment_pk), None)
+        return student_score
+
 class UserTableSerializer(serializers.ModelSerializer):
     """
     Users table serializer.
@@ -261,43 +268,34 @@ class UserTableSerializer(serializers.ModelSerializer):
 
         return (completed_question_sets == total_question_sets)
 
-    # 0.15s to load, to optimize
+    # could be more optimized, 0.30s for some assessments
     def get_assessments(self, instance):
         start_time = time.perf_counter()
-        # assessments = Assessment.objects.filter(
-        #     questionset__questionsetaccess__student=instance,
-        #     questionset__questionsetaccess__start_date__lte=datetime.date.today(),
-        #     questionset__questionsetaccess__end_date__gte=datetime.date.today()
-        # ).distinct().order_by('pk')
-
-        # assessments_data = AssessmentTableSerializer(assessments, many=True).data
-        # for assessment_data in assessments_data:
-        #     assessment = assessments.get(pk=assessment_data['id'])
-        #     assessments_user_data = StudentLinkedAssessmentsSerializer(
-        #         assessment, many=False,
-        #         context={'student_pk': int(instance.id)}
-        #     ).data
-        #     assessment_data['score'] = assessments_user_data['student_score']
-
+        answer_sessions = AnswerSession.objects.filter(student=instance)
+        question_set_answers = QuestionSetAnswer.objects.filter(
+            session__in=answer_sessions,
+            complete=True,
+            question_set_access__start_date__lte=datetime.date.today(),
+            question_set_access__end_date__gte=datetime.date.today()
+        ).prefetch_related(
+            'answers__valid',
+            'question_set_access__question_set'
+        )
         assessments = Assessment.objects.filter(
-        questionset__questionsetaccess__student=instance,
-        questionset__questionsetaccess__start_date__lte=datetime.date.today(),
-        questionset__questionsetaccess__end_date__gte=datetime.date.today()
-        ).annotate(
+            questionset__in=question_set_answers.values('question_set_access__question_set')
+        )
+
+        student_scores = question_set_answers.annotate(
             student_score=Round(
-                Sum(
-                    Case(When(questionset__questionsetaccess__question_set_answers__answers__valid=True, then=1), output_field=IntegerField()),
-                    output_field=IntegerField()
-                ) / Count('questionset__questionsetaccess__question_set_answers__answers', output_field=IntegerField()),
+                Sum('answers__valid', output_field=IntegerField()) / Count('answers', output_field=IntegerField()),
                 1
             )
-        ).distinct().order_by('pk')
+        ).values('question_set_access__question_set', 'student_score')
 
-        assessments_data = AssessmentTableSerializer(assessments, many=True, context={'student_pk': int(instance.id)}).data
+        assessments_data = AssessmentTableSerializer(assessments, many=True, context={'student_pk': int(instance.id), 'student_scores': student_scores}).data
         end_time = time.perf_counter()
         execution_time = end_time - start_time
         print(f"The execution time of get_assessments is: {execution_time}")
-
         return assessments_data
 
     def get_language_name(self, instance):
@@ -359,6 +357,7 @@ class UserTableSerializer(serializers.ModelSerializer):
 
         return sel_data
 
+    # To get a look
     def get_average_score(self, instance):
         question_sets = QuestionSet.objects.filter(
         questionsetaccess__student=instance,
@@ -1552,31 +1551,32 @@ class GroupTableSerializer(serializers.ModelSerializer):
         return questions.count()
 
     def get_assessments_average(self, instance):
-        question_sets = self.__get_question_sets(instance)
-        if question_sets:
-            assessments = QuestionSet.objects.filter(pk__in=question_sets).values_list('assessment', flat=True).distinct()
-            assessments_average = []
-            for assessment in assessments:
-                assessment_object = Assessment.objects.get(id=assessment)
-                assessment_result = AssessmentTableSerializer(instance=assessment_object).data['score']
-                assessments_average.append(assessment_result)
-            
-            return assessments_average
-        else:
-            return None
+        students = instance.student_group.all()
+        student_pk = self.context['student_pk']
+        assessments = []
+        for student in students:
+            student_assessments = Assessment.objects.filter(
+                questionset__questionsetaccess__student=student
+            ).distinct()
+            for assessment in student_assessments:
+                student_score = calculate_student_score(assessment, student_pk)
+                assessments.append({
+                    'id': assessment.id,
+                    'student_score': student_score
+                })
+        return assessments
 
     def get_average(self, instance):
         assessments_average = self.get_assessments_average(instance)
         if assessments_average:
             filtered_assessments_average = []
             for assessment in assessments_average:
-                if assessment and assessment > 0:
-                    filtered_assessments_average.append(assessment)
+                if assessment['student_score'] and assessment['student_score'] > 0:
+                    filtered_assessments_average.append(assessment['student_score'])
             if len(filtered_assessments_average):
                 return sum(filtered_assessments_average) / len(filtered_assessments_average)
         else:
             return None
-
 
     def get_group_average(self, instance):
         students = instance.student_group.all()
