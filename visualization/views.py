@@ -622,10 +622,3 @@ class GroupTableViewSet(ModelViewSet):
         return Group.objects.filter(
             supervisor=self.request.user
         ).prefetch_related('student_group')
-
-    def list(self, request, *args, **kwargs):
-        student_pk = self.request.user.id
-        serializer = GroupTableSerializer(
-            self.get_queryset(), many=True, context={'student_pk': student_pk}
-        )
-        return Response(serializer.data)

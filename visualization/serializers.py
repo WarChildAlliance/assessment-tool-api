@@ -1533,53 +1533,68 @@ class GroupTableSerializer(serializers.ModelSerializer):
     speed = serializers.SerializerMethodField()
     # Honey is the average of effort amongst all the students
     honey = serializers.SerializerMethodField()
-
     class Meta:
         model = Group
         fields = '__all__'
 
     def __get_question_sets(self, instance):
-        students = instance.student_group.all()
+        print('instance=  ', instance)
+        start_time = time.perf_counter()
+        students = User.objects.filter(group=instance)
+        end_time = time.perf_counter()
+        execution_time = end_time - start_time
+        print(f"The execution time of __get_question_sets is: {execution_time}")
         return QuestionSetAccess.objects.filter(student_id__in=students).values_list('question_set', flat=True)
     
     def get_students_count(self, instance):
-        return instance.student_group.count()
+        return User.objects.filter(group=instance).count()
         
     def get_questions_count(self, instance):
         question_sets = self.__get_question_sets(instance)
         questions = Question.objects.filter(question_set__in=question_sets, question_set__questionsetaccess__student__group=instance).distinct()
         return questions.count()
 
+    # Need to not return duplicates
+    # Some groups are taking 1.45s to load, could be optimized
     def get_assessments_average(self, instance):
-        students = instance.student_group.all()
-        student_pk = self.context['student_pk']
-        assessments = []
-        for student in students:
-            student_assessments = Assessment.objects.filter(
-                questionset__questionsetaccess__student=student
-            ).distinct()
-            for assessment in student_assessments:
-                student_score = calculate_student_score(assessment, student_pk)
-                assessments.append({
-                    'id': assessment.id,
-                    'student_score': student_score
-                })
-        return assessments
+        start_time = time.perf_counter()
+        question_sets = self.__get_question_sets(instance)
+        if question_sets:
+            assessments = QuestionSet.objects.filter(pk__in=question_sets).values_list('assessment', flat=True).distinct()
+            assessments_average = []
+            for assessment in assessments:
+                assessment_object = Assessment.objects.get(id=assessment)
+                assessment_result = AssessmentTableSerializer(instance=assessment_object).data['score']
+                assessments_average.append(assessment_result)
+                
+            end_time = time.perf_counter()
+            execution_time = end_time - start_time
+            print(f"The execution time of get_assessments_average is: {execution_time}")
+            return assessments_average
+        else:
+            return None
 
+    # For some it takes up to 2 secondes to load
     def get_average(self, instance):
+        start_time = time.perf_counter()
         assessments_average = self.get_assessments_average(instance)
         if assessments_average:
             filtered_assessments_average = []
             for assessment in assessments_average:
-                if assessment['student_score'] and assessment['student_score'] > 0:
-                    filtered_assessments_average.append(assessment['student_score'])
+                if assessment and assessment > 0:
+                    filtered_assessments_average.append(assessment)
             if len(filtered_assessments_average):
+                end_time = time.perf_counter()
+                execution_time = end_time - start_time
+                print(f"The execution time of get_average is: {execution_time}")
                 return sum(filtered_assessments_average) / len(filtered_assessments_average)
         else:
             return None
 
+
     def get_group_average(self, instance):
-        students = instance.student_group.all()
+        start_time = time.perf_counter()
+        students = User.objects.filter(group=instance)
         score_list = []
         for student in students:
             assessments = Assessment.objects.filter(
@@ -1594,13 +1609,16 @@ class GroupTableSerializer(serializers.ModelSerializer):
                 if assessment_result and assessment_result > 0:
                     score_list.append(assessment_result)
         if len(score_list):
+            end_time = time.perf_counter()
+            execution_time = end_time - start_time
+            print(f"The execution time of get_group_average is: {execution_time}")
             return sum(score_list) / len(score_list)
-
         return None
 
 
     def get_grade_average(self, instance):
-        student_grades = [grade for grade in instance.student_group.values_list('grade', flat=True).distinct()]
+        start_time = time.perf_counter()
+        student_grades = [grade for grade in User.objects.filter(group=instance).values_list('grade', flat=True).distinct()]
         if len(student_grades) and student_grades.count(student_grades[0]) == len(student_grades):
             grade = student_grades[0]
             students = User.objects.filter(grade=grade)
@@ -1619,13 +1637,17 @@ class GroupTableSerializer(serializers.ModelSerializer):
                     if assessment_result and assessment_result > 0:
                         score_list.append(assessment_result)
             if len(score_list) > 0:
+                end_time = time.perf_counter()
+                execution_time = end_time - start_time
+                print(f"The execution time of get_grade_average is: {execution_time}")
                 return sum(score_list) / len(score_list)
-
         return None
 
 
     def get_speed(self, instance):
-        students = instance.student_group.all()
+        start_time = time.perf_counter()
+
+        students = User.objects.filter(group=instance)
         students_average = []
         # get the average speed of each student
         for student in students:
@@ -1637,15 +1659,23 @@ class GroupTableSerializer(serializers.ModelSerializer):
                 students_average.append(student_result)
 
         if len(students_average) > 0:
+            end_time = time.perf_counter()
+            execution_time = end_time - start_time
+            print(f"The execution time of get_speed is: {execution_time}")
             return sum(students_average, datetime.timedelta()) / len(students_average)
         else:
             return None
 
     def get_honey(self, instance):
-        students = instance.student_group.all()
+        start_time = time.perf_counter()
+
+        students = User.objects.filter(group=instance)
         effort_average = 0
         students_effort = Profile.objects.filter(student__in=students)
         if students_effort:
             students_effort = students_effort.aggregate(Avg('effort'))['effort__avg']
             effort_average = round(students_effort, 1)
+        end_time = time.perf_counter()
+        execution_time = end_time - start_time
+        print(f"The execution time of get_honey is: {execution_time}")
         return effort_average
