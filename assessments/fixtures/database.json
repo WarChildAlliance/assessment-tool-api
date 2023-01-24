@@ -42231,16 +42231,6 @@
 },
 {
     "model": "gamification.profile",
-    "pk": 57,
-    "fields": {
-        "student": 2,
-        "effort": 0,
-        "current_avatar": null,
-        "unlocked_avatars": []
-    }
-},
-{
-    "model": "gamification.profile",
     "pk": 112,
     "fields": {
         "student": 62,
