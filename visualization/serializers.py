@@ -1538,13 +1538,18 @@ class GroupTableSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def __get_question_sets(self, instance):
-        print('instance=  ', instance)
-        start_time = time.perf_counter()
-        students = User.objects.filter(group=instance)
-        end_time = time.perf_counter()
-        execution_time = end_time - start_time
-        print(f"The execution time of __get_question_sets is: {execution_time}")
-        return QuestionSetAccess.objects.filter(student_id__in=students).values_list('question_set', flat=True)
+        if (not hasattr(self, 'get_question_sets')) or (hasattr(self, 'instance_name') and self.instance_name!=instance.name):
+            print('instance=  ', instance)
+            start_time = time.perf_counter()
+            students = User.objects.filter(group=instance)
+            end_time = time.perf_counter()
+            execution_time = end_time - start_time
+            print(f"The execution time of __get_question_sets is: {execution_time}")
+            question_sets = QuestionSetAccess.objects.filter(student_id__in=students).select_related('question_set', 'question_set__assessments').values_list('question_set', flat=True)
+            self.get_question_sets = question_sets
+            self.instance_name = instance.name
+            return question_sets
+        return self.get_question_sets
     
     def get_students_count(self, instance):
         return User.objects.filter(group=instance).count()
@@ -1557,22 +1562,28 @@ class GroupTableSerializer(serializers.ModelSerializer):
     # Need to not return duplicates
     # Some groups are taking 1.45s to load, could be optimized
     def get_assessments_average(self, instance):
-        start_time = time.perf_counter()
-        question_sets = self.__get_question_sets(instance)
-        if question_sets:
-            assessments = QuestionSet.objects.filter(pk__in=question_sets).values_list('assessment', flat=True).distinct()
-            assessments_average = []
-            for assessment in assessments:
-                assessment_object = Assessment.objects.get(id=assessment)
-                assessment_result = AssessmentTableSerializer(instance=assessment_object).data['score']
-                assessments_average.append(assessment_result)
-                
-            end_time = time.perf_counter()
-            execution_time = end_time - start_time
-            print(f"The execution time of get_assessments_average is: {execution_time}")
-            return assessments_average
-        else:
-            return None
+        if (not hasattr(self, 'assessments_average')) or (hasattr(self, 'instance_average_name') and self.instance_average_name!=instance.name):
+            start_time = time.perf_counter()
+            question_sets = self.__get_question_sets(instance)
+            if question_sets:
+                assessments_id = QuestionSet.objects.filter(pk__in=question_sets).values_list('assessment', flat=True).distinct()
+                assessments = Assessment.objects.filter(id__in=assessments_id)
+                assessments_average = []
+                assessment_results = AssessmentTableSerializer(assessments, many=True).data
+                for assessment_result in assessment_results:
+                    assessments_average.append(assessment_result['score'])
+                    
+                    
+                end_time = time.perf_counter()
+                execution_time = end_time - start_time
+                print(f"The execution time of get_assessments_average is: {execution_time}")
+                self.assessments_average = assessments_average
+                self.instance_average_name = instance.name
+                return assessments_average
+            else:
+                self.assessments_average = None
+                return None
+        return self.assessments_average
 
     # For some it takes up to 2 secondes to load
     def get_average(self, instance):
