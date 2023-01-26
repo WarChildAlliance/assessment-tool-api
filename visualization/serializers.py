@@ -395,6 +395,7 @@ class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 
     def get_question_set_access(self, instance):
 
+        start_time = time.perf_counter()
         student_pk = self.context['student_pk']
 
         question_set_list = QuestionSet.objects.filter(assessment=instance)
@@ -415,12 +416,16 @@ class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 
                 question_set_access_list.append(access_dict)
 
+        end_time = time.perf_counter()
+        execution_time = end_time - start_time
+        print(f"The execution time of get_question_set_access is: {execution_time}")
         return question_set_access_list
 
     def __get_question_set_correct_answers_percentage(self, question_set, student):
         """
         Get the percentage of correct answers for the given question_set and student
         """
+        start_time = time.perf_counter()
         correct_answers_percentage = 0
         question_set_total_answers = Question.objects.filter(question_set=question_set).exclude(question_type='SEL').count()
         question_set_answers = QuestionSetAnswer.objects.filter(
@@ -445,9 +450,14 @@ class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
             elif question_set_total_wrong_answers != 0:
                 correct_answers_percentage = 0
 
+        end_time = time.perf_counter()
+        execution_time = end_time - start_time
+        print(f"The execution time of __get_question_set_correct_answers_percentage is: {execution_time}")
         return min(correct_answers_percentage, 100.0)
 
+    # to investigate
     def get_student_score(self, instance):
+        start_time = time.perf_counter()
         student_pk = self.context['student_pk']
         student = User.objects.get(pk=student_pk)
         question_sets = QuestionSet.objects.filter(
@@ -462,6 +472,9 @@ class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
         if len(question_set_scores) == 0:
             return None
 
+        end_time = time.perf_counter()
+        execution_time = end_time - start_time
+        print(f"The execution time of get_student_score is: {execution_time}")
         return sum(question_set_scores) / len(question_set_scores)
 
 
@@ -1540,11 +1553,7 @@ class GroupTableSerializer(serializers.ModelSerializer):
     def __get_question_sets(self, instance):
         if (not hasattr(self, 'get_question_sets')) or (hasattr(self, 'instance_name') and self.instance_name!=instance.name):
             print('instance=  ', instance)
-            start_time = time.perf_counter()
             students = User.objects.filter(group=instance)
-            end_time = time.perf_counter()
-            execution_time = end_time - start_time
-            print(f"The execution time of __get_question_sets is: {execution_time}")
             question_sets = QuestionSetAccess.objects.filter(student_id__in=students).select_related('question_set', 'question_set__assessments').values_list('question_set', flat=True)
             self.get_question_sets = question_sets
             self.instance_name = instance.name
@@ -1572,22 +1581,19 @@ class GroupTableSerializer(serializers.ModelSerializer):
                 assessment_results = AssessmentTableSerializer(assessments, many=True).data
                 for assessment_result in assessment_results:
                     assessments_average.append(assessment_result['score'])
-                    
-                    
+                self.assessments_average = assessments_average
+                self.instance_average_name = instance.name
                 end_time = time.perf_counter()
                 execution_time = end_time - start_time
                 print(f"The execution time of get_assessments_average is: {execution_time}")
-                self.assessments_average = assessments_average
-                self.instance_average_name = instance.name
                 return assessments_average
             else:
                 self.assessments_average = None
                 return None
         return self.assessments_average
 
-    # For some it takes up to 2 secondes to load
+
     def get_average(self, instance):
-        start_time = time.perf_counter()
         assessments_average = self.get_assessments_average(instance)
         if assessments_average:
             filtered_assessments_average = []
@@ -1595,14 +1601,11 @@ class GroupTableSerializer(serializers.ModelSerializer):
                 if assessment and assessment > 0:
                     filtered_assessments_average.append(assessment)
             if len(filtered_assessments_average):
-                end_time = time.perf_counter()
-                execution_time = end_time - start_time
-                print(f"The execution time of get_average is: {execution_time}")
                 return sum(filtered_assessments_average) / len(filtered_assessments_average)
         else:
             return None
 
-
+    # to investigate
     def get_group_average(self, instance):
         start_time = time.perf_counter()
         students = User.objects.filter(group=instance)
@@ -1625,7 +1628,6 @@ class GroupTableSerializer(serializers.ModelSerializer):
             print(f"The execution time of get_group_average is: {execution_time}")
             return sum(score_list) / len(score_list)
         return None
-
 
     def get_grade_average(self, instance):
         start_time = time.perf_counter()
@@ -1656,8 +1658,6 @@ class GroupTableSerializer(serializers.ModelSerializer):
 
 
     def get_speed(self, instance):
-        start_time = time.perf_counter()
-
         students = User.objects.filter(group=instance)
         students_average = []
         # get the average speed of each student
@@ -1670,23 +1670,15 @@ class GroupTableSerializer(serializers.ModelSerializer):
                 students_average.append(student_result)
 
         if len(students_average) > 0:
-            end_time = time.perf_counter()
-            execution_time = end_time - start_time
-            print(f"The execution time of get_speed is: {execution_time}")
             return sum(students_average, datetime.timedelta()) / len(students_average)
         else:
             return None
 
     def get_honey(self, instance):
-        start_time = time.perf_counter()
-
         students = User.objects.filter(group=instance)
         effort_average = 0
         students_effort = Profile.objects.filter(student__in=students)
         if students_effort:
             students_effort = students_effort.aggregate(Avg('effort'))['effort__avg']
             effort_average = round(students_effort, 1)
-        end_time = time.perf_counter()
-        execution_time = end_time - start_time
-        print(f"The execution time of get_honey is: {execution_time}")
         return effort_average
