@@ -13,7 +13,7 @@ from answers.serializers import DragAndDropAreaEntrySerializer
 from assessments.serializers import (AreaOptionSerializer, DominoOptionSerializer, SelectOptionSerializer, SortOptionSerializer,
                                      HintSerializer, AttachmentSerializer, LearningObjectiveSerializer, TopicSerializer, LearningObjectiveSerializer)
 from users.serializers import GroupSerializer
-from .utils import calculate_student_score
+from .utils import calculate_student_score, calculate_assessments_score
 
 
 class AssessmentTableSerializer(serializers.ModelSerializer):
@@ -418,7 +418,7 @@ class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 
         end_time = time.perf_counter()
         execution_time = end_time - start_time
-        print(f"The execution time of get_question_set_access is: {execution_time}")
+#        print(f"The execution time of get_question_set_access is: {execution_time}")
         return question_set_access_list
 
     def __get_question_set_correct_answers_percentage(self, question_set, student):
@@ -452,7 +452,7 @@ class StudentLinkedAssessmentsSerializer(serializers.ModelSerializer):
 
         end_time = time.perf_counter()
         execution_time = end_time - start_time
-        print(f"The execution time of __get_question_set_correct_answers_percentage is: {execution_time}")
+        #print(f"The execution time of __get_question_set_correct_answers_percentage is: {execution_time}")
         return min(correct_answers_percentage, 100.0)
 
     # to investigate
@@ -1578,9 +1578,7 @@ class GroupTableSerializer(serializers.ModelSerializer):
                 assessments_id = QuestionSet.objects.filter(pk__in=question_sets).values_list('assessment', flat=True).distinct()
                 assessments = Assessment.objects.filter(id__in=assessments_id)
                 assessments_average = []
-                assessment_results = AssessmentTableSerializer(assessments, many=True).data
-                for assessment_result in assessment_results:
-                    assessments_average.append(assessment_result['score'])
+                assessments_average = calculate_assessments_score(assessments)
                 self.assessments_average = assessments_average
                 self.instance_average_name = instance.name
                 end_time = time.perf_counter()
@@ -1611,15 +1609,11 @@ class GroupTableSerializer(serializers.ModelSerializer):
         students = User.objects.filter(group=instance)
         score_list = []
         for student in students:
-            assessments = Assessment.objects.filter(
+            assessments = list(Assessment.objects.filter(
                 questionset__questionsetaccess__student=student
-            ).distinct()
+            ).distinct().values_list('id', flat=True))
             for assessment in assessments:
-                assessments_user_data = StudentLinkedAssessmentsSerializer(
-                    assessment, many=False,
-                    context={'student_pk': int(student.id)}
-                ).data
-                assessment_result = assessments_user_data['student_score']
+                assessment_result = calculate_student_score(assessment, student.id)
                 if assessment_result and assessment_result > 0:
                     score_list.append(assessment_result)
         if len(score_list):
@@ -1637,16 +1631,12 @@ class GroupTableSerializer(serializers.ModelSerializer):
             students = User.objects.filter(grade=grade)
             score_list = []
             for student in students:
-                assessments = Assessment.objects.filter(
+                assessments = list(Assessment.objects.filter(
                     grade=grade,
                     questionset__questionsetaccess__student=student
-                ).distinct()
+                ).distinct().values_list('id', flat=True))
                 for assessment in assessments:
-                    assessments_user_data = StudentLinkedAssessmentsSerializer(
-                        assessment, many=False,
-                        context={'student_pk': int(student.id)}
-                    ).data
-                    assessment_result = assessments_user_data['student_score']
+                    assessment_result = calculate_student_score(assessment, student.id)
                     if assessment_result and assessment_result > 0:
                         score_list.append(assessment_result)
             if len(score_list) > 0:
