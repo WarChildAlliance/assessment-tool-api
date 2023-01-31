@@ -8,10 +8,12 @@ from django.db.models.functions import Lower
 from django.db.models import Q
 
 from users.models import User, Group
-from visualization.serializers import GroupTableSerializer, StudentLinkedAssessmentsSerializer, UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, QuestionSetTableSerializer, AssessmentAnswerTableSerializer, QuestionSetAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, AbstractAnswerTableSerializer, AnswerInputTableSerializer, AnswerNumberLineTableSerializer, AnswerSelectTableSerializer, AnswerSortTableSerializer, QuestionDetailsTableSerializer, ScoreByQuestionSetSerializer, AssessmentListForDashboardSerializer, QuestionSetLisForDashboardSerializer, QuestionOverviewSerializer, StudentsByQuestionSetAccessSerializer, StudentAnswersSerializer
+from visualization.serializers import GroupTableSerializer, StudentLinkedAssessmentsSerializer, UserTableSerializer, AssessmentTableSerializer, QuestionTableSerializer, QuestionSetTableSerializer, AssessmentAnswerTableSerializer, QuestionSetAnswerTableSerializer, QuestionAnswerTableSerializer, AnswerTableSerializer, QuestionDetailsTableSerializer, ScoreByQuestionSetSerializer, AssessmentListForDashboardSerializer, QuestionSetLisForDashboardSerializer, QuestionOverviewSerializer, StudentsByQuestionSetAccessSerializer, StudentAnswersSerializer
 from assessments.models import Assessment, QuestionSet, Question, QuestionSetAccess
-from answers.models import QuestionSetAnswer, AnswerSession, Answer, AnswerInput, AnswerNumberLine, AnswerSelect, AnswerSort
+from answers.models import Answer
 from admin.lib.viewsets import ModelViewSet
+from .utils import calculate_student_score
+
 
 
 class UserTableViewSet(ModelViewSet):
@@ -29,7 +31,13 @@ class UserTableViewSet(ModelViewSet):
         """
         Queryset to get allowed users.
         """
-        users = User.objects.filter(created_by=self.request.user, role=User.UserRole.STUDENT)
+        users = User.objects.filter(
+            created_by=self.request.user, role=User.UserRole.STUDENT
+        ).select_related(
+            'group', 'country', 'language'
+        ).prefetch_related(
+            'answersession_set', 'profile_set'
+        )
 
         language = self.request.query_params.get('language')
         if language:
@@ -134,15 +142,14 @@ class AssessmentTableViewSet(ModelViewSet):
 
         return assessments
 
+    
     def list(self, request, *args, **kwargs):
-
         serializer = AssessmentTableSerializer(
             self.get_queryset(), many=True,
             context={
                 'supervisor': self.request.user
             }
         )
-
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
@@ -605,4 +612,6 @@ class GroupTableViewSet(ModelViewSet):
     serializer_class = GroupTableSerializer
 
     def get_queryset(self):
-        return Group.objects.filter(supervisor=self.request.user)
+        return Group.objects.filter(
+            supervisor=self.request.user
+        ).prefetch_related('student_group')
