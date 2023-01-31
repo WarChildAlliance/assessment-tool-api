@@ -30,7 +30,7 @@ def get_question_set_correct_answers_percentage(question_set):
 
 def calculate_student_score(assessment, student_pk):
         question_set_accesses = QuestionSetAccess.objects.filter(
-            question_set__assessment__id=assessment,
+            question_set__assessment=assessment,
             student__id=student_pk
         )
         student_score = None
