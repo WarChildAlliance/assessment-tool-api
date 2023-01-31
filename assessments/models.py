@@ -95,6 +95,8 @@ class Assessment(models.Model):
         self.icon.delete()
         super().delete(*args, **kwargs)
 
+        
+
 
 class QuestionSet(models.Model):
     """
