@@ -167,12 +167,6 @@ class AssessmentTableSerializer(serializers.ModelSerializer):
 
         return score
 
-    def get_student_score(self, obj):
-        student_scores = self.context.get('student_scores', {})
-        assessment_pk = obj.pk
-        student_score = next((score['student_score'] for score in student_scores if score['question_set_access__question_set'] == assessment_pk), None)
-        return student_score
-
 class UserTableSerializer(serializers.ModelSerializer):
     """
     Users table serializer.
