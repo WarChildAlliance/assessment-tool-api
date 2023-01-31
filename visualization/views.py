@@ -140,12 +140,6 @@ class AssessmentTableViewSet(ModelViewSet):
         if learning_objectives:
             assessments = assessments.filter(questionset__learning_objective__in=learning_objectives).distinct()
 
-        # student_scores calculation
-        student_pk = self.request.user.id
-        student_scores = {}
-        for assessment in assessments:
-            student_score = calculate_student_score(assessment, student_pk)
-            student_scores[assessment.id] = student_score
         return assessments
 
     
@@ -153,8 +147,7 @@ class AssessmentTableViewSet(ModelViewSet):
         serializer = AssessmentTableSerializer(
             self.get_queryset(), many=True,
             context={
-                'supervisor': self.request.user,
-                'student_scores': self.student_scores
+                'supervisor': self.request.user
             }
         )
         return Response(serializer.data)
